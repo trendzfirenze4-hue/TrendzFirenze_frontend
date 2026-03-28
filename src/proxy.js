@@ -1,11 +1,41 @@
+// import { NextResponse } from "next/server";
+
+// export function proxy(request) {
+
+//   const token = request.cookies.get("token")?.value;
+//   const { pathname } = request.nextUrl;
+
+//   // protected routes
+//   const protectedRoutes = ["/admin", "/account", "/checkout"];
+
+//   const isProtected = protectedRoutes.some((route) =>
+//     pathname.startsWith(route)
+//   );
+
+//   if (isProtected && !token) {
+//     return NextResponse.redirect(new URL("/login", request.url));
+//   }
+
+//   return NextResponse.next();
+// }
+
+// export const config = {
+//   matcher: [
+//     "/admin/:path*",
+//     "/account/:path*",
+//     "/checkout/:path*"
+//   ]
+// };
+
+
+
+
 import { NextResponse } from "next/server";
 
 export function proxy(request) {
-
   const token = request.cookies.get("token")?.value;
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
 
-  // protected routes
   const protectedRoutes = ["/admin", "/account", "/checkout"];
 
   const isProtected = protectedRoutes.some((route) =>
@@ -13,7 +43,9 @@ export function proxy(request) {
   );
 
   if (isProtected && !token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", `${pathname}${search}`);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
@@ -23,6 +55,6 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/account/:path*",
-    "/checkout/:path*"
-  ]
+    "/checkout/:path*",
+  ],
 };
