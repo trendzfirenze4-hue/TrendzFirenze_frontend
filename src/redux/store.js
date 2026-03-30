@@ -15,7 +15,7 @@ import adminProductsReducer from "@/features/adminProducts/adminProductSlice";
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-     categories: categoryReducer,
+    categories: categoryReducer,
     products: productReducer,
     upload: uploadReducer,
     user: userReducer,
