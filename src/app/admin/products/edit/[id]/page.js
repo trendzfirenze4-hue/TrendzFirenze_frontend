@@ -7,7 +7,9 @@ import { useRouter, useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import api from "@/lib/apiClient";
 
-import { fetchCategories } from "@/features/categories/categorySlice";
+import { fetchAdminCategories } from "@/features/categories/categorySlice";
+
+
 import {
   updateProduct,
   addProductReview,
@@ -49,7 +51,7 @@ export default function EditProductPage() {
   const [editingReviewId, setEditingReviewId] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchCategories());
+    dispatch(fetchAdminCategories());
   }, [dispatch]);
 
   useEffect(() => {
