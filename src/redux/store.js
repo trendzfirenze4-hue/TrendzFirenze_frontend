@@ -8,6 +8,9 @@ import cartReducer from "@/features/cart/cartSlice";
 import addressReducer from "@/features/address/addressSlice";
 import orderReducer from "@/features/orders/orderSlice";
 import adminProductsReducer from "@/features/adminProducts/adminProductSlice";
+import giftBoxReducer from "@/features/giftBoxes/giftBoxSlice";
+import giftSetReducer from "@/features/giftSet/giftSetSlice";
+
 
 
 
@@ -23,5 +26,9 @@ export const store = configureStore({
     address: addressReducer,
     orders: orderReducer,
     adminProducts: adminProductsReducer,
+
+    giftBoxes: giftBoxReducer,
+    giftSet: giftSetReducer,
+    
   },
 });

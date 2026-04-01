@@ -62,7 +62,7 @@ export default function HeroCarousel() {
   return (
     <section className="relative w-full overflow-hidden bg-white">
       <div className="relative mx-auto max-w-[1600px]">
-        <div className="relative h-[180px] w-full sm:h-[230px] md:h-[300px] lg:h-[360px] xl:h-[420px]">
+        <div className="relative h-[250px] w-full sm:h-[320px] md:h-[420px] lg:h-[520px] xl:h-[650px] 2xl:h-[750px]">
           {slides.map((slide, index) => {
             const isActive = activeIndex === index;
 

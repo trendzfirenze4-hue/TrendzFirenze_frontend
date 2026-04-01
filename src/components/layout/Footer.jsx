@@ -7,19 +7,15 @@ import { FaXTwitter } from "react-icons/fa6";
 const customerServiceLinks = [
   { label: "My Account", href: "/account" },
   { label: "My Orders", href: "/account/orders" },
-  { label: "Track My Order", href: "/track-order" },
   { label: "Corporate/Bulk Orders", href: "/bulk-orders" },
   { label: "Returns & Exchanges", href: "/returns-exchanges" },
-  { label: "Warranty", href: "/warranty" },
   { label: "Contact Us", href: "/contact" },
-  { label: "Internal Product Issue", href: "/internal-product-issue" },
-  { label: "Tracker", href: "/tracker" },
+  
 ];
 
 const trendzWorldLinks = [
   { label: "About Us", href: "/about" },
   { label: "Blog", href: "/blog" },
-  { label: "Investors", href: "/investors" },
   { label: "Our Stores", href: "/stores" },
   { label: "Our Handbags", href: "/products" },
 ];
@@ -98,12 +94,10 @@ export default function Footer() {
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[11px] uppercase tracking-[0.14em] text-[#666666]">
-              © 2026 - TRENDZ WORLD
+              © 2026 - Trendz Firenze
             </p>
 
-            <p className="text-[11px] text-[#7a7a7a] sm:text-[12px]">
-              Crafted for modern style, everyday luxury, and timeless elegance.
-            </p>
+           
           </div>
         </div>
       </div>

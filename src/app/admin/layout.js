@@ -44,6 +44,8 @@ export default function AdminLayout({ children }) {
 
             <Link href="/admin/products">Products</Link>
 
+            <Link href="/admin/gift-boxes/list">Gift Boxes</Link>
+
             <Link href="/admin/orders">Orders</Link>
 
             <Link href="/admin/users">Users</Link>

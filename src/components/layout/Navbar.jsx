@@ -45,9 +45,8 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { href: "/new-arrivals", label: "NEW ARRIVALS" },
+    { href: "/", label: "Home" },
     { href: "/bestsellers", label: "BESTSELLERS" },
-    { href: "/shop-by-category", label: "SHOP BY CATEGORY" },
     { href: "/giftsets", label: "GIFTSETS" },
   ];
 
