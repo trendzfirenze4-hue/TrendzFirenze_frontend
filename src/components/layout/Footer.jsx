@@ -93,9 +93,9 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[11px] uppercase tracking-[0.14em] text-[#666666]">
-              © 2026 - Trendz Firenze
-            </p>
+            <p className="text-[12px] tracking-[0.08em] text-[#666666] font-medium">
+  © 2026 — Trendz Firenze
+</p>
 
            
           </div>
