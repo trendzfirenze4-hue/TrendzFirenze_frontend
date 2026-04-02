@@ -13,7 +13,7 @@ import { fetchProducts } from "@/features/products/productSlice";
 import { getPublicCategoriesApi } from "@/features/categories/categoryApi";
 
 import HeroCarousel from "@/components/home/HeroCarousel";
-import HeroSection from "@/components/home/HeroSection";
+import DiscountTicker from "@/components/home/DiscountTicker";
 import CategorySection from "@/components/home/CategorySection";
 import BestSellerSection from "@/components/home/BestSellerSection";
 import NewArrivalSection from "@/components/home/NewArrivalSection";
@@ -72,6 +72,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-white text-[#111111]">
       <HeroCarousel />
+      <DiscountTicker/>
       {/* <HeroSection /> */}
       {/* <CategorySection
         categories={categories}
@@ -82,7 +83,7 @@ export default function HomePage() {
       {/* <NewArrivalSection products={newArrivals} /> */}
       <BrandStorySection />
       <FeaturedBanner />
-      <TrustSection />
+      {/* <TrustSection /> */}
       <TestimonialSection />
       <InstagramSection />
       <NewsletterSection />

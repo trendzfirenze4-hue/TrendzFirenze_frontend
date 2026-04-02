@@ -29,10 +29,10 @@ const policyLinks = [
 ];
 
 const socialLinks = [
-  { icon: FaFacebookF, href: "https://facebook.com", label: "Facebook" },
-  { icon: FaXTwitter, href: "https://x.com", label: "X" },
-  { icon: FaInstagram, href: "https://instagram.com", label: "Instagram" },
-  { icon: FaYoutube, href: "https://youtube.com", label: "YouTube" },
+  { icon: FaFacebookF, href: "https://www.facebook.com/trendzfirenze", label: "Facebook" },
+  { icon: FaXTwitter, href: "https://x.com/trendzfirenze", label: "X" },
+  { icon: FaInstagram, href: "https://www.instagram.com/trendzfirenze/", label: "Instagram" },
+  { icon: FaYoutube, href: "https://www.youtube.com/@trendzfirenze", label: "YouTube" },
 ];
 
 function FooterColumn({ title, links }) {

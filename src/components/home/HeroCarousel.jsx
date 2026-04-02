@@ -1,3 +1,420 @@
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import Link from "next/link";
+
+// const slides = [
+//   {
+//     id: 1,
+//     image: "/images/banners/banner-1.png",
+//     alt: "Signature premium bags banner",
+//     eyebrow: "Signature Collection",
+//     title: "Premium Bags",
+//     offer: "Upto 50% Off",
+//     buttonText: "Shop Now",
+//     buttonLink: "/products",
+//   },
+//   {
+//     id: 2,
+//     image: "/images/banners/banner-2.png",
+//     alt: "Luxury handbags banner",
+//     eyebrow: "New Arrival",
+//     title: "Luxury Handbags",
+//     offer: "Elegant Everyday Styles",
+//     buttonText: "Explore Collection",
+//     buttonLink: "/categories",
+//   },
+//   {
+//     id: 3,
+//     image: "/images/banners/banner-3.png",
+//     alt: "Trending handbags sale banner",
+//     eyebrow: "Trending Now",
+//     title: "Office to Evening",
+//     offer: "Shop Premium Picks",
+//     buttonText: "View Products",
+//     buttonLink: "/products",
+//   },
+// ];
+
+// export default function HeroCarousel() {
+//   const [activeIndex, setActiveIndex] = useState(0);
+
+//   useEffect(() => {
+//     const timer = setInterval(() => {
+//       setActiveIndex((prev) => (prev + 1) % slides.length);
+//     }, 5000);
+
+//     return () => clearInterval(timer);
+//   }, []);
+
+//   const goToSlide = (index) => {
+//     setActiveIndex(index);
+//   };
+
+//   const prevSlide = () => {
+//     setActiveIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+//   };
+
+//   const nextSlide = () => {
+//     setActiveIndex((prev) => (prev + 1) % slides.length);
+//   };
+
+//   return (
+//     <section className="relative w-full overflow-hidden bg-white">
+//       <div className="relative mx-auto max-w-[1600px]">
+        
+//         <div className="relative h-[180px] w-full sm:h-[230px] md:h-[300px] lg:h-[460px] xl:h-[420px]">
+//           {slides.map((slide, index) => {
+//             const isActive = activeIndex === index;
+
+//             return (
+//               <div
+//                 key={slide.id}
+//                 className={`absolute inset-0 transition-all duration-1000 ease-out ${
+//                   isActive
+//                     ? "z-10 opacity-100"
+//                     : "pointer-events-none z-0 opacity-0"
+//                 }`}
+//               >
+//                 <img
+//                   src={slide.image}
+//                   alt={slide.alt}
+//                   className={`h-full w-full object-cover transition-transform duration-[7000ms] ease-out ${
+//                     isActive ? "scale-110" : "scale-100"
+//                   }`}
+//                 />
+
+//                 <div className="absolute inset-0 bg-black/25" />
+//                 <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/20 to-black/10" />
+//                 <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/5" />
+
+//                 <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-10">
+//                   <div
+//                     className={`max-w-[650px] text-center text-white transition-all duration-1000 ${
+//                       isActive
+//                         ? "translate-y-0 opacity-100"
+//                         : "translate-y-8 opacity-0"
+//                     }`}
+//                   >
+//                     <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.32em] text-white/85 sm:text-xs md:text-sm">
+//                       {slide.eyebrow}
+//                     </p>
+
+//                     <h2 className="text-[20px] font-light uppercase tracking-[0.14em] sm:text-[28px] md:text-[38px] lg:text-[50px] xl:text-[56px]">
+//                       {slide.title}
+//                     </h2>
+
+//                     <div
+//                       className={`mx-auto mt-3 h-[2px] bg-white/80 transition-all duration-1000 ${
+//                         isActive ? "w-20 sm:w-24" : "w-0"
+//                       }`}
+//                     />
+
+//                     <p className="mt-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-white/90 sm:text-[16px] md:text-[22px] lg:text-[24px]">
+//                       {slide.offer}
+//                     </p>
+
+//                     <div className="mt-6 flex items-center justify-center">
+//                       <Link
+//                         href={slide.buttonLink}
+//                         className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-white/40 bg-white/10 px-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-md transition duration-300 hover:scale-105 hover:bg-white hover:text-black sm:min-h-[46px] sm:px-8"
+//                       >
+//                         {slide.buttonText}
+//                       </Link>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+//             );
+//           })}
+
+//           <button
+//             type="button"
+//             onClick={prevSlide}
+//             aria-label="Previous slide"
+//             className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition duration-300 hover:scale-110 hover:bg-white hover:text-black sm:left-5 sm:h-11 sm:w-11"
+//           >
+//             ‹
+//           </button>
+
+//           <button
+//             type="button"
+//             onClick={nextSlide}
+//             aria-label="Next slide"
+//             className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition duration-300 hover:scale-110 hover:bg-white hover:text-black sm:right-5 sm:h-11 sm:w-11"
+//           >
+//             ›
+//           </button>
+
+//           <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 sm:bottom-6">
+//             {slides.map((slide, index) => (
+//               <button
+//                 key={slide.id}
+//                 type="button"
+//                 onClick={() => goToSlide(index)}
+//                 aria-label={`Go to slide ${index + 1}`}
+//                 className={`relative h-2 overflow-hidden rounded-full transition-all duration-300 ${
+//                   activeIndex === index
+//                     ? "w-10 bg-white/35"
+//                     : "w-2 bg-white/40 hover:bg-white/60"
+//                 }`}
+//               >
+//                 {activeIndex === index && (
+//                   <span className="absolute left-0 top-0 h-full w-full animate-[progress_5s_linear_forwards] rounded-full bg-white" />
+//                 )}
+//               </button>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+
+//       <style jsx>{`
+//         @keyframes progress {
+//           from {
+//             transform: translateX(-100%);
+//           }
+//           to {
+//             transform: translateX(0%);
+//           }
+//         }
+//       `}</style>
+//     </section>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import Link from "next/link";
+
+// const slides = [
+//   {
+//     id: 1,
+//     image: "/images/banners/banner-1.png",
+//     alt: "Signature premium bags banner",
+//     eyebrow: "Signature Collection",
+//     title: "Premium Bags",
+//     offer: "Upto 50% Off",
+//     buttonText: "Shop Now",
+//     buttonLink: "/products",
+//   },
+//   {
+//     id: 2,
+//     image: "/images/banners/banner-2.png",
+//     alt: "Luxury handbags banner",
+//     eyebrow: "New Arrival",
+//     title: "Luxury Handbags",
+//     offer: "Elegant Everyday Styles",
+//     buttonText: "Explore Collection",
+//     buttonLink: "/categories",
+//   },
+//   {
+//     id: 3,
+//     image: "/images/banners/banner-3.png",
+//     alt: "Trending handbags sale banner",
+//     eyebrow: "Trending Now",
+//     title: "Office to Evening",
+//     offer: "Shop Premium Picks",
+//     buttonText: "View Products",
+//     buttonLink: "/products",
+//   },
+// ];
+
+// export default function HeroCarousel() {
+//   const [activeIndex, setActiveIndex] = useState(0);
+
+//   useEffect(() => {
+//     const timer = setInterval(() => {
+//       setActiveIndex((prev) => (prev + 1) % slides.length);
+//     }, 5000);
+
+//     return () => clearInterval(timer);
+//   }, []);
+
+//   const goToSlide = (index) => {
+//     setActiveIndex(index);
+//   };
+
+//   const prevSlide = () => {
+//     setActiveIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+//   };
+
+//   const nextSlide = () => {
+//     setActiveIndex((prev) => (prev + 1) % slides.length);
+//   };
+
+//   return (
+//     <section className="relative w-full overflow-hidden bg-white">
+//       <div className="relative mx-auto max-w-[1600px]">
+//         <div className="relative h-[250px] w-full sm:h-[320px] md:h-[420px] lg:h-[520px] xl:h-[650px] 2xl:h-[750px]">
+//           {slides.map((slide, index) => {
+//             const isActive = activeIndex === index;
+
+//             return (
+//               <div
+//                 key={slide.id}
+//                 className={`absolute inset-0 transition-all duration-1000 ease-out ${
+//                   isActive
+//                     ? "z-10 opacity-100"
+//                     : "pointer-events-none z-0 opacity-0"
+//                 }`}
+//               >
+//                 <img
+//                   src={slide.image}
+//                   alt={slide.alt}
+//                   className={`h-full w-full object-cover transition-transform duration-[7000ms] ease-out ${
+//                     isActive ? "scale-110" : "scale-100"
+//                   }`}
+//                 />
+
+//                 <div className="absolute inset-0 bg-black/25" />
+//                 <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/20 to-black/10" />
+//                 <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/5" />
+
+//                 <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-10">
+//                   <div
+//                     className={`max-w-[650px] text-center text-white transition-all duration-1000 ${
+//                       isActive
+//                         ? "translate-y-0 opacity-100"
+//                         : "translate-y-8 opacity-0"
+//                     }`}
+//                   >
+//                     <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.32em] text-white/85 sm:text-xs md:text-sm">
+//                       {slide.eyebrow}
+//                     </p>
+
+//                     <h2 className="text-[20px] font-light uppercase tracking-[0.14em] sm:text-[28px] md:text-[38px] lg:text-[50px] xl:text-[56px]">
+//                       {slide.title}
+//                     </h2>
+
+//                     <div
+//                       className={`mx-auto mt-3 h-[2px] bg-white/80 transition-all duration-1000 ${
+//                         isActive ? "w-20 sm:w-24" : "w-0"
+//                       }`}
+//                     />
+
+//                     <p className="mt-4 text-[12px] font-semibold uppercase tracking-[0.18em] text-white/90 sm:text-[16px] md:text-[22px] lg:text-[24px]">
+//                       {slide.offer}
+//                     </p>
+
+//                     <div className="mt-6 flex items-center justify-center">
+//                       <Link
+//                         href={slide.buttonLink}
+//                         className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-white/40 bg-white/10 px-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-md transition duration-300 hover:scale-105 hover:bg-white hover:text-black sm:min-h-[46px] sm:px-8"
+//                       >
+//                         {slide.buttonText}
+//                       </Link>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+//             );
+//           })}
+
+//           <button
+//             type="button"
+//             onClick={prevSlide}
+//             aria-label="Previous slide"
+//             className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition duration-300 hover:scale-110 hover:bg-white hover:text-black sm:left-5 sm:h-11 sm:w-11"
+//           >
+//             ‹
+//           </button>
+
+//           <button
+//             type="button"
+//             onClick={nextSlide}
+//             aria-label="Next slide"
+//             className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition duration-300 hover:scale-110 hover:bg-white hover:text-black sm:right-5 sm:h-11 sm:w-11"
+//           >
+//             ›
+//           </button>
+
+//           <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 sm:bottom-6">
+//             {slides.map((slide, index) => (
+//               <button
+//                 key={slide.id}
+//                 type="button"
+//                 onClick={() => goToSlide(index)}
+//                 aria-label={`Go to slide ${index + 1}`}
+//                 className={`relative h-2 overflow-hidden rounded-full transition-all duration-300 ${
+//                   activeIndex === index
+//                     ? "w-10 bg-white/35"
+//                     : "w-2 bg-white/40 hover:bg-white/60"
+//                 }`}
+//               >
+//                 {activeIndex === index && (
+//                   <span className="absolute left-0 top-0 h-full w-full animate-[progress_5s_linear_forwards] rounded-full bg-white" />
+//                 )}
+//               </button>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+
+//       <style jsx>{`
+//         @keyframes progress {
+//           from {
+//             transform: translateX(-100%);
+//           }
+//           to {
+//             transform: translateX(0%);
+//           }
+//         }
+//       `}</style>
+//     </section>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -39,6 +456,9 @@ const slides = [
 export default function HeroCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // 🔥 CHANGE HEIGHT ONLY HERE
+  const bannerHeight = "430px";
+
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % slides.length);
@@ -47,12 +467,12 @@ export default function HeroCarousel() {
     return () => clearInterval(timer);
   }, []);
 
-  const goToSlide = (index) => {
-    setActiveIndex(index);
-  };
+  const goToSlide = (index) => setActiveIndex(index);
 
   const prevSlide = () => {
-    setActiveIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    setActiveIndex((prev) =>
+      prev === 0 ? slides.length - 1 : prev - 1
+    );
   };
 
   const nextSlide = () => {
@@ -61,32 +481,39 @@ export default function HeroCarousel() {
 
   return (
     <section className="relative w-full overflow-hidden bg-white">
-      <div className="relative mx-auto max-w-[1600px]">
-        <div className="relative h-[250px] w-full sm:h-[320px] md:h-[420px] lg:h-[520px] xl:h-[650px] 2xl:h-[750px]">
+      <div className="relative w-full">
+
+        {/* ✅ FIXED HEIGHT */}
+        <div
+          className="relative w-full"
+          style={{ height: bannerHeight }}
+        >
           {slides.map((slide, index) => {
             const isActive = activeIndex === index;
 
             return (
               <div
                 key={slide.id}
-                className={`absolute inset-0 transition-all duration-1000 ease-out ${
+                className={`absolute inset-0 transition-all duration-1000 ${
                   isActive
                     ? "z-10 opacity-100"
                     : "pointer-events-none z-0 opacity-0"
                 }`}
               >
+                {/* IMAGE */}
                 <img
                   src={slide.image}
                   alt={slide.alt}
-                  className={`h-full w-full object-cover transition-transform duration-[7000ms] ease-out ${
-                    isActive ? "scale-110" : "scale-100"
+                  className={`h-full w-full object-cover object-center transition-transform duration-[7000ms] ${
+                    isActive ? "scale-105" : "scale-100"
                   }`}
                 />
 
+                {/* OVERLAY */}
                 <div className="absolute inset-0 bg-black/25" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/20 to-black/10" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/5" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/10" />
 
+                {/* CONTENT */}
                 <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-10">
                   <div
                     className={`max-w-[650px] text-center text-white transition-all duration-1000 ${
@@ -127,56 +554,41 @@ export default function HeroCarousel() {
             );
           })}
 
+          {/* LEFT */}
           <button
             type="button"
             onClick={prevSlide}
-            aria-label="Previous slide"
-            className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition duration-300 hover:scale-110 hover:bg-white hover:text-black sm:left-5 sm:h-11 sm:w-11"
+            className="absolute left-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md hover:bg-white hover:text-black"
           >
             ‹
           </button>
 
+          {/* RIGHT */}
           <button
             type="button"
             onClick={nextSlide}
-            aria-label="Next slide"
-            className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md transition duration-300 hover:scale-110 hover:bg-white hover:text-black sm:right-5 sm:h-11 sm:w-11"
+            className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white backdrop-blur-md hover:bg-white hover:text-black"
           >
             ›
           </button>
 
-          <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 sm:bottom-6">
-            {slides.map((slide, index) => (
+          {/* DOTS */}
+          <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
+            {slides.map((_, index) => (
               <button
-                key={slide.id}
-                type="button"
+                key={index}
                 onClick={() => goToSlide(index)}
-                aria-label={`Go to slide ${index + 1}`}
-                className={`relative h-2 overflow-hidden rounded-full transition-all duration-300 ${
+                className={`h-2 rounded-full transition-all ${
                   activeIndex === index
-                    ? "w-10 bg-white/35"
-                    : "w-2 bg-white/40 hover:bg-white/60"
+                    ? "w-10 bg-white"
+                    : "w-2 bg-white/50"
                 }`}
-              >
-                {activeIndex === index && (
-                  <span className="absolute left-0 top-0 h-full w-full animate-[progress_5s_linear_forwards] rounded-full bg-white" />
-                )}
-              </button>
+              />
             ))}
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes progress {
-          from {
-            transform: translateX(-100%);
-          }
-          to {
-            transform: translateX(0%);
-          }
-        }
-      `}</style>
     </section>
   );
 }
+
