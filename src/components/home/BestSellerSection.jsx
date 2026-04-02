@@ -1,9 +1,93 @@
+
+
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { FiChevronDown } from "react-icons/fi";
 import ProductCard from "./ProductCard";
 
 export default function BestSellerSection({ products = [] }) {
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState("");
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function fetchCategories() {
+      try {
+        setLoadingCategories(true);
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE || ""}/api/categories`,
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+
+        const data = await res.json();
+
+        const normalized = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.content)
+          ? data.content
+          : Array.isArray(data?.data)
+          ? data.data
+          : [];
+
+        if (!ignore) {
+          setCategories(normalized);
+        }
+      } catch (error) {
+        console.error("Category fetch error:", error);
+        if (!ignore) {
+          setCategories([]);
+        }
+      } finally {
+        if (!ignore) {
+          setLoadingCategories(false);
+        }
+      }
+    }
+
+    fetchCategories();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const filteredProducts = useMemo(() => {
+    if (!categoryId) return products;
+
+    const selectedId = Number(categoryId);
+
+    const selectedCategory = categories.find(
+      (c) => Number(c.id) === selectedId
+    );
+
+    return products.filter((product) => {
+      if (Number(product.categoryId) === selectedId) return true;
+      if (Number(product.category?.id) === selectedId) return true;
+
+      if (
+        selectedCategory &&
+        typeof product.category === "string" &&
+        product.category.trim().toLowerCase() ===
+          selectedCategory.name.trim().toLowerCase()
+      ) {
+        return true;
+      }
+
+      return false;
+    });
+  }, [products, categoryId, categories]);
+
   return (
     <section className="relative overflow-hidden bg-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,0,0,0.03),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(0,0,0,0.04),transparent_34%)]" />
@@ -31,14 +115,52 @@ export default function BestSellerSection({ products = [] }) {
           </Link>
         </div>
 
-        {products.length === 0 ? (
+        <div className="mb-8 sm:mb-10">
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="animate-[fadeUp_0.8s_ease-out]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
+                Shop by Category
+              </p>
+
+              <h3 className="mt-3 text-[24px] font-semibold tracking-[-0.03em] text-[#111111] sm:text-[30px]">
+                Find your signature style
+              </h3>
+            </div>
+
+            <div className="relative w-full animate-[fadeUp_0.9s_ease-out] sm:w-[260px]">
+              <select
+                value={categoryId}
+                onChange={(e) =>
+                  setCategoryId(e.target.value ? Number(e.target.value) : "")
+                }
+                className="h-[50px] w-full appearance-none rounded-full border border-neutral-300 bg-white pl-5 pr-12 text-[14px] text-[#111111] outline-none transition-all duration-300 focus:border-neutral-500 focus:shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+              >
+                <option value="">
+                  {loadingCategories ? "Loading..." : "All Categories"}
+                </option>
+
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+
+              <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-neutral-500">
+                <FiChevronDown size={16} />
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {filteredProducts.length === 0 ? (
           <div className="animate-[fadeUp_0.8s_ease-out] rounded-[24px] border border-neutral-200 bg-[#fafafa] px-6 py-14 text-center text-[15px] text-neutral-500 shadow-[0_12px_30px_rgba(0,0,0,0.03)]">
             No products found.
           </div>
         ) : (
           <>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product, index) => (
+              {filteredProducts.map((product, index) => (
                 <div
                   key={product.id}
                   className="animate-[fadeUp_0.8s_ease-out]"
