@@ -1,95 +1,150 @@
 import Link from "next/link";
 import {
-  FiTruck,
-  FiClock,
-  FiGlobe,
+  FiFileText,
+  FiSettings,
+  FiBox,
+  FiShoppingBag,
   FiCreditCard,
-  FiPackage,
+  FiTruck,
+  FiRefreshCcw,
+  FiShield,
+  FiAlertCircle,
+  FiMail,
+  FiPhone,
   FiArrowRight,
 } from "react-icons/fi";
 
 export const metadata = {
-  title: "Shipping Policy | Trendz Firenze",
+  title: "Terms of Service | Trendz Firenze",
   description:
-    "Read the Trendz Firenze shipping policy, including processing time, delivery timelines, shipping charges, and order tracking information.",
+    "Read the Trendz Firenze Terms of Service covering website usage, products, pricing, orders, payments, shipping, refunds, intellectual property, and liability.",
 };
 
-const shippingSections = [
+const serviceSections = [
   {
-    icon: FiGlobe,
-    title: "Shipping Coverage",
-    items: ["We ship across India and internationally."],
-  },
-  {
-    icon: FiClock,
-    title: "Order Processing",
-    items: ["Orders are processed within 24-48 hours."],
-  },
-  {
-    icon: FiTruck,
-    title: "Delivery Time",
+    icon: FiSettings,
+    title: "General",
     items: [
-      "India: 3-7 business days",
-      "International: 7-15 business days (depending on destination & customs)",
+      "Trendz Firenze reserves the right to update or modify these terms at any time",
+      "Continued use of the website constitutes acceptance of updated terms",
+    ],
+  },
+  {
+    icon: FiBox,
+    title: "Products & Pricing",
+    items: [
+      "All products are subject to availability",
+      "Prices may change without prior notice",
+      "We strive for accuracy but do not guarantee that product descriptions or images are error-free",
+    ],
+  },
+  {
+    icon: FiShoppingBag,
+    title: "Orders",
+    items: [
+      "We reserve the right to accept or cancel any order",
+      "Orders may be canceled due to product unavailability",
+      "Orders may be canceled due to pricing errors",
+      "Orders may be canceled due to suspicious or fraudulent activity",
     ],
   },
   {
     icon: FiCreditCard,
-    title: "Shipping Charges",
+    title: "Payments",
     items: [
-      "Free shipping on selected orders",
-      "Shipping charges (if applicable) will be clearly displayed at checkout",
-      "International shipping charges may vary based on location and weight",
+      "We accept multiple payment methods including online payments and Cash on Delivery (COD)",
+      "All transactions are processed securely",
+    ],
+  },
+  {
+    icon: FiTruck,
+    title: "Shipping",
+    items: [
+      "Shipping timelines are estimates and may vary due to external factors",
+      "Delays caused by courier partners or unforeseen circumstances are not the responsibility of Trendz Firenze",
+    ],
+  },
+  {
+    icon: FiRefreshCcw,
+    title: "Returns & Refunds",
+    items: [
+      "Returns and refunds are governed by our Refund Policy",
+      "Customers must follow the defined process for eligibility",
+    ],
+  },
+  {
+    icon: FiShield,
+    title: "Intellectual Property",
+    items: [
+      "All content on this website (images, logos, text, designs) is the property of Trendz Firenze",
+      "Unauthorized use or reproduction is strictly prohibited",
+    ],
+  },
+  {
+    icon: FiAlertCircle,
+    title: "Limitation of Liability",
+    items: [
+      "Trendz Firenze shall not be liable for any indirect or incidental damages arising from the use of our website or products",
     ],
   },
 ];
 
-const trackingPoints = [
-  "Tracking details will be shared via email/SMS once the order is shipped",
-  "Customers can track their order using the provided tracking link",
+const contactItems = [
+  {
+    icon: FiMail,
+    label: "Email Support",
+    value: "support@trendzfirenze.com",
+    href: "mailto:support@trendzfirenze.com",
+  },
+  {
+    icon: FiPhone,
+    label: "Phone Support",
+    value: "+91 91233 15539",
+    href: "tel:+919123315539",
+  },
 ];
 
-export default function ShippingPolicyPage() {
+export default function TermsOfServicePage() {
   return (
     <main className="bg-white text-[#111111]">
       <section className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div className="animate-[fadeUp_0.7s_ease-out]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7a7a7a]">
-              Shipping Policy
+              Terms of Service
             </p>
 
             <h1 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-[-0.03em] sm:text-5xl lg:text-6xl">
-              Shipping information.
+              Terms for using our website and services.
             </h1>
 
             <div className="mt-8 max-w-2xl space-y-5 text-[15px] leading-8 text-[#555555] sm:text-[16px]">
               <p>
-                We aim to provide a smooth and reliable delivery experience for
-                every order placed with Trendz Firenze.
+                Welcome to Trendz Firenze. By accessing or using our website, you
+                agree to comply with the following terms and conditions.
               </p>
 
               <p>
-                Below you’ll find details about shipping coverage, order
-                processing, estimated delivery timelines, shipping charges, and
-                tracking support.
+                These terms are intended to provide a clear framework for website
+                usage, purchases, payments, shipping, returns, and customer
+                responsibilities.
               </p>
             </div>
 
             <div className="mt-10 mb-14 flex flex-wrap gap-4 sm:mb-16">
               <Link
-                href="/products"
+                href="/contact"
                 className="inline-flex items-center justify-center rounded-full bg-[#111111] px-6 py-3 text-[14px] font-medium text-white transition hover:bg-[#222222]"
               >
-                Shop Collection
+                Contact Us
                 <FiArrowRight className="ml-2 text-[16px]" />
               </Link>
 
               <Link
-                href="/contact"
+                href="/refund-policy"
                 className="inline-flex items-center justify-center rounded-full border border-[#d9d9d9] px-6 py-3 text-[14px] font-medium text-[#111111] transition hover:bg-[#f8f8f8]"
               >
-                Contact Us
+                Refund Policy
               </Link>
             </div>
           </div>
@@ -97,27 +152,27 @@ export default function ShippingPolicyPage() {
           <div className="mt-6 lg:mt-0 animate-[fadeIn_0.9s_ease-out] rounded-[24px] border border-[#ececec] bg-[#fafafa] p-6 sm:p-8">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#111111] text-white">
-                <FiTruck className="text-[18px]" />
+                <FiFileText className="text-[18px]" />
               </div>
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7a7a7a]">
-                  Shipping Overview
+                  Service Overview
                 </p>
                 <p className="mt-1 text-[18px] font-semibold text-[#111111]">
-                  Clear delivery guidance
+                  Clear policies and fair use
                 </p>
               </div>
             </div>
 
             <div className="mt-6 space-y-4">
-              {shippingSections.map((section, index) => {
+              {serviceSections.map((section, index) => {
                 const Icon = section.icon;
 
                 return (
                   <div
                     key={section.title}
                     className="animate-[fadeUp_0.7s_ease-out] rounded-2xl border border-[#ededed] bg-white p-5"
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    style={{ animationDelay: `${index * 80}ms` }}
                   >
                     <div className="flex items-start gap-4">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#111111] text-white">
@@ -155,42 +210,48 @@ export default function ShippingPolicyPage() {
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="animate-[fadeUp_0.7s_ease-out]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7a7a7a]">
-                Order Tracking
+                Contact Information
               </p>
               <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.02em] text-[#111111]">
-                Stay updated after dispatch.
+                Questions about these terms?
               </h2>
               <p className="mt-4 max-w-xl text-[15px] leading-7 text-[#5a5a5a]">
-                Once your order is shipped, tracking details will be shared so
-                you can follow your delivery status with ease.
+                For any questions regarding these Terms of Service, you can reach
+                our support team through the contact details below.
               </p>
             </div>
 
             <div className="animate-[fadeIn_0.9s_ease-out] rounded-[24px] border border-[#ececec] bg-white p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#111111] text-white">
-                  <FiPackage className="text-[18px]" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a7a7a]">
-                    Tracking Information
-                  </p>
-                </div>
-              </div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a7a7a]">
+                Support Details
+              </p>
 
-              <div className="mt-5 grid gap-3">
-                {trackingPoints.map((item, index) => (
-                  <div
-                    key={item}
-                    className="animate-[fadeUp_0.7s_ease-out] flex items-start gap-3 rounded-2xl border border-[#ededed] bg-[#fafafa] px-4 py-4"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#111111] text-[12px] font-medium text-white">
-                      {index + 1}
-                    </span>
-                    <p className="text-[15px] leading-7 text-[#222222]">{item}</p>
-                  </div>
-                ))}
+              <div className="mt-5 space-y-3">
+                {contactItems.map((item, index) => {
+                  const Icon = item.icon;
+
+                  return (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      className="animate-[fadeUp_0.7s_ease-out] flex items-center gap-4 rounded-2xl border border-[#ededed] bg-[#fafafa] px-4 py-4 transition hover:bg-white"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#111111] text-white">
+                        <Icon className="text-[17px]" />
+                      </div>
+
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7a7a7a]">
+                          {item.label}
+                        </p>
+                        <p className="mt-1 text-[15px] font-medium text-[#222222]">
+                          {item.value}
+                        </p>
+                      </div>
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>

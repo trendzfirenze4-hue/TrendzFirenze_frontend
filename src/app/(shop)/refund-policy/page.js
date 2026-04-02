@@ -1,89 +1,117 @@
 import Link from "next/link";
 import {
-  FiTruck,
-  FiClock,
-  FiGlobe,
+  FiRotateCcw,
+  FiCheckCircle,
+  FiMail,
   FiCreditCard,
-  FiPackage,
+  FiClock,
+  FiXCircle,
+  FiTruck,
   FiArrowRight,
 } from "react-icons/fi";
 
 export const metadata = {
-  title: "Shipping Policy | Trendz Firenze",
+  title: "Refund Policy | Trendz Firenze",
   description:
-    "Read the Trendz Firenze shipping policy, including processing time, delivery timelines, shipping charges, and order tracking information.",
+    "Read the Trendz Firenze refund policy, including eligibility, refund process, refund method, timelines, non-refundable items, and shipping charge terms.",
 };
 
-const shippingSections = [
+const sections = [
   {
-    icon: FiGlobe,
-    title: "Shipping Coverage",
-    items: ["We ship across India and internationally."],
-  },
-  {
-    icon: FiClock,
-    title: "Order Processing",
-    items: ["Orders are processed within 24-48 hours."],
-  },
-  {
-    icon: FiTruck,
-    title: "Delivery Time",
+    icon: FiCheckCircle,
+    title: "Eligibility for Refund",
     items: [
-      "India: 3-7 business days",
-      "International: 7-15 business days (depending on destination & customs)",
+      "Refund requests must be raised within 7 days of delivery",
+      "The product must be unused, unworn, and in original condition",
+      "All original packaging, tags, and accessories must be intact",
+      "Proof of purchase (Order ID) is required",
+    ],
+  },
+  {
+    icon: FiMail,
+    title: "Refund Process",
+    items: [
+      "Email us at support@trendzfirenze.com",
+      "Include your Order ID, reason for refund, and clear images of the product",
+      "Our team will review your request within 24–48 hours",
+      "Once approved, the product must be returned to our provided address",
     ],
   },
   {
     icon: FiCreditCard,
+    title: "Refund Method",
+    items: [
+      "Refunds will be processed to the original payment method",
+      "For Cash on Delivery (COD) orders, refunds will be issued via bank transfer or UPI",
+    ],
+  },
+  {
+    icon: FiClock,
+    title: "Refund Timeline",
+    items: [
+      "After product inspection, refunds will be processed within 5–7 business days",
+    ],
+  },
+  {
+    icon: FiXCircle,
+    title: "Non-Refundable Items",
+    items: [
+      "Used, damaged, or altered products",
+      "Products returned without original packaging",
+      "Items purchased during clearance or final sale",
+    ],
+  },
+  {
+    icon: FiTruck,
     title: "Shipping Charges",
     items: [
-      "Free shipping on selected orders",
-      "Shipping charges (if applicable) will be clearly displayed at checkout",
-      "International shipping charges may vary based on location and weight",
+      "Shipping charges are non-refundable",
+      "Return shipping costs may be borne by the customer unless the product is defective or incorrect",
     ],
   },
 ];
 
-const trackingPoints = [
-  "Tracking details will be shared via email/SMS once the order is shipped",
-  "Customers can track their order using the provided tracking link",
+const requestItems = [
+  "Order ID",
+  "Reason for refund",
+  "Clear images of the product",
 ];
 
-export default function ShippingPolicyPage() {
+export default function RefundPolicyPage() {
   return (
     <main className="bg-white text-[#111111]">
       <section className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <div className="animate-[fadeUp_0.7s_ease-out]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7a7a7a]">
-              Shipping Policy
+              Refund Policy
             </p>
 
             <h1 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-[-0.03em] sm:text-5xl lg:text-6xl">
-              Shipping information.
+              Transparent and hassle-free refunds.
             </h1>
 
             <div className="mt-8 max-w-2xl space-y-5 text-[15px] leading-8 text-[#555555] sm:text-[16px]">
               <p>
-                We aim to provide a smooth and reliable delivery experience for
-                every order placed with Trendz Firenze.
+                At Trendz Firenze, we strive to ensure that you are completely
+                satisfied with your purchase. If you are not fully satisfied, we
+                offer a transparent and hassle-free refund process.
               </p>
 
               <p>
-                Below you’ll find details about shipping coverage, order
-                processing, estimated delivery timelines, shipping charges, and
-                tracking support.
+                Please review the refund conditions and process carefully before
+                raising a request so our team can assist you smoothly.
               </p>
             </div>
 
             <div className="mt-10 mb-14 flex flex-wrap gap-4 sm:mb-16">
-              <Link
-                href="/products"
+              <a
+                href="mailto:support@trendzfirenze.com"
                 className="inline-flex items-center justify-center rounded-full bg-[#111111] px-6 py-3 text-[14px] font-medium text-white transition hover:bg-[#222222]"
               >
-                Shop Collection
+                Request Refund
                 <FiArrowRight className="ml-2 text-[16px]" />
-              </Link>
+              </a>
 
               <Link
                 href="/contact"
@@ -97,20 +125,20 @@ export default function ShippingPolicyPage() {
           <div className="mt-6 lg:mt-0 animate-[fadeIn_0.9s_ease-out] rounded-[24px] border border-[#ececec] bg-[#fafafa] p-6 sm:p-8">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#111111] text-white">
-                <FiTruck className="text-[18px]" />
+                <FiRotateCcw className="text-[18px]" />
               </div>
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7a7a7a]">
-                  Shipping Overview
+                  Refund Overview
                 </p>
                 <p className="mt-1 text-[18px] font-semibold text-[#111111]">
-                  Clear delivery guidance
+                  Clear and reliable support
                 </p>
               </div>
             </div>
 
             <div className="mt-6 space-y-4">
-              {shippingSections.map((section, index) => {
+              {sections.map((section, index) => {
                 const Icon = section.icon;
 
                 return (
@@ -155,40 +183,39 @@ export default function ShippingPolicyPage() {
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="animate-[fadeUp_0.7s_ease-out]">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#7a7a7a]">
-                Order Tracking
+                How to Request
               </p>
               <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.02em] text-[#111111]">
-                Stay updated after dispatch.
+                Start your refund request by email.
               </h2>
               <p className="mt-4 max-w-xl text-[15px] leading-7 text-[#5a5a5a]">
-                Once your order is shipped, tracking details will be shared so
-                you can follow your delivery status with ease.
+                Email us at{" "}
+                <a
+                  href="mailto:support@trendzfirenze.com"
+                  className="font-medium text-[#111111] underline underline-offset-4"
+                >
+                  support@trendzfirenze.com
+                </a>{" "}
+                with the required details so our team can review your request.
               </p>
             </div>
 
             <div className="animate-[fadeIn_0.9s_ease-out] rounded-[24px] border border-[#ececec] bg-white p-6 sm:p-8">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#111111] text-white">
-                  <FiPackage className="text-[18px]" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a7a7a]">
-                    Tracking Information
-                  </p>
-                </div>
-              </div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7a7a7a]">
+                Include these details
+              </p>
 
               <div className="mt-5 grid gap-3">
-                {trackingPoints.map((item, index) => (
+                {requestItems.map((item, index) => (
                   <div
                     key={item}
-                    className="animate-[fadeUp_0.7s_ease-out] flex items-start gap-3 rounded-2xl border border-[#ededed] bg-[#fafafa] px-4 py-4"
+                    className="animate-[fadeUp_0.7s_ease-out] flex items-center gap-3 rounded-2xl border border-[#ededed] bg-[#fafafa] px-4 py-4"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#111111] text-[12px] font-medium text-white">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#111111] text-[12px] font-medium text-white">
                       {index + 1}
                     </span>
-                    <p className="text-[15px] leading-7 text-[#222222]">{item}</p>
+                    <p className="text-[15px] text-[#222222]">{item}</p>
                   </div>
                 ))}
               </div>
