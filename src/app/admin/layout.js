@@ -40,7 +40,7 @@ export default function AdminLayout({ children }) {
 
             <Link href="/admin/dashboard">Dashboard</Link>
 
-            <Link href="/admin/brand-showcases">Brand ShowCase</Link>
+            <Link href="/admin/brand-showcases">Brand Show Case</Link>
 
             <Link href="/admin/categories/list">Categories</Link>
 
