@@ -16,6 +16,7 @@ import HeroCarousel from "@/components/home/HeroCarousel";
 import DiscountTicker from "@/components/home/DiscountTicker";
 import CategorySection from "@/components/home/CategorySection";
 import BestSellerSection from "@/components/home/BestSellerSection";
+import BrandShowcaseSection from "@/components/home/BrandShowcaseSection";
 import NewArrivalSection from "@/components/home/NewArrivalSection";
 import BrandStorySection from "@/components/home/BrandStorySection";
 import FeaturedBanner from "@/components/home/FeaturedBanner";
@@ -80,6 +81,7 @@ export default function HomePage() {
         setCategoryId={setCategoryId}
       /> */}
       <BestSellerSection products={bestSellers} />
+      <BrandShowcaseSection/>
       {/* <NewArrivalSection products={newArrivals} /> */}
       <BrandStorySection />
       <FeaturedBanner />

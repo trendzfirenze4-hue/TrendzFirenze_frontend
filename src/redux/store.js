@@ -10,6 +10,7 @@ import orderReducer from "@/features/orders/orderSlice";
 import adminProductsReducer from "@/features/adminProducts/adminProductSlice";
 import giftBoxReducer from "@/features/giftBoxes/giftBoxSlice";
 import giftSetReducer from "@/features/giftSet/giftSetSlice";
+import brandShowcaseReducer from "@/features/brandShowcases/brandShowcaseSlice";
 
 
 
@@ -29,6 +30,9 @@ export const store = configureStore({
 
     giftBoxes: giftBoxReducer,
     giftSet: giftSetReducer,
+
+    brandShowcases: brandShowcaseReducer,
+    
     
   },
 });

@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import api from "@/lib/apiClient";
 
 import { fetchAdminCategories } from "@/features/categories/categorySlice";
-
 
 import {
   updateProduct,
@@ -28,7 +25,10 @@ export default function EditProductPage() {
 
   const [loading, setLoading] = useState(false);
 
-  const categories = useSelector((state) => state.categories.items);
+  // FIXED: use adminCategories and keep safe fallback
+  const categories = useSelector(
+    (state) => state.categories?.adminCategories || []
+  );
 
   const [product, setProduct] = useState(null);
 
@@ -197,220 +197,623 @@ export default function EditProductPage() {
     }
   };
 
-  if (!product) return <p>Loading...</p>;
+  if (!product) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#f8f8f8",
+          padding: "40px 16px",
+          color: "#111827",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "960px",
+            margin: "0 auto",
+            background: "#ffffff",
+            border: "1px solid #e5e7eb",
+            borderRadius: "16px",
+            padding: "24px",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.06)",
+          }}
+        >
+          Loading...
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Edit Product</h1>
-
-      <input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-
-      <br /><br />
-
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-
-      <br /><br />
-
-      <input
-        placeholder="Price"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-
-      <br /><br />
-
-      <input
-        placeholder="Stock"
-        value={stock}
-        onChange={(e) => setStock(e.target.value)}
-      />
-
-      <br /><br />
-
-      <select
-        value={categoryId}
-        onChange={(e) => setCategoryId(e.target.value)}
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#f8f8f8",
+        padding: "40px 16px",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "960px",
+          margin: "0 auto",
+          background: "#ffffff",
+          border: "1px solid #e5e7eb",
+          borderRadius: "16px",
+          padding: "28px",
+          boxShadow: "0 8px 30px rgba(0,0,0,0.06)",
+        }}
       >
-        <option value="">Select Category</option>
-        {categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.name}
-          </option>
-        ))}
-      </select>
+        <h1
+          style={{
+            margin: "0 0 24px 0",
+            fontSize: "28px",
+            fontWeight: "700",
+            color: "#111827",
+          }}
+        >
+          Edit Product
+        </h1>
 
-      <br /><br />
-
-      <input
-        type="file"
-        multiple
-        onChange={(e) => setFiles([...e.target.files])}
-      />
-
-      <button onClick={handleUpload}>
-        Upload Images
-      </button>
-
-      <br /><br />
-
-      <h3>Images</h3>
-
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        {images.map((img, i) => {
-          const url = typeof img === "string" ? img : img.imageUrl;
-
-          return (
-            <div
-              key={i}
+        <div style={{ display: "grid", gap: "18px" }}>
+          <div>
+            <label
               style={{
-                position: "relative",
-                border: "1px solid #ddd",
-                padding: "4px",
-                borderRadius: "6px",
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#111827",
               }}
             >
-              <img
-                src={
-                  url.startsWith("http")
-                    ? url
-                    : `${process.env.NEXT_PUBLIC_API_BASE}${url}`
-                }
-                width="120"
-                alt="Product"
-              />
+              Title
+            </label>
+            <input
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #d1d5db",
+                borderRadius: "10px",
+                fontSize: "15px",
+                color: "#111827",
+                background: "#ffffff",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
 
-              <button
-                onClick={() => removeImage(i)}
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#111827",
+              }}
+            >
+              Description
+            </label>
+            <textarea
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={5}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #d1d5db",
+                borderRadius: "10px",
+                fontSize: "15px",
+                color: "#111827",
+                background: "#ffffff",
+                outline: "none",
+                resize: "vertical",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "18px",
+            }}
+          >
+            <div>
+              <label
                 style={{
-                  position: "absolute",
-                  top: "-6px",
-                  right: "-6px",
-                  background: "red",
-                  color: "#fff",
+                  display: "block",
+                  marginBottom: "8px",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#111827",
+                }}
+              >
+                Price
+              </label>
+              <input
+                placeholder="Price"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "10px",
+                  fontSize: "15px",
+                  color: "#111827",
+                  background: "#ffffff",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: "8px",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#111827",
+                }}
+              >
+                Stock
+              </label>
+              <input
+                placeholder="Stock"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "12px 14px",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "10px",
+                  fontSize: "15px",
+                  color: "#111827",
+                  background: "#ffffff",
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#111827",
+              }}
+            >
+              Category
+            </label>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #d1d5db",
+                borderRadius: "10px",
+                fontSize: "15px",
+                color: "#111827",
+                background: "#ffffff",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            >
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#111827",
+              }}
+            >
+              Upload More Images
+            </label>
+            <input
+              type="file"
+              multiple
+              onChange={(e) => setFiles([...e.target.files])}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: "10px",
+                fontSize: "14px",
+                color: "#111827",
+                background: "#ffffff",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <button
+              onClick={handleUpload}
+              style={{
+                padding: "12px 18px",
+                background: "#111827",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              Upload Images
+            </button>
+
+            <button
+              onClick={handleUpdate}
+              disabled={loading}
+              style={{
+                padding: "12px 18px",
+                background: loading ? "#9ca3af" : "#2563eb",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: loading ? "not-allowed" : "pointer",
+              }}
+            >
+              {loading ? "Updating..." : "Update Product"}
+            </button>
+          </div>
+        </div>
+
+        <div style={{ marginTop: "28px" }}>
+          <h3
+            style={{
+              fontSize: "18px",
+              fontWeight: "700",
+              color: "#111827",
+              marginBottom: "14px",
+            }}
+          >
+            Images
+          </h3>
+
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {images.map((img, i) => {
+              const url = typeof img === "string" ? img : img.imageUrl;
+
+              return (
+                <div
+                  key={i}
+                  style={{
+                    position: "relative",
+                    border: "1px solid #e5e7eb",
+                    padding: "8px",
+                    borderRadius: "12px",
+                    background: "#ffffff",
+                    boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <img
+                    src={
+                      url?.startsWith("http")
+                        ? url
+                        : `${process.env.NEXT_PUBLIC_API_BASE}${url}`
+                    }
+                    width="120"
+                    alt="Product"
+                    style={{
+                      display: "block",
+                      width: "120px",
+                      height: "120px",
+                      objectFit: "cover",
+                      borderRadius: "8px",
+                    }}
+                  />
+
+                  <button
+                    onClick={() => removeImage(i)}
+                    style={{
+                      position: "absolute",
+                      top: "-8px",
+                      right: "-8px",
+                      background: "#dc2626",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: "24px",
+                      height: "24px",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      fontWeight: "700",
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <hr style={{ margin: "40px 0", borderColor: "#e5e7eb" }} />
+
+        <h2
+          style={{
+            fontSize: "24px",
+            fontWeight: "700",
+            color: "#111827",
+            marginBottom: "20px",
+          }}
+        >
+          Manage Reviews
+        </h2>
+
+        <div style={{ display: "grid", gap: "18px" }}>
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#111827",
+              }}
+            >
+              Reviewer Name
+            </label>
+            <input
+              placeholder="Reviewer name"
+              value={reviewerName}
+              onChange={(e) => setReviewerName(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #d1d5db",
+                borderRadius: "10px",
+                fontSize: "15px",
+                color: "#111827",
+                background: "#ffffff",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#111827",
+              }}
+            >
+              Rating
+            </label>
+            <select
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #d1d5db",
+                borderRadius: "10px",
+                fontSize: "15px",
+                color: "#111827",
+                background: "#ffffff",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            >
+              <option value="5">5 Star</option>
+              <option value="4">4 Star</option>
+              <option value="3">3 Star</option>
+              <option value="2">2 Star</option>
+              <option value="1">1 Star</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              style={{
+                display: "block",
+                marginBottom: "8px",
+                fontSize: "14px",
+                fontWeight: "600",
+                color: "#111827",
+              }}
+            >
+              Review Text
+            </label>
+            <textarea
+              placeholder="Review text"
+              value={reviewText}
+              onChange={(e) => setReviewText(e.target.value)}
+              rows={4}
+              style={{
+                width: "100%",
+                padding: "12px 14px",
+                border: "1px solid #d1d5db",
+                borderRadius: "10px",
+                fontSize: "15px",
+                color: "#111827",
+                background: "#ffffff",
+                outline: "none",
+                resize: "vertical",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              fontSize: "14px",
+              fontWeight: "500",
+              color: "#111827",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={featured}
+              onChange={(e) => setFeatured(e.target.checked)}
+            />
+            Featured review
+          </label>
+
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <button
+              onClick={handleSaveReview}
+              style={{
+                padding: "12px 18px",
+                background: "#111827",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "10px",
+                fontSize: "14px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              {editingReviewId ? "Update Review" : "Add Review"}
+            </button>
+
+            {editingReviewId && (
+              <button
+                onClick={resetReviewForm}
+                style={{
+                  padding: "12px 18px",
+                  background: "#e5e7eb",
+                  color: "#111827",
                   border: "none",
-                  borderRadius: "50%",
-                  width: "22px",
-                  height: "22px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: "600",
                   cursor: "pointer",
                 }}
               >
-                ×
+                Cancel Edit
               </button>
-            </div>
-          );
-        })}
-      </div>
-
-      <br /><br />
-
-      <button onClick={handleUpdate} disabled={loading}>
-        {loading ? "Updating..." : "Update Product"}
-      </button>
-
-      <hr style={{ margin: "40px 0" }} />
-
-      <h2>Manage Reviews</h2>
-
-      <input
-        placeholder="Reviewer name"
-        value={reviewerName}
-        onChange={(e) => setReviewerName(e.target.value)}
-      />
-
-      <br /><br />
-
-      <select value={rating} onChange={(e) => setRating(e.target.value)}>
-        <option value="5">5 Star</option>
-        <option value="4">4 Star</option>
-        <option value="3">3 Star</option>
-        <option value="2">2 Star</option>
-        <option value="1">1 Star</option>
-      </select>
-
-      <br /><br />
-
-      <textarea
-        placeholder="Review text"
-        value={reviewText}
-        onChange={(e) => setReviewText(e.target.value)}
-      />
-
-      <br /><br />
-
-      <label>
-        <input
-          type="checkbox"
-          checked={featured}
-          onChange={(e) => setFeatured(e.target.checked)}
-        />
-        {" "}Featured review
-      </label>
-
-      <br /><br />
-
-      <button onClick={handleSaveReview}>
-        {editingReviewId ? "Update Review" : "Add Review"}
-      </button>
-
-      {editingReviewId && (
-        <button
-          onClick={resetReviewForm}
-          style={{ marginLeft: "10px" }}
-        >
-          Cancel Edit
-        </button>
-      )}
-
-      <br /><br />
-
-      <h3>Existing Reviews</h3>
-
-      {reviews.length === 0 ? (
-        <p>No reviews added yet.</p>
-      ) : (
-        <div style={{ display: "grid", gap: "12px" }}>
-          {reviews.map((review) => (
-            <div
-              key={review.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "12px",
-              }}
-            >
-              <div style={{ fontWeight: "bold" }}>
-                {review.reviewerName} - {review.rating}/5
-                {review.featured ? " • Featured" : ""}
-              </div>
-
-              <div style={{ marginTop: "6px" }}>
-                {review.reviewText}
-              </div>
-
-              <div style={{ marginTop: "10px" }}>
-                <button onClick={() => handleEditReview(review)}>
-                  Edit Review
-                </button>
-
-                <button
-                  onClick={() => handleDeleteReview(review.id)}
-                  style={{ marginLeft: "10px" }}
-                >
-                  Delete Review
-                </button>
-              </div>
-            </div>
-          ))}
+            )}
+          </div>
         </div>
-      )}
+
+        <div style={{ marginTop: "28px" }}>
+          <h3
+            style={{
+              fontSize: "18px",
+              fontWeight: "700",
+              color: "#111827",
+              marginBottom: "14px",
+            }}
+          >
+            Existing Reviews
+          </h3>
+
+          {reviews.length === 0 ? (
+            <p style={{ color: "#4b5563", margin: 0 }}>No reviews added yet.</p>
+          ) : (
+            <div style={{ display: "grid", gap: "12px" }}>
+              {reviews.map((review) => (
+                <div
+                  key={review.id}
+                  style={{
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "12px",
+                    padding: "14px",
+                    background: "#ffffff",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: "700",
+                      color: "#111827",
+                      fontSize: "15px",
+                    }}
+                  >
+                    {review.reviewerName} - {review.rating}/5
+                    {review.featured ? " • Featured" : ""}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "8px",
+                      color: "#374151",
+                      fontSize: "14px",
+                      lineHeight: "1.6",
+                    }}
+                  >
+                    {review.reviewText}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "12px",
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <button
+                      onClick={() => handleEditReview(review)}
+                      style={{
+                        padding: "10px 14px",
+                        background: "#111827",
+                        color: "#ffffff",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Edit Review
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteReview(review.id)}
+                      style={{
+                        padding: "10px 14px",
+                        background: "#dc2626",
+                        color: "#ffffff",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Delete Review
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
