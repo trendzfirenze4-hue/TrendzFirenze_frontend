@@ -92,7 +92,7 @@ export default function Footer() {
             })}
           </div>
 
-         import Link from "next/link";
+
 
 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
   <p className="text-[12px] tracking-[0.08em] text-[#666666] font-medium">
