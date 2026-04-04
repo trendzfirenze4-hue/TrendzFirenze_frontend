@@ -92,13 +92,19 @@ export default function Footer() {
             })}
           </div>
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[12px] tracking-[0.08em] text-[#666666] font-medium">
-  © 2026 — Trendz Firenze
-</p>
+         import Link from "next/link";
 
-           
-          </div>
+<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+  <p className="text-[12px] tracking-[0.08em] text-[#666666] font-medium">
+    
+    <Link href="/test/" className="hover:text-black transition duration-300">
+      ©
+    </Link>{" "}
+    
+    2026 — Trendz Firenze
+
+  </p>
+</div>
         </div>
       </div>
     </footer>

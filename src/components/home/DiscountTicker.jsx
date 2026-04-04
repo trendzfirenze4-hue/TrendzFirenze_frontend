@@ -2,10 +2,10 @@
 
 export default function DiscountTicker() {
   const offers = [
-    `"SAVE100" - Flat ₹100 OFF -`,
-    `"SAVE10" - Extra 10% OFF -`,
-    `"SAVE15" - Get 15% Discount -`,
-    `"SAVE20" - Mega 20% OFF -`,
+    `SAVE100 - Flat ₹100 OFF `,
+    `SAVE10 - Extra 10% OFF `,
+    `SAVE15 - Get 15% Discount `,
+    `SAVE20 - Mega 20% OFF `,
   ];
 
   const tickerItems = [...offers, ...offers, ...offers];
