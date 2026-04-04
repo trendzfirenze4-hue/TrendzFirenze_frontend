@@ -23,6 +23,9 @@ import TestimonialSection from "@/components/home/TestimonialSection";
 import InstagramSection from "@/components/home/InstagramSection";
 import NewsletterSection from "@/components/home/NewsletterSection";
 
+import HeroSectionCustom from "@/components/home/HeroSectionCustom";
+
+
 export default function HomePage() {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.products.items || []);
@@ -82,8 +85,9 @@ export default function HomePage() {
       <BrandShowcaseSection/>
       {/* <NewArrivalSection products={newArrivals} /> */}
       {/* <BrandStorySection /> */}
-      <FeaturedBanner />
+      {/* <FeaturedBanner /> */}
       {/* <TrustSection /> */}
+      <HeroSectionCustom />
       <TestimonialSection />
       <InstagramSection />
       <NewsletterSection />

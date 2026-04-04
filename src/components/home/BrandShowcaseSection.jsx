@@ -2,6 +2,7 @@
 
 
 
+
 // "use client";
 
 // import Link from "next/link";
@@ -28,6 +29,7 @@
 // export default function BrandShowcaseSection() {
 //   const dispatch = useDispatch();
 //   const { publicItems, loadingPublic } = useSelector((state) => state.brandShowcases);
+
 //   const [currentIndex, setCurrentIndex] = useState(0);
 //   const [isPaused, setIsPaused] = useState(false);
 
@@ -65,7 +67,7 @@
 
 //   if (loadingPublic) {
 //     return (
-//       <section className="mx-auto w-full max-w-[1280px] px-0 py-4">
+//       <section className="mx-auto w-full max-w-[1280px] overflow-x-hidden px-0 py-4">
 //         <div className="bg-[#efefef] px-5 py-6 text-sm text-gray-500">
 //           Loading brand showcase...
 //         </div>
@@ -78,16 +80,18 @@
 //   }
 
 //   return (
-//     <section className="mx-auto w-full max-w-[1280px] px-0 py-4">
+//     <section className="mx-auto w-full max-w-[1280px] overflow-x-hidden px-0 py-4">
 //       <div
-//         className="relative overflow-hidden bg-[#efefef] shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
+//         className="relative w-full overflow-hidden bg-[#efefef] shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
 //         onMouseEnter={() => setIsPaused(true)}
 //         onMouseLeave={() => setIsPaused(false)}
 //         onClick={() => setIsPaused(true)}
 //       >
 //         <div
-//           className="flex w-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-//           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+//           className="flex w-full will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+//           style={{
+//             transform: `translate3d(-${currentIndex * 100}%, 0, 0)`,
+//           }}
 //         >
 //           {orderedItems.map((showcase) => {
 //             const products = getSafeArray(showcase?.products).slice(0, 4);
@@ -95,16 +99,15 @@
 //             return (
 //               <div
 //                 key={showcase.id}
-//                 className="w-full min-w-full flex-shrink-0 p-2"
+//                 className="box-border w-full min-w-full flex-shrink-0 p-2"
 //               >
 //                 <div className="flex h-[250px] w-full gap-2 sm:h-[290px] lg:h-[320px]">
-//                   {/* Left model image */}
 //                   <div className="relative w-1/2 min-w-0 overflow-hidden bg-[#e9e9e9]">
 //                     {showcase?.modelImageUrl ? (
 //                       <img
 //                         src={showcase.modelImageUrl}
 //                         alt={showcase?.title || "Brand showcase"}
-//                         className="h-full w-full object-cover transition duration-700 hover:scale-[1.02]"
+//                         className="block h-full w-full object-cover transition duration-700 hover:scale-[1.02]"
 //                       />
 //                     ) : (
 //                       <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
@@ -127,7 +130,6 @@
 //                     </div>
 //                   </div>
 
-//                   {/* Right products */}
 //                   <div className="flex w-1/2 min-w-0 flex-col bg-[#efefef] p-0">
 //                     {products.length > 0 ? (
 //                       <div className="grid h-full grid-cols-2 gap-2">
@@ -142,7 +144,7 @@
 //                                 <img
 //                                   src={getProductImage(product)}
 //                                   alt={product?.title || "Product image"}
-//                                   className="h-full w-full object-contain p-2 transition duration-300 group-hover/card:scale-[1.035]"
+//                                   className="block h-full w-full object-contain p-2 transition duration-300 group-hover/card:scale-[1.035]"
 //                                 />
 //                               ) : (
 //                                 <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
@@ -178,27 +180,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
 import Link from "next/link";
@@ -224,7 +205,9 @@ function getProductImage(product) {
 
 export default function BrandShowcaseSection() {
   const dispatch = useDispatch();
-  const { publicItems, loadingPublic } = useSelector((state) => state.brandShowcases);
+  const { publicItems, loadingPublic } = useSelector(
+    (state) => state.brandShowcases
+  );
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -237,8 +220,10 @@ export default function BrandShowcaseSection() {
     const items = getSafeArray(publicItems);
 
     return [...items].sort((a, b) => {
-      const aOrder = a?.displayOrder ?? a?.order ?? a?.position ?? a?.sortOrder ?? 9999;
-      const bOrder = b?.displayOrder ?? b?.order ?? b?.position ?? b?.sortOrder ?? 9999;
+      const aOrder =
+        a?.displayOrder ?? a?.order ?? a?.position ?? a?.sortOrder ?? 9999;
+      const bOrder =
+        b?.displayOrder ?? b?.order ?? b?.position ?? b?.sortOrder ?? 9999;
       return aOrder - bOrder;
     });
   }, [publicItems]);
@@ -297,13 +282,16 @@ export default function BrandShowcaseSection() {
                 key={showcase.id}
                 className="box-border w-full min-w-full flex-shrink-0 p-2"
               >
-                <div className="flex h-[250px] w-full gap-2 sm:h-[290px] lg:h-[320px]">
+                {/* ✅ INCREASED PREMIUM HEIGHT */}
+                <div className="flex h-[380px] sm:h-[420px] lg:h-[480px] min-h-[380px] w-full gap-2">
+
+                  {/* LEFT MODEL IMAGE */}
                   <div className="relative w-1/2 min-w-0 overflow-hidden bg-[#e9e9e9]">
                     {showcase?.modelImageUrl ? (
                       <img
                         src={showcase.modelImageUrl}
                         alt={showcase?.title || "Brand showcase"}
-                        className="block h-full w-full object-cover transition duration-700 hover:scale-[1.02]"
+                        className="block h-full w-full object-cover transition duration-700 hover:scale-[1.04]"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
@@ -326,6 +314,7 @@ export default function BrandShowcaseSection() {
                     </div>
                   </div>
 
+                  {/* RIGHT PRODUCT GRID */}
                   <div className="flex w-1/2 min-w-0 flex-col bg-[#efefef] p-0">
                     {products.length > 0 ? (
                       <div className="grid h-full grid-cols-2 gap-2">
@@ -340,7 +329,7 @@ export default function BrandShowcaseSection() {
                                 <img
                                   src={getProductImage(product)}
                                   alt={product?.title || "Product image"}
-                                  className="block h-full w-full object-contain p-2 transition duration-300 group-hover/card:scale-[1.035]"
+                                  className="block h-full w-full object-contain p-2 transition duration-300 group-hover/card:scale-[1.05]"
                                 />
                               ) : (
                                 <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
@@ -357,6 +346,7 @@ export default function BrandShowcaseSection() {
                       </div>
                     )}
                   </div>
+
                 </div>
               </div>
             );

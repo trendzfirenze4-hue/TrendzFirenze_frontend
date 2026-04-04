@@ -11,6 +11,8 @@ import adminProductsReducer from "@/features/adminProducts/adminProductSlice";
 import giftBoxReducer from "@/features/giftBoxes/giftBoxSlice";
 import giftSetReducer from "@/features/giftSet/giftSetSlice";
 import brandShowcaseReducer from "@/features/brandShowcases/brandShowcaseSlice";
+import heroSectionsReducer from "@/features/heroSections/heroSectionSlice";
+
 
 
 
@@ -27,6 +29,7 @@ export const store = configureStore({
     address: addressReducer,
     orders: orderReducer,
     adminProducts: adminProductsReducer,
+    heroSections: heroSectionsReducer,
 
     giftBoxes: giftBoxReducer,
     giftSet: giftSetReducer,
