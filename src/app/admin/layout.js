@@ -1,6 +1,3 @@
-
-
-
 "use client";
 
 import AuthGuard from "../../lib/authGuard";
@@ -36,7 +33,10 @@ export default function AdminLayout({ children }) {
 
           <h2>Trendz Firenze</h2>
 
-          <nav style={{ marginTop: "20px", display:"flex", flexDirection:"column", gap:"10px" }}>
+          <nav style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "10px" }}>
+
+            {/* ✅ HOME LINK ADDED */}
+            <Link href="/">Home</Link>
 
             <Link href="/admin/dashboard">Dashboard</Link>
 

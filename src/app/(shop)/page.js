@@ -81,7 +81,7 @@ export default function HomePage() {
       <BestSellerSection products={bestSellers} />
       <BrandShowcaseSection/>
       {/* <NewArrivalSection products={newArrivals} /> */}
-      <BrandStorySection />
+      {/* <BrandStorySection /> */}
       <FeaturedBanner />
       {/* <TrustSection /> */}
       <TestimonialSection />
