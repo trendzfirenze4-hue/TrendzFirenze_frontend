@@ -1,3 +1,4 @@
+
 // "use client";
 
 // import { useEffect } from "react";
@@ -18,6 +19,9 @@
 //   useEffect(() => {
 //     dispatch(fetchGiftSetCart());
 //   }, [dispatch]);
+
+//   const items = summary?.items || [];
+//   const isEmpty = items.length === 0;
 
 //   return (
 //     <div className="min-h-screen bg-gradient-to-b from-white via-stone-50 to-gray-100 px-4 py-10 sm:px-6 lg:px-8">
@@ -51,22 +55,74 @@
 
 //         <div className="grid gap-8 lg:grid-cols-[1.45fr_0.75fr]">
 //           <div className="rounded-3xl border bg-white p-5 shadow-sm">
-//             <SelectedGiftSetItems
-//               items={summary?.items || []}
-//               onRemove={(itemId) => dispatch(removeGiftSetCartItem(itemId))}
-//             />
+//             {isEmpty ? (
+//               <div className="rounded-2xl border border-dashed bg-white p-8 text-center">
+//                 <p className="text-base font-semibold text-gray-900">
+//                   Your gift set cart is empty
+//                 </p>
+//                 <p className="mt-2 text-sm text-gray-600">
+//                   Add products with a gift box to continue.
+//                 </p>
+//                 <Link
+//                   href="/giftsets"
+//                   className="mt-5 inline-block rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
+//                 >
+//                   Go to Gift Set Builder
+//                 </Link>
+//               </div>
+//             ) : (
+//               <SelectedGiftSetItems
+//                 items={items}
+//                 onRemove={(itemId) => dispatch(removeGiftSetCartItem(itemId))}
+//               />
+//             )}
 //           </div>
 
 //           <GiftSetSummary
 //             summary={summary}
 //             loading={loading}
 //             onClear={() => dispatch(clearGiftSetCart())}
+//             showCheckoutLink
 //           />
 //         </div>
 //       </div>
 //     </div>
 //   );
 // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -82,17 +138,39 @@ import {
 import SelectedGiftSetItems from "@/components/giftset/SelectedGiftSetItems";
 import GiftSetSummary from "@/components/giftset/GiftSetSummary";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function GiftSetCartPage() {
   const dispatch = useDispatch();
+  const router = useRouter();
+
+  const { token, initialized: authInitialized } = useSelector((state) => state.auth);
   const { summary, loading, error } = useSelector((state) => state.giftSet);
 
   useEffect(() => {
+    if (!authInitialized) return;
+
+    if (!token) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("redirectAfterLogin", "/giftset-cart");
+      }
+      router.replace("/login?next=%2Fgiftset-cart");
+      return;
+    }
+
     dispatch(fetchGiftSetCart());
-  }, [dispatch]);
+  }, [dispatch, token, authInitialized, router]);
 
   const items = summary?.items || [];
   const isEmpty = items.length === 0;
+
+  if (!authInitialized) {
+    return <div className="min-h-screen px-4 py-10">Loading...</div>;
+  }
+
+  if (!token) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-stone-50 to-gray-100 px-4 py-10 sm:px-6 lg:px-8">
@@ -154,6 +232,7 @@ export default function GiftSetCartPage() {
             loading={loading}
             onClear={() => dispatch(clearGiftSetCart())}
             showCheckoutLink
+            mode="cart"
           />
         </div>
       </div>

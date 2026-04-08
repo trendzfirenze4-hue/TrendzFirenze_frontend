@@ -1,8 +1,14 @@
+
+
+
+
+
+
 // "use client";
 
 // import Link from "next/link";
 
-// export default function GiftSetSummary({ summary, loading, onClear }) {
+// export default function GiftSetSummary({ summary, loading, onClear, showCheckoutLink = true }) {
 //   const safeSummary = summary || {
 //     items: [],
 //     totalProducts: 0,
@@ -11,6 +17,8 @@
 //     discountAmountInr: 0,
 //     finalTotalInr: 0,
 //   };
+
+//   const disabled = loading || safeSummary.totalProducts === 0;
 
 //   return (
 //     <div className="sticky top-24 rounded-3xl border bg-white p-6 shadow-sm">
@@ -42,22 +50,24 @@
 //         <button
 //           type="button"
 //           onClick={onClear}
-//           disabled={loading || safeSummary.totalProducts === 0}
+//           disabled={disabled}
 //           className="w-full rounded-xl border px-4 py-3 disabled:opacity-50"
 //         >
 //           {loading ? "Processing..." : "Clear"}
 //         </button>
 
-//         <Link
-//           href="/giftset-cart"
-//           className={`block w-full rounded-xl px-4 py-3 text-center ${
-//             safeSummary.totalProducts === 0
-//               ? "pointer-events-none bg-gray-200 text-gray-400"
-//               : "bg-black text-white"
-//           }`}
-//         >
-//           View Gift Set Cart
-//         </Link>
+//         {showCheckoutLink ? (
+//           <Link
+//             href="/checkout?source=giftset"
+//             className={`block w-full rounded-xl px-4 py-3 text-center ${
+//               safeSummary.totalProducts === 0
+//                 ? "pointer-events-none bg-gray-200 text-gray-400"
+//                 : "bg-black text-white"
+//             }`}
+//           >
+//             Proceed to Checkout
+//           </Link>
+//         ) : null}
 //       </div>
 //     </div>
 //   );
@@ -73,11 +83,30 @@
 
 
 
+
+
+
+
+
+
+
+
+
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
-export default function GiftSetSummary({ summary, loading, onClear, showCheckoutLink = true }) {
+export default function GiftSetSummary({
+  summary,
+  loading,
+  onClear,
+  showCheckoutLink = true,
+  mode = "builder", // "builder" | "cart"
+}) {
+  const router = useRouter();
+  const token = useSelector((state) => state.auth?.token);
+
   const safeSummary = summary || {
     items: [],
     totalProducts: 0,
@@ -88,6 +117,36 @@ export default function GiftSetSummary({ summary, loading, onClear, showCheckout
   };
 
   const disabled = loading || safeSummary.totalProducts === 0;
+
+  const handlePrimaryAction = () => {
+    if (safeSummary.totalProducts === 0) return;
+
+    if (mode === "builder") {
+      if (!token) {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("redirectAfterLogin", "/giftsets");
+        }
+        router.push("/login?next=%2Fgiftsets");
+        return;
+      }
+
+      router.push("/giftset-cart");
+      return;
+    }
+
+    if (!token) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(
+          "redirectAfterLogin",
+          "/checkout?source=giftset"
+        );
+      }
+      router.push("/login?next=%2Fcheckout%3Fsource%3Dgiftset");
+      return;
+    }
+
+    router.push("/checkout?source=giftset");
+  };
 
   return (
     <div className="sticky top-24 rounded-3xl border bg-white p-6 shadow-sm">
@@ -126,16 +185,18 @@ export default function GiftSetSummary({ summary, loading, onClear, showCheckout
         </button>
 
         {showCheckoutLink ? (
-          <Link
-            href="/checkout?source=giftset"
+          <button
+            type="button"
+            onClick={handlePrimaryAction}
+            disabled={safeSummary.totalProducts === 0}
             className={`block w-full rounded-xl px-4 py-3 text-center ${
               safeSummary.totalProducts === 0
-                ? "pointer-events-none bg-gray-200 text-gray-400"
+                ? "cursor-not-allowed bg-gray-200 text-gray-400"
                 : "bg-black text-white"
             }`}
           >
-            Proceed to Checkout
-          </Link>
+            {mode === "builder" ? "Review Gift Set" : "Proceed to Checkout"}
+          </button>
         ) : null}
       </div>
     </div>

@@ -1,7 +1,11 @@
+
+
+
 // "use client";
 
 // import { useEffect, useMemo, useState } from "react";
 // import { useDispatch, useSelector } from "react-redux";
+// import { usePathname, useRouter } from "next/navigation";
 // import {
 //   addGiftSetCartItem,
 //   clearGiftSetCart,
@@ -12,11 +16,15 @@
 // import SelectedGiftSetItems from "./SelectedGiftSetItems";
 // import GiftSetSummary from "./GiftSetSummary";
 
-// export default function GiftSetBuilder({ products }) {
+// export default function GiftSetBuilder({ products = [] }) {
 //   const dispatch = useDispatch();
+//   const router = useRouter();
+//   const pathname = usePathname();
+
+//   const token = useSelector((state) => state.auth?.token);
 
 //   const {
-//     publicGiftBoxes,
+//     publicGiftBoxes = [],
 //     loading: giftBoxLoading,
 //     error: giftBoxError,
 //   } = useSelector((state) => state.giftBoxes);
@@ -27,15 +35,18 @@
 
 //   useEffect(() => {
 //     dispatch(fetchActiveGiftBoxes());
-//     dispatch(fetchGiftSetCart());
 //   }, [dispatch]);
+
+//   useEffect(() => {
+//     if (!token) return;
+//     dispatch(fetchGiftSetCart());
+//   }, [dispatch, token]);
 
 //   const selectedItems = summary?.items || [];
 
-//   const selectedIds = useMemo(
-//     () => new Set(selectedItems.map((item) => item.productId)),
-//     [selectedItems]
-//   );
+//   const selectedIds = useMemo(() => {
+//     return new Set(selectedItems.map((item) => item.productId));
+//   }, [selectedItems]);
 
 //   const handleGiftBoxChange = (productId, giftBoxId) => {
 //     setGiftBoxSelections((prev) => ({
@@ -44,7 +55,26 @@
 //     }));
 //   };
 
-//   const handleAdd = (product) => {
+//   const redirectToLogin = () => {
+//     if (typeof window !== "undefined") {
+//       const redirectPath =
+//         pathname ||
+//         `${window.location.pathname}${window.location.search}${window.location.hash}` ||
+//         "/giftset";
+
+//       sessionStorage.setItem("redirectAfterLogin", redirectPath);
+//       router.push(`/login?next=${encodeURIComponent(redirectPath)}`);
+//     } else {
+//       router.push("/login");
+//     }
+//   };
+
+//   const handleAdd = async (product) => {
+//     if (!token) {
+//       redirectToLogin();
+//       return;
+//     }
+
 //     const selectedGiftBoxId = giftBoxSelections[product.id];
 
 //     if (!selectedGiftBoxId) {
@@ -52,12 +82,20 @@
 //       return;
 //     }
 
-//     dispatch(
-//       addGiftSetCartItem({
-//         productId: product.id,
-//         giftBoxId: Number(selectedGiftBoxId),
-//       })
-//     );
+//     try {
+//       await dispatch(
+//         addGiftSetCartItem({
+//           productId: product.id,
+//           giftBoxId: Number(selectedGiftBoxId),
+//         })
+//       ).unwrap();
+//     } catch (err) {
+//       const status = err?.status || err?.response?.status;
+
+//       if (status === 401 || status === 403) {
+//         redirectToLogin();
+//       }
+//     }
 //   };
 
 //   return (
@@ -90,6 +128,7 @@
 //                   <h3 className="line-clamp-2 text-sm font-semibold">
 //                     {product.title}
 //                   </h3>
+
 //                   <p className="mt-2 text-base font-bold">₹{product.priceInr}</p>
 
 //                   <div className="mt-4">
@@ -147,6 +186,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -157,6 +208,7 @@ import {
   clearGiftSetCart,
   fetchGiftSetCart,
   removeGiftSetCartItem,
+  clearGiftSetError,
 } from "@/features/giftSet/giftSetSlice";
 import { fetchActiveGiftBoxes } from "@/features/giftBoxes/giftBoxSlice";
 import SelectedGiftSetItems from "./SelectedGiftSetItems";
@@ -167,7 +219,10 @@ export default function GiftSetBuilder({ products = [] }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const token = useSelector((state) => state.auth?.token);
+  const {
+    token,
+    initialized: authInitialized,
+  } = useSelector((state) => state.auth);
 
   const {
     publicGiftBoxes = [],
@@ -184,9 +239,15 @@ export default function GiftSetBuilder({ products = [] }) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!authInitialized) return;
+
+    if (!token) {
+      dispatch(clearGiftSetError());
+      return;
+    }
+
     dispatch(fetchGiftSetCart());
-  }, [dispatch, token]);
+  }, [dispatch, token, authInitialized]);
 
   const selectedItems = summary?.items || [];
 
@@ -202,17 +263,13 @@ export default function GiftSetBuilder({ products = [] }) {
   };
 
   const redirectToLogin = () => {
-    if (typeof window !== "undefined") {
-      const redirectPath =
-        pathname ||
-        `${window.location.pathname}${window.location.search}${window.location.hash}` ||
-        "/giftset";
+    const redirectPath = pathname || "/giftsets";
 
+    if (typeof window !== "undefined") {
       sessionStorage.setItem("redirectAfterLogin", redirectPath);
-      router.push(`/login?next=${encodeURIComponent(redirectPath)}`);
-    } else {
-      router.push("/login");
     }
+
+    router.push(`/login?next=${encodeURIComponent(redirectPath)}`);
   };
 
   const handleAdd = async (product) => {
@@ -244,6 +301,8 @@ export default function GiftSetBuilder({ products = [] }) {
     }
   };
 
+  const visibleError = token ? error : null;
+
   return (
     <div className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr]">
       <div className="space-y-8">
@@ -255,10 +314,16 @@ export default function GiftSetBuilder({ products = [] }) {
             </p>
           </div>
 
-          <SelectedGiftSetItems
-            items={selectedItems}
-            onRemove={(cartItemId) => dispatch(removeGiftSetCartItem(cartItemId))}
-          />
+          {!token ? (
+            <div className="rounded-2xl border border-dashed bg-white p-6 text-sm text-gray-600">
+              Sign in to save and review your gift set.
+            </div>
+          ) : (
+            <SelectedGiftSetItems
+              items={selectedItems}
+              onRemove={(cartItemId) => dispatch(removeGiftSetCartItem(cartItemId))}
+            />
+          )}
         </div>
 
         <div className="rounded-3xl border bg-white p-5">
@@ -267,7 +332,7 @@ export default function GiftSetBuilder({ products = [] }) {
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {products.map((product) => {
               const selected = selectedIds.has(product.id);
-              const disabled = !selected && selectedItems.length >= 5;
+              const disabled = !selected && selectedItems.length >= 5 && !!token;
 
               return (
                 <div key={product.id} className="rounded-2xl border p-4">
@@ -313,17 +378,19 @@ export default function GiftSetBuilder({ products = [] }) {
           </div>
         </div>
 
-        {(error || giftBoxError) && (
+        {(visibleError || giftBoxError) && (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-            {error || giftBoxError}
+            {visibleError || giftBoxError}
           </div>
         )}
       </div>
 
       <GiftSetSummary
-        summary={summary}
+        summary={token ? summary : null}
         loading={loading || giftBoxLoading}
         onClear={() => dispatch(clearGiftSetCart())}
+        showCheckoutLink
+        mode="builder"
       />
     </div>
   );
