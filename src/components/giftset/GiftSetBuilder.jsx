@@ -1,203 +1,6 @@
 
 
 
-// "use client";
-
-// import { useEffect, useMemo, useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { usePathname, useRouter } from "next/navigation";
-// import {
-//   addGiftSetCartItem,
-//   clearGiftSetCart,
-//   fetchGiftSetCart,
-//   removeGiftSetCartItem,
-// } from "@/features/giftSet/giftSetSlice";
-// import { fetchActiveGiftBoxes } from "@/features/giftBoxes/giftBoxSlice";
-// import SelectedGiftSetItems from "./SelectedGiftSetItems";
-// import GiftSetSummary from "./GiftSetSummary";
-
-// export default function GiftSetBuilder({ products = [] }) {
-//   const dispatch = useDispatch();
-//   const router = useRouter();
-//   const pathname = usePathname();
-
-//   const token = useSelector((state) => state.auth?.token);
-
-//   const {
-//     publicGiftBoxes = [],
-//     loading: giftBoxLoading,
-//     error: giftBoxError,
-//   } = useSelector((state) => state.giftBoxes);
-
-//   const { summary, loading, error } = useSelector((state) => state.giftSet);
-
-//   const [giftBoxSelections, setGiftBoxSelections] = useState({});
-
-//   useEffect(() => {
-//     dispatch(fetchActiveGiftBoxes());
-//   }, [dispatch]);
-
-//   useEffect(() => {
-//     if (!token) return;
-//     dispatch(fetchGiftSetCart());
-//   }, [dispatch, token]);
-
-//   const selectedItems = summary?.items || [];
-
-//   const selectedIds = useMemo(() => {
-//     return new Set(selectedItems.map((item) => item.productId));
-//   }, [selectedItems]);
-
-//   const handleGiftBoxChange = (productId, giftBoxId) => {
-//     setGiftBoxSelections((prev) => ({
-//       ...prev,
-//       [productId]: giftBoxId,
-//     }));
-//   };
-
-//   const redirectToLogin = () => {
-//     if (typeof window !== "undefined") {
-//       const redirectPath =
-//         pathname ||
-//         `${window.location.pathname}${window.location.search}${window.location.hash}` ||
-//         "/giftset";
-
-//       sessionStorage.setItem("redirectAfterLogin", redirectPath);
-//       router.push(`/login?next=${encodeURIComponent(redirectPath)}`);
-//     } else {
-//       router.push("/login");
-//     }
-//   };
-
-//   const handleAdd = async (product) => {
-//     if (!token) {
-//       redirectToLogin();
-//       return;
-//     }
-
-//     const selectedGiftBoxId = giftBoxSelections[product.id];
-
-//     if (!selectedGiftBoxId) {
-//       alert("Please select a gift box first.");
-//       return;
-//     }
-
-//     try {
-//       await dispatch(
-//         addGiftSetCartItem({
-//           productId: product.id,
-//           giftBoxId: Number(selectedGiftBoxId),
-//         })
-//       ).unwrap();
-//     } catch (err) {
-//       const status = err?.status || err?.response?.status;
-
-//       if (status === 401 || status === 403) {
-//         redirectToLogin();
-//       }
-//     }
-//   };
-
-//   return (
-//     <div className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr]">
-//       <div className="space-y-8">
-//         <div className="rounded-3xl border bg-white p-5">
-//           <div className="mb-5 flex items-center justify-between">
-//             <h2 className="text-lg font-bold">Selected Products</h2>
-//             <p className="text-sm text-gray-500">
-//               {selectedItems.length}/5 selected
-//             </p>
-//           </div>
-
-//           <SelectedGiftSetItems
-//             items={selectedItems}
-//             onRemove={(cartItemId) => dispatch(removeGiftSetCartItem(cartItemId))}
-//           />
-//         </div>
-
-//         <div className="rounded-3xl border bg-white p-5">
-//           <h2 className="mb-5 text-lg font-bold">All Products</h2>
-
-//           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-//             {products.map((product) => {
-//               const selected = selectedIds.has(product.id);
-//               const disabled = !selected && selectedItems.length >= 5;
-
-//               return (
-//                 <div key={product.id} className="rounded-2xl border p-4">
-//                   <h3 className="line-clamp-2 text-sm font-semibold">
-//                     {product.title}
-//                   </h3>
-
-//                   <p className="mt-2 text-base font-bold">₹{product.priceInr}</p>
-
-//                   <div className="mt-4">
-//                     <select
-//                       value={giftBoxSelections[product.id] || ""}
-//                       onChange={(e) =>
-//                         handleGiftBoxChange(product.id, e.target.value)
-//                       }
-//                       disabled={selected}
-//                       className="w-full rounded-xl border px-3 py-2 text-sm"
-//                     >
-//                       <option value="">Choose Gift Box</option>
-//                       {publicGiftBoxes.map((box) => (
-//                         <option key={box.id} value={box.id}>
-//                           {box.name} - ₹{box.priceInr}
-//                         </option>
-//                       ))}
-//                     </select>
-//                   </div>
-
-//                   <button
-//                     type="button"
-//                     disabled={disabled || selected || loading || giftBoxLoading}
-//                     onClick={() => handleAdd(product)}
-//                     className={`mt-4 w-full rounded-xl px-4 py-2 text-sm font-semibold ${
-//                       selected
-//                         ? "bg-green-600 text-white"
-//                         : "bg-black text-white disabled:opacity-50"
-//                     }`}
-//                   >
-//                     {selected ? "Already Added" : "Add to Gift Set"}
-//                   </button>
-//                 </div>
-//               );
-//             })}
-//           </div>
-//         </div>
-
-//         {(error || giftBoxError) && (
-//           <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-//             {error || giftBoxError}
-//           </div>
-//         )}
-//       </div>
-
-//       <GiftSetSummary
-//         summary={summary}
-//         loading={loading || giftBoxLoading}
-//         onClear={() => dispatch(clearGiftSetCart())}
-//       />
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -214,15 +17,33 @@ import { fetchActiveGiftBoxes } from "@/features/giftBoxes/giftBoxSlice";
 import SelectedGiftSetItems from "./SelectedGiftSetItems";
 import GiftSetSummary from "./GiftSetSummary";
 
+function getProductImage(product) {
+  if (Array.isArray(product?.images) && product.images.length > 0) {
+    return product.images[0];
+  }
+  return "/placeholder.png";
+}
+
+function getGiftBoxImage(box) {
+  return box?.imagePath || "/placeholder.png";
+}
+
+const STEPS = [
+  "Pick your style",
+  "Choose a gift box",
+  "Make it charming",
+  "Select a Dust Bag",
+  "Say it with a card",
+];
+
 export default function GiftSetBuilder({ products = [] }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
 
-  const {
-    token,
-    initialized: authInitialized,
-  } = useSelector((state) => state.auth);
+  const { token, initialized: authInitialized } = useSelector(
+    (state) => state.auth
+  );
 
   const {
     publicGiftBoxes = [],
@@ -232,7 +53,8 @@ export default function GiftSetBuilder({ products = [] }) {
 
   const { summary, loading, error } = useSelector((state) => state.giftSet);
 
-  const [giftBoxSelections, setGiftBoxSelections] = useState({});
+  const [activeProduct, setActiveProduct] = useState(null);
+  const [addingProductId, setAddingProductId] = useState(null);
 
   useEffect(() => {
     dispatch(fetchActiveGiftBoxes());
@@ -255,12 +77,12 @@ export default function GiftSetBuilder({ products = [] }) {
     return new Set(selectedItems.map((item) => item.productId));
   }, [selectedItems]);
 
-  const handleGiftBoxChange = (productId, giftBoxId) => {
-    setGiftBoxSelections((prev) => ({
-      ...prev,
-      [productId]: giftBoxId,
-    }));
-  };
+  useEffect(() => {
+    if (!activeProduct) return;
+    if (selectedIds.has(activeProduct.id)) {
+      setActiveProduct(null);
+    }
+  }, [selectedIds, activeProduct]);
 
   const redirectToLogin = () => {
     const redirectPath = pathname || "/giftsets";
@@ -272,126 +94,277 @@ export default function GiftSetBuilder({ products = [] }) {
     router.push(`/login?next=${encodeURIComponent(redirectPath)}`);
   };
 
-  const handleAdd = async (product) => {
+  const handlePickProduct = (product) => {
+    const alreadyAdded = selectedIds.has(product.id);
+    const maxReached = !alreadyAdded && selectedItems.length >= 5 && !!token;
+
+    if (maxReached) return;
+
+    setActiveProduct(product);
+    window?.scrollTo?.({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const handleAddWithGiftBox = async (product, giftBoxId) => {
     if (!token) {
       redirectToLogin();
       return;
     }
 
-    const selectedGiftBoxId = giftBoxSelections[product.id];
-
-    if (!selectedGiftBoxId) {
-      alert("Please select a gift box first.");
-      return;
-    }
-
     try {
+      setAddingProductId(product.id);
+
       await dispatch(
         addGiftSetCartItem({
           productId: product.id,
-          giftBoxId: Number(selectedGiftBoxId),
+          giftBoxId: Number(giftBoxId),
         })
       ).unwrap();
+
+      setActiveProduct(null);
     } catch (err) {
       const status = err?.status || err?.response?.status;
 
       if (status === 401 || status === 403) {
         redirectToLogin();
       }
+    } finally {
+      setAddingProductId(null);
     }
   };
 
   const visibleError = token ? error : null;
+  const totalSelected = selectedItems.length;
+  const maxReached = totalSelected >= 5 && !!token;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr]">
-      <div className="space-y-8">
-        <div className="rounded-3xl border bg-white p-5">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-lg font-bold">Selected Products</h2>
-            <p className="text-sm text-gray-500">
-              {selectedItems.length}/5 selected
-            </p>
+    <section className="bg-white text-[#1a1a1a]">
+      <div className="mx-auto max-w-[1440px] px-4 py-6 md:px-6 lg:px-10">
+        {/* Step Header */}
+        <div className="mb-8 hidden md:block">
+          <div className="relative mx-auto mb-3 flex max-w-6xl items-center justify-between">
+            <div className="absolute left-0 right-0 top-[10px] h-[1px] bg-[#d9d9d9]" />
+            {STEPS.map((step, index) => (
+              <div
+                key={step}
+                className="relative z-10 flex flex-1 flex-col items-center text-center"
+              >
+                <span
+                  className={`mb-3 h-4 w-4 rounded-full border ${
+                    index === 0
+                      ? "border-black bg-black"
+                      : "border-[#d9d9d9] bg-white"
+                  }`}
+                />
+                <span className="text-[14px] font-normal text-[#6f6f6f]">
+                  {step}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Selected products section */}
+        <div className="mb-8 rounded-3xl border border-[#e8e8e8] bg-[#fafafa] p-5 md:p-6">
+          <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-xl font-medium tracking-wide">
+                Your Gift Set
+              </h2>
+              <p className="mt-1 text-sm text-[#666]">
+                {totalSelected}/5 products selected
+              </p>
+            </div>
+
+            {!token && (
+              <div className="rounded-full border border-[#e0e0e0] bg-white px-4 py-2 text-sm text-[#666]">
+                Sign in to save and review your gift set.
+              </div>
+            )}
           </div>
 
-          {!token ? (
-            <div className="rounded-2xl border border-dashed bg-white p-6 text-sm text-gray-600">
-              Sign in to save and review your gift set.
-            </div>
-          ) : (
+          {token ? (
             <SelectedGiftSetItems
               items={selectedItems}
               onRemove={(cartItemId) => dispatch(removeGiftSetCartItem(cartItemId))}
             />
+          ) : (
+            <div className="rounded-2xl border border-dashed border-[#d7d7d7] bg-white px-4 py-8 text-center text-sm text-[#666]">
+              Sign in to start adding products to your gift set.
+            </div>
           )}
         </div>
 
-        <div className="rounded-3xl border bg-white p-5">
-          <h2 className="mb-5 text-lg font-bold">All Products</h2>
+        {/* Gift box chooser for selected product */}
+        {activeProduct && (
+          <div className="mb-10 rounded-[28px] border border-[#ebebeb] bg-[#fcfcfc] p-5 md:p-7">
+            <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.25em] text-[#8a8a8a]">
+                  Step 2
+                </p>
+                <h3 className="mt-1 text-2xl font-medium">
+                  Choose a gift box for {activeProduct.title}
+                </h3>
+                <p className="mt-1 text-sm text-[#666]">
+                  Select one gift box to add this product to your gift set.
+                </p>
+              </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {products.map((product) => {
-              const selected = selectedIds.has(product.id);
-              const disabled = !selected && selectedItems.length >= 5 && !!token;
+              <button
+                type="button"
+                onClick={() => setActiveProduct(null)}
+                className="rounded-full border border-[#d8d8d8] px-4 py-2 text-sm transition hover:bg-white"
+              >
+                Cancel
+              </button>
+            </div>
 
-              return (
-                <div key={product.id} className="rounded-2xl border p-4">
-                  <h3 className="line-clamp-2 text-sm font-semibold">
-                    {product.title}
-                  </h3>
-
-                  <p className="mt-2 text-base font-bold">₹{product.priceInr}</p>
-
-                  <div className="mt-4">
-                    <select
-                      value={giftBoxSelections[product.id] || ""}
-                      onChange={(e) =>
-                        handleGiftBoxChange(product.id, e.target.value)
-                      }
-                      disabled={selected}
-                      className="w-full rounded-xl border px-3 py-2 text-sm"
-                    >
-                      <option value="">Choose Gift Box</option>
-                      {publicGiftBoxes.map((box) => (
-                        <option key={box.id} value={box.id}>
-                          {box.name} - ₹{box.priceInr}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
+            {giftBoxLoading ? (
+              <div className="rounded-2xl bg-white p-6 text-sm text-[#666]">
+                Loading gift boxes...
+              </div>
+            ) : publicGiftBoxes.length === 0 ? (
+              <div className="rounded-2xl bg-white p-6 text-sm text-[#666]">
+                No gift boxes available right now.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {publicGiftBoxes.map((box) => (
                   <button
+                    key={box.id}
                     type="button"
-                    disabled={disabled || selected || loading || giftBoxLoading}
-                    onClick={() => handleAdd(product)}
-                    className={`mt-4 w-full rounded-xl px-4 py-2 text-sm font-semibold ${
-                      selected
-                        ? "bg-green-600 text-white"
-                        : "bg-black text-white disabled:opacity-50"
+                    onClick={() => handleAddWithGiftBox(activeProduct, box.id)}
+                    disabled={loading || addingProductId === activeProduct.id}
+                    className="group overflow-hidden rounded-[24px] border border-[#e7e7e7] bg-white text-left transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <div className="aspect-[4/3] overflow-hidden bg-[#f1f1f1]">
+                      <img
+                        src={getGiftBoxImage(box)}
+                        alt={box.name}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                      />
+                    </div>
+
+                    <div className="p-4">
+                      <h4 className="text-base font-medium uppercase tracking-wide text-[#1a1a1a]">
+                        {box.name}
+                      </h4>
+                      <p className="mt-1 text-sm text-[#666]">
+                        ₹{box.priceInr}
+                      </p>
+
+                      <div className="mt-4 inline-flex rounded-full border border-black px-4 py-2 text-sm text-black transition group-hover:bg-black group-hover:text-white">
+                        {addingProductId === activeProduct.id
+                          ? "Adding..."
+                          : "Choose this box"}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Product grid */}
+        <div>
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.25em] text-[#8a8a8a]">
+                Step 1
+              </p>
+              <h2 className="mt-1 text-2xl font-medium">Pick your style</h2>
+            </div>
+
+            {maxReached && (
+              <div className="rounded-full border border-[#e0e0e0] px-4 py-2 text-sm text-[#666]">
+                Maximum 5 products selected
+              </div>
+            )}
+          </div>
+
+          {products.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[#dadada] p-8 text-center text-sm text-[#666]">
+              No products available right now.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {products.map((product) => {
+                const selected = selectedIds.has(product.id);
+                const disabled = !selected && selectedItems.length >= 5 && !!token;
+                const isActive = activeProduct?.id === product.id;
+
+                return (
+                  <div
+                    key={product.id}
+                    className={`overflow-hidden rounded-[26px] border bg-white transition ${
+                      isActive
+                        ? "border-black shadow-md"
+                        : "border-[#ececec] hover:shadow-sm"
                     }`}
                   >
-                    {selected ? "Already Added" : "Add to Gift Set"}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    <div className="aspect-[4/5] overflow-hidden bg-[#efefef]">
+                      <img
+                        src={getProductImage(product)}
+                        alt={product.title}
+                        className="h-full w-full object-contain p-6 transition duration-300 hover:scale-[1.02]"
+                      />
+                    </div>
+
+                    <div className="border-t border-[#f0f0f0] px-4 pb-5 pt-4">
+                      <h3 className="line-clamp-2 min-h-[52px] text-[15px] font-medium uppercase tracking-wide text-[#111]">
+                        {product.title}
+                      </h3>
+
+                      <p className="mt-1 text-sm text-[#666]">₹{product.priceInr}</p>
+
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={() => handlePickProduct(product)}
+                          disabled={selected || disabled || giftBoxLoading || loading}
+                          className={`w-full rounded-full border px-4 py-3 text-sm transition ${
+                            selected
+                              ? "cursor-not-allowed border-[#d8d8d8] bg-[#f4f4f4] text-[#8a8a8a]"
+                              : isActive
+                              ? "border-black bg-black text-white"
+                              : "border-black bg-white text-black hover:bg-black hover:text-white"
+                          } disabled:cursor-not-allowed disabled:opacity-60`}
+                        >
+                          {selected
+                            ? "Already Added"
+                            : isActive
+                            ? "Selected - choose a gift box"
+                            : "Pick this style"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {(visibleError || giftBoxError) && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {visibleError || giftBoxError}
           </div>
         )}
-      </div>
 
-      <GiftSetSummary
-        summary={token ? summary : null}
-        loading={loading || giftBoxLoading}
-        onClear={() => dispatch(clearGiftSetCart())}
-        showCheckoutLink
-        mode="builder"
-      />
-    </div>
+        <div className="mt-10">
+          <GiftSetSummary
+            summary={token ? summary : null}
+            loading={loading || giftBoxLoading}
+            onClear={() => dispatch(clearGiftSetCart())}
+            showCheckoutLink
+            mode="builder"
+          />
+        </div>
+      </div>
+    </section>
   );
 }
