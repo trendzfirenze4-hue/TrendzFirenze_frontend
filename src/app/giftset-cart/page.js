@@ -15,6 +15,10 @@ import SelectedGiftSetItems from "@/components/giftset/SelectedGiftSetItems";
 import GiftSetSummary from "@/components/giftset/GiftSetSummary";
 import Link from "next/link";
 
+import { FiGift } from "react-icons/fi";
+
+
+
 export default function GiftSetCartPage() {
   const dispatch = useDispatch();
 
@@ -169,7 +173,7 @@ export default function GiftSetCartPage() {
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,0,0,0.04),transparent_35%)]" />
                       <div className="relative mx-auto max-w-md">
                         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm">
-                          <span className="text-2xl">🎁</span>
+                          <FiGift className="text-[28px] text-gray-700" />
                         </div>
 
                         <h2 className="mt-5 text-xl font-bold tracking-tight text-gray-900">
