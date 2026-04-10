@@ -1,14 +1,21 @@
 
 
 
-
-
-
 // "use client";
 
-// import Link from "next/link";
+// import { useRouter } from "next/navigation";
+// import { useSelector } from "react-redux";
 
-// export default function GiftSetSummary({ summary, loading, onClear, showCheckoutLink = true }) {
+// export default function GiftSetSummary({
+//   summary,
+//   loading,
+//   onClear,
+//   showCheckoutLink = true,
+//   mode = "builder",
+// }) {
+//   const router = useRouter();
+//   const token = useSelector((state) => state.auth?.token);
+
 //   const safeSummary = summary || {
 //     items: [],
 //     totalProducts: 0,
@@ -19,6 +26,25 @@
 //   };
 
 //   const disabled = loading || safeSummary.totalProducts === 0;
+
+//   const handlePrimaryAction = () => {
+//     if (safeSummary.totalProducts === 0) return;
+
+//     if (mode === "builder") {
+//       router.push("/giftset-cart");
+//       return;
+//     }
+
+//     if (!token) {
+//       if (typeof window !== "undefined") {
+//         sessionStorage.setItem("redirectAfterLogin", "/checkout?source=giftset");
+//       }
+//       router.push("/login?next=%2Fcheckout%3Fsource%3Dgiftset");
+//       return;
+//     }
+
+//     router.push("/checkout?source=giftset");
+//   };
 
 //   return (
 //     <div className="sticky top-24 rounded-3xl border bg-white p-6 shadow-sm">
@@ -57,27 +83,23 @@
 //         </button>
 
 //         {showCheckoutLink ? (
-//           <Link
-//             href="/checkout?source=giftset"
+//           <button
+//             type="button"
+//             onClick={handlePrimaryAction}
+//             disabled={safeSummary.totalProducts === 0}
 //             className={`block w-full rounded-xl px-4 py-3 text-center ${
 //               safeSummary.totalProducts === 0
-//                 ? "pointer-events-none bg-gray-200 text-gray-400"
+//                 ? "cursor-not-allowed bg-gray-200 text-gray-400"
 //                 : "bg-black text-white"
 //             }`}
 //           >
-//             Proceed to Checkout
-//           </Link>
+//             {mode === "builder" ? "Review Gift Set" : "Proceed to Checkout"}
+//           </button>
 //         ) : null}
 //       </div>
 //     </div>
 //   );
 // }
-
-
-
-
-
-
 
 
 
@@ -102,7 +124,7 @@ export default function GiftSetSummary({
   loading,
   onClear,
   showCheckoutLink = true,
-  mode = "builder", // "builder" | "cart"
+  mode = "builder",
 }) {
   const router = useRouter();
   const token = useSelector((state) => state.auth?.token);
@@ -122,14 +144,6 @@ export default function GiftSetSummary({
     if (safeSummary.totalProducts === 0) return;
 
     if (mode === "builder") {
-      if (!token) {
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem("redirectAfterLogin", "/giftsets");
-        }
-        router.push("/login?next=%2Fgiftsets");
-        return;
-      }
-
       router.push("/giftset-cart");
       return;
     }

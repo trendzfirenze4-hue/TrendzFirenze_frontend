@@ -1,7 +1,79 @@
+
+
 "use client";
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import giftSetApi from "./giftSetApi";
+
+const GUEST_GIFTSET_STORAGE_KEY = "guest_giftset";
+
+const emptySummary = {
+  items: [],
+  totalProducts: 0,
+  subtotalInr: 0,
+  discountPercent: 0,
+  discountAmountInr: 0,
+  finalTotalInr: 0,
+};
+
+function isBrowser() {
+  return typeof window !== "undefined";
+}
+
+function readGuestSummary() {
+  if (!isBrowser()) return emptySummary;
+
+  try {
+    const raw = localStorage.getItem(GUEST_GIFTSET_STORAGE_KEY);
+    if (!raw) return emptySummary;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.items)) return emptySummary;
+
+    return {
+      ...emptySummary,
+      ...parsed,
+      items: Array.isArray(parsed.items) ? parsed.items : [],
+    };
+  } catch {
+    return emptySummary;
+  }
+}
+
+function writeGuestSummary(summary) {
+  if (!isBrowser()) return;
+  localStorage.setItem(GUEST_GIFTSET_STORAGE_KEY, JSON.stringify(summary));
+}
+
+function clearGuestSummaryStorage() {
+  if (!isBrowser()) return;
+  localStorage.removeItem(GUEST_GIFTSET_STORAGE_KEY);
+}
+
+function calculateSummary(items) {
+  const safeItems = Array.isArray(items) ? items : [];
+  const subtotal = safeItems.reduce(
+    (sum, item) => sum + (Number(item?.lineTotalInr) || 0),
+    0
+  );
+  const totalProducts = safeItems.length;
+
+  let discountPercent = 0;
+  if (totalProducts === 2) discountPercent = 10;
+  if (totalProducts >= 3 && totalProducts <= 5) discountPercent = 15;
+
+  const discountAmountInr = Math.round(subtotal * (discountPercent / 100));
+  const finalTotalInr = subtotal - discountAmountInr;
+
+  return {
+    items: safeItems,
+    totalProducts,
+    subtotalInr: subtotal,
+    discountPercent,
+    discountAmountInr,
+    finalTotalInr,
+  };
+}
 
 export const fetchGiftSetCart = createAsyncThunk(
   "giftSet/fetchGiftSetCart",
@@ -130,6 +202,40 @@ export const fetchMyGiftSetOrderById = createAsyncThunk(
   }
 );
 
+export const syncGuestGiftSetCart = createAsyncThunk(
+  "giftSet/syncGuestGiftSetCart",
+  async (_, thunkAPI) => {
+    const guestSummary = readGuestSummary();
+    const guestItems = guestSummary?.items || [];
+
+    if (!guestItems.length) {
+      return { skipped: true };
+    }
+
+    try {
+      for (const item of guestItems) {
+        await giftSetApi.addGiftSetCartItem({
+          productId: item.productId,
+          giftBoxId: item.giftBoxId,
+        });
+      }
+
+      clearGuestSummaryStorage();
+      const serverCart = await giftSetApi.getGiftSetCart();
+
+      return {
+        skipped: false,
+        summary: serverCart?.summary || emptySummary,
+      };
+    } catch (e) {
+      return thunkAPI.rejectWithValue({
+        message: e?.response?.data?.message || "Failed to sync guest gift set",
+        status: e?.response?.status || null,
+      });
+    }
+  }
+);
+
 const initialState = {
   summary: null,
   orders: [],
@@ -139,15 +245,6 @@ const initialState = {
   paymentVerified: null,
   loading: false,
   error: null,
-};
-
-const emptySummary = {
-  items: [],
-  totalProducts: 0,
-  subtotalInr: 0,
-  discountPercent: 0,
-  discountAmountInr: 0,
-  finalTotalInr: 0,
 };
 
 const giftSetSlice = createSlice({
@@ -165,6 +262,52 @@ const giftSetSlice = createSlice({
     clearSelectedGiftSetOrder(state) {
       state.selectedOrder = null;
     },
+    loadGuestGiftSetCart(state) {
+      state.summary = readGuestSummary();
+      state.error = null;
+    },
+    addGuestGiftSetItem(state, action) {
+      const item = action.payload;
+      const currentItems = state.summary?.items || [];
+
+      if (currentItems.some((i) => i.productId === item.productId)) {
+        return;
+      }
+
+      if (currentItems.length >= 5) {
+        state.error = "Maximum 5 products allowed in gift set";
+        return;
+      }
+
+      const nextItems = [...currentItems, item];
+      const nextSummary = calculateSummary(nextItems);
+
+      state.summary = nextSummary;
+      state.error = null;
+      writeGuestSummary(nextSummary);
+    },
+    removeGuestGiftSetItem(state, action) {
+      const removeKey = action.payload;
+      const currentItems = state.summary?.items || [];
+
+      const nextItems = currentItems.filter((item, index) => {
+        const itemKey =
+          item.cartItemId ??
+          item.guestItemKey ??
+          `${item.productId}-${item.giftBoxId}-${index}`;
+        return itemKey !== removeKey;
+      });
+
+      const nextSummary = calculateSummary(nextItems);
+      state.summary = nextSummary;
+      state.error = null;
+      writeGuestSummary(nextSummary);
+    },
+    clearGuestGiftSetCart(state) {
+      state.summary = emptySummary;
+      state.error = null;
+      clearGuestSummaryStorage();
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -174,14 +317,12 @@ const giftSetSlice = createSlice({
       })
       .addCase(fetchGiftSetCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.summary = action.payload?.summary || null;
+        state.summary = action.payload?.summary || emptySummary;
       })
       .addCase(fetchGiftSetCart.rejected, (state, action) => {
         state.loading = false;
 
         const status = action.payload?.status;
-
-        // Ignore auth errors and silent network/cold-start fetch errors
         if (status === 401 || status === 403 || !status) {
           state.error = null;
         } else {
@@ -195,7 +336,7 @@ const giftSetSlice = createSlice({
       })
       .addCase(addGiftSetCartItem.fulfilled, (state, action) => {
         state.loading = false;
-        state.summary = action.payload?.summary || null;
+        state.summary = action.payload?.summary || emptySummary;
       })
       .addCase(addGiftSetCartItem.rejected, (state, action) => {
         state.loading = false;
@@ -208,7 +349,7 @@ const giftSetSlice = createSlice({
       })
       .addCase(removeGiftSetCartItem.fulfilled, (state, action) => {
         state.loading = false;
-        state.summary = action.payload?.summary || null;
+        state.summary = action.payload?.summary || emptySummary;
       })
       .addCase(removeGiftSetCartItem.rejected, (state, action) => {
         state.loading = false;
@@ -221,11 +362,26 @@ const giftSetSlice = createSlice({
       })
       .addCase(clearGiftSetCart.fulfilled, (state, action) => {
         state.loading = false;
-        state.summary = action.payload?.summary || null;
+        state.summary = action.payload?.summary || emptySummary;
       })
       .addCase(clearGiftSetCart.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to clear cart";
+      })
+
+      .addCase(syncGuestGiftSetCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(syncGuestGiftSetCart.fulfilled, (state, action) => {
+        state.loading = false;
+        if (!action.payload?.skipped) {
+          state.summary = action.payload?.summary || emptySummary;
+        }
+      })
+      .addCase(syncGuestGiftSetCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Failed to sync guest gift set";
       })
 
       .addCase(placeGiftSetOrder.pending, (state) => {
@@ -306,6 +462,10 @@ export const {
   clearGiftSetError,
   clearPlacedGiftSetOrder,
   clearSelectedGiftSetOrder,
+  loadGuestGiftSetCart,
+  addGuestGiftSetItem,
+  removeGuestGiftSetItem,
+  clearGuestGiftSetCart,
 } = giftSetSlice.actions;
 
 export default giftSetSlice.reducer;
