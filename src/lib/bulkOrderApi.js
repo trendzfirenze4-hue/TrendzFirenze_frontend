@@ -20,6 +20,12 @@ const bulkOrderApi = {
     const res = await api.put(`/api/admin/bulk-orders/${id}/status`, payload);
     return res.data;
   },
+
+  deleteAdminBulkOrder: async (id) => {
+  const res = await api.delete(`/api/admin/bulk-orders/${id}`);
+  return res.data;
+  },
+
 };
 
 export default bulkOrderApi;

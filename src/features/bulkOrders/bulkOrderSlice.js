@@ -1,5 +1,3 @@
-"use client";
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import bulkOrderApi from "@/lib/bulkOrderApi";
 
@@ -50,6 +48,20 @@ export const updateAdminBulkOrderStatus = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err?.response?.data?.message || "Failed to update bulk order status"
+      );
+    }
+  }
+);
+
+export const deleteAdminBulkOrder = createAsyncThunk(
+  "bulkOrders/deleteAdminBulkOrder",
+  async (id, { rejectWithValue }) => {
+    try {
+      await bulkOrderApi.deleteAdminBulkOrder(id);
+      return id;
+    } catch (err) {
+      return rejectWithValue(
+        err?.response?.data?.message || "Failed to delete bulk order"
       );
     }
   }
@@ -142,6 +154,25 @@ const bulkOrderSlice = createSlice({
         );
       })
       .addCase(updateAdminBulkOrderStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // delete bulk order
+      .addCase(deleteAdminBulkOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAdminBulkOrder.fulfilled, (state, action) => {
+        state.loading = false;
+
+        state.items = state.items.filter((item) => item.id !== action.payload);
+
+        if (state.selectedInquiry?.id === action.payload) {
+          state.selectedInquiry = null;
+        }
+      })
+      .addCase(deleteAdminBulkOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

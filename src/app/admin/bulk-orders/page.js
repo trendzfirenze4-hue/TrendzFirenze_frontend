@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAdminBulkOrders,
   updateAdminBulkOrderStatus,
+  deleteAdminBulkOrder,
 } from "@/features/bulkOrders/bulkOrderSlice";
 import getImageUrl from "@/lib/getImageUrl";
 
@@ -19,6 +20,16 @@ export default function AdminBulkOrdersPage() {
 
   function handleStatusChange(id, status) {
     dispatch(updateAdminBulkOrderStatus({ id, status }));
+  }
+
+  function handleDelete(id) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this bulk inquiry?"
+    );
+
+    if (!confirmed) return;
+
+    dispatch(deleteAdminBulkOrder(id));
   }
 
   return (
@@ -77,12 +88,30 @@ export default function AdminBulkOrdersPage() {
                   </p>
 
                   <div className="mt-4 grid gap-2 text-[14px] text-neutral-700 sm:grid-cols-2">
-                    <p><span className="font-semibold text-[#111111]">Customer:</span> {item.customerName}</p>
-                    <p><span className="font-semibold text-[#111111]">Email:</span> {item.email}</p>
-                    <p><span className="font-semibold text-[#111111]">Phone:</span> {item.phone}</p>
-                    <p><span className="font-semibold text-[#111111]">Company:</span> {item.companyName || "-"}</p>
-                    <p><span className="font-semibold text-[#111111]">Quantity:</span> {item.quantity}</p>
-                    <p><span className="font-semibold text-[#111111]">Status:</span> {item.status}</p>
+                    <p>
+                      <span className="font-semibold text-[#111111]">Customer:</span>{" "}
+                      {item.customerName}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-[#111111]">Email:</span>{" "}
+                      {item.email}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-[#111111]">Phone:</span>{" "}
+                      {item.phone}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-[#111111]">Company:</span>{" "}
+                      {item.companyName || "-"}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-[#111111]">Quantity:</span>{" "}
+                      {item.quantity}
+                    </p>
+                    <p>
+                      <span className="font-semibold text-[#111111]">Status:</span>{" "}
+                      {item.status}
+                    </p>
                   </div>
 
                   <div className="mt-4 rounded-[18px] bg-[#fafafa] p-4 ring-1 ring-neutral-200">
@@ -119,6 +148,13 @@ export default function AdminBulkOrdersPage() {
                     className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-neutral-300 bg-white px-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#111111] transition-all duration-300 hover:border-black"
                   >
                     Closed
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="inline-flex min-h-[42px] items-center justify-center rounded-full border border-red-300 bg-red-50 px-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-700 transition-all duration-300 hover:bg-red-600 hover:text-white"
+                  >
+                    Delete
                   </button>
                 </div>
               </article>
