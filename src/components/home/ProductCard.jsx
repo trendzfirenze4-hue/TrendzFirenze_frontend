@@ -15,6 +15,14 @@ export default function ProductCard({ product }) {
         ).toFixed(1)
       : 0;
 
+  const sellingPrice = Number(product.priceInr || 0);
+  const mrp = Number(product.mrpInr || 0);
+
+  const discountPercent =
+    mrp > 0 && sellingPrice > 0 && mrp > sellingPrice
+      ? Math.round(((mrp - sellingPrice) / mrp) * 100)
+      : 0;
+
   return (
     <Link href={`/product/${product.id}`} className="block h-full">
       <article className="group flex h-full flex-col overflow-hidden rounded-[22px] border border-neutral-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(0,0,0,0.08)]">
@@ -50,10 +58,29 @@ export default function ProductCard({ product }) {
             </span>
           </div>
 
-          <div className="mt-3.5 flex items-end justify-between gap-3">
-            <p className="text-[22px] font-semibold tracking-[-0.02em] text-[#111111] sm:text-[24px]">
-              ₹{product.priceInr}
-            </p>
+          <div className="mt-3.5 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-baseline gap-2 sm:gap-2.5">
+                {discountPercent > 0 && (
+                  <span className="text-[20px] font-medium leading-none tracking-[-0.02em] text-[#cc0c39] sm:text-[24px]">
+                    -{discountPercent}%
+                  </span>
+                )}
+
+                <p className="m-0 text-[30px] font-medium leading-none tracking-[-0.03em] text-[#111111] sm:text-[34px]">
+                  ₹{sellingPrice.toLocaleString("en-IN")}
+                </p>
+              </div>
+
+              {mrp > 0 && (
+                <p className="mt-1 text-[13px] font-medium leading-[1.3] text-neutral-500 sm:text-[14px]">
+                  <span>M.R.P.:</span>{" "}
+                  <span className="line-through">
+                    ₹{mrp.toLocaleString("en-IN")}
+                  </span>
+                </p>
+              )}
+            </div>
 
             <span
               className={`text-right text-[11px] font-semibold uppercase tracking-[0.1em] ${

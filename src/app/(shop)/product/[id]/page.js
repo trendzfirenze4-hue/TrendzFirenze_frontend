@@ -89,7 +89,7 @@ export default function ProductPage() {
   }, [isGalleryOpen]);
 
   const handleAddToCart = async () => {
-    if (!product) return;
+    if (!product || product.stock <= 0) return;
 
     try {
       await dispatch(addToCart({ product, quantity: 1 })).unwrap();
@@ -97,6 +97,18 @@ export default function ProductPage() {
     } catch (err) {
       console.error("Add to cart failed:", err);
       alert("Failed to add product to cart");
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!product || product.stock <= 0) return;
+
+    try {
+      await dispatch(addToCart({ product, quantity: 1 })).unwrap();
+      router.push("/checkout");
+    } catch (err) {
+      console.error("Buy now failed:", err);
+      alert("Failed to proceed to checkout");
     }
   };
 
@@ -174,6 +186,13 @@ export default function ProductPage() {
   const visibleThumbs = hasExtraImages
     ? galleryImages.slice(0, visibleThumbCount - 1)
     : galleryImages;
+
+  const sellingPrice = Number(product.priceInr || 0);
+  const mrp = Number(product.mrpInr || 0);
+  const discountPercent =
+    mrp > 0 && sellingPrice > 0 && mrp > sellingPrice
+      ? Math.round(((mrp - sellingPrice) / mrp) * 100)
+      : 0;
 
   return (
     <>
@@ -306,7 +325,26 @@ export default function ProductPage() {
               </div>
 
               <div className="price-stock-row">
-                <h2 className="price-text">₹ {product.priceInr}</h2>
+                <div className="price-block">
+                  <div className="price-display-row">
+                    {discountPercent > 0 && (
+                      <span className="discount-badge">-{discountPercent}%</span>
+                    )}
+
+                    <h2 className="price-text">
+                      ₹{sellingPrice.toLocaleString("en-IN")}
+                    </h2>
+                  </div>
+
+                  {mrp > 0 && (
+                    <div className="mrp-line">
+                      <span className="mrp-label">M.R.P.:</span>{" "}
+                      <span className="mrp-value">
+                        ₹{mrp.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
                 <span
                   className="stock-pill"
@@ -323,24 +361,34 @@ export default function ProductPage() {
                 <p className="description-text">{product.description}</p>
               </div>
 
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stock <= 0}
-                className="add-to-cart-btn"
-                style={{
-                  background:
-                    product.stock > 0
-                      ? "linear-gradient(135deg, #111827 0%, #1f2937 100%)"
-                      : "#9ca3af",
-                  cursor: product.stock > 0 ? "pointer" : "not-allowed",
-                  boxShadow:
-                    product.stock > 0
-                      ? "0 12px 24px rgba(17,24,39,0.18)"
-                      : "none",
-                }}
-              >
-                {product.stock > 0 ? "Add To Cart" : "Out of Stock"}
-              </button>
+              <div className="action-buttons">
+                <button
+                  onClick={handleAddToCart}
+                  disabled={product.stock <= 0}
+                  className="add-to-cart-btn"
+                  style={{
+                    background:
+                      product.stock > 0
+                        ? "linear-gradient(135deg, #111827 0%, #1f2937 100%)"
+                        : "#9ca3af",
+                    cursor: product.stock > 0 ? "pointer" : "not-allowed",
+                    boxShadow:
+                      product.stock > 0
+                        ? "0 12px 24px rgba(17,24,39,0.18)"
+                        : "none",
+                  }}
+                >
+                  {product.stock > 0 ? "Add To Cart" : "Out of Stock"}
+                </button>
+
+                <button
+                  onClick={handleBuyNow}
+                  disabled={product.stock <= 0}
+                  className="buy-now-btn"
+                >
+                  Buy Now
+                </button>
+              </div>
 
               <div className="trust-grid">
                 <div className="trust-box">
@@ -658,19 +706,19 @@ export default function ProductPage() {
         }
 
         .full-view-trigger {
-          align-self: center;
-          margin-top: 14px;
-          border: none;
-          background: transparent;
-          color: #2563eb;
-          font-size: 20px;
-          font-weight: 500;
-          line-height: 1.2;
-          text-align: center;
-          cursor: pointer;
-          padding: 0;
-          transition: color 0.2s ease;
-        }
+  align-self: center;
+  margin-top: 12px;
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
 
         .full-view-trigger:hover {
           color: #1d4ed8;
@@ -734,16 +782,58 @@ export default function ProductPage() {
         .price-stock-row {
           margin-bottom: 22px;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
+          justify-content: space-between;
           gap: 14px;
           flex-wrap: wrap;
         }
 
+        .price-block {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          min-width: 0;
+        }
+
+        .price-display-row {
+          display: flex;
+          align-items: baseline;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .discount-badge {
+          color: #cc0c39;
+          font-size: 32px;
+          font-weight: 500;
+          line-height: 1;
+          letter-spacing: -0.02em;
+        }
+
         .price-text {
-          color: #b12704;
-          font-size: 34px;
-          font-weight: 800;
+          color: #111111;
+          font-size: 48px;
+          font-weight: 500;
+          line-height: 1;
           margin: 0;
+          letter-spacing: -0.03em;
+        }
+
+        .mrp-line {
+          color: #6b7280;
+          font-size: 18px;
+          font-weight: 500;
+          line-height: 1.3;
+          margin-top: 4px;
+        }
+
+        .mrp-label {
+          color: #6b7280;
+        }
+
+        .mrp-value {
+          text-decoration: line-through;
+          color: #6b7280;
         }
 
         .stock-pill {
@@ -769,15 +859,45 @@ export default function ProductPage() {
           overflow-wrap: anywhere;
         }
 
-        .add-to-cart-btn {
+        .action-buttons {
+          display: grid;
+          gap: 12px;
+        }
+
+        .add-to-cart-btn,
+        .buy-now-btn {
           width: 100%;
           padding: 16px 24px;
-          color: #fff;
-          border: none;
           border-radius: 14px;
           font-weight: 800;
           font-size: 16px;
           transition: 0.3s ease;
+        }
+
+        .add-to-cart-btn {
+          color: #fff;
+          border: none;
+        }
+
+        .buy-now-btn {
+          background: #fff;
+          color: #111827;
+          border: 1.5px solid #111827;
+          cursor: pointer;
+        }
+
+        .buy-now-btn:hover {
+          background: #111827;
+          color: #fff;
+          box-shadow: 0 12px 24px rgba(17, 24, 39, 0.12);
+        }
+
+        .buy-now-btn:disabled {
+          background: #f3f4f6;
+          color: #9ca3af;
+          border-color: #d1d5db;
+          cursor: not-allowed;
+          box-shadow: none;
         }
 
         .trust-grid {
@@ -1181,8 +1301,20 @@ export default function ProductPage() {
             line-height: 1.3;
           }
 
+          .price-display-row {
+            gap: 8px;
+          }
+
+          .discount-badge {
+            font-size: 24px;
+          }
+
           .price-text {
-            font-size: 28px;
+            font-size: 36px;
+          }
+
+          .mrp-line {
+            font-size: 15px;
           }
 
           .stars {
@@ -1195,7 +1327,8 @@ export default function ProductPage() {
             font-size: 14px;
           }
 
-          .add-to-cart-btn {
+          .add-to-cart-btn,
+          .buy-now-btn {
             padding: 15px 20px;
             font-size: 15px;
           }
@@ -1251,8 +1384,16 @@ export default function ProductPage() {
             font-size: 22px;
           }
 
+          .discount-badge {
+            font-size: 20px;
+          }
+
           .price-text {
-            font-size: 24px;
+            font-size: 30px;
+          }
+
+          .mrp-line {
+            font-size: 14px;
           }
 
           .top-label {
