@@ -1,717 +1,3 @@
-
-
-// "use client";
-
-// import { useEffect, useMemo, useState } from "react";
-// import { useParams, useRouter } from "next/navigation";
-// import { useDispatch, useSelector } from "react-redux";
-
-// import { fetchProduct } from "@/features/products/productSlice";
-// import { addToCart } from "@/features/cart/cartSlice";
-
-// function getImageUrl(imageUrl) {
-//   if (!imageUrl) return "/placeholder.png";
-//   if (imageUrl.startsWith("http")) return imageUrl;
-
-//   const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
-//   const path = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
-
-//   return base ? `${base}${path}` : path;
-// }
-
-// export default function ProductPage() {
-//   const dispatch = useDispatch();
-//   const router = useRouter();
-//   const params = useParams();
-
-//   const id = params?.id;
-//   const product = useSelector((state) => state.products.product);
-
-//   useEffect(() => {
-//     if (!id) return;
-//     dispatch(fetchProduct(id));
-//   }, [id, dispatch]);
-
-//   const galleryImages = useMemo(() => {
-//     if (!product?.images?.length) return [];
-
-//     return product.images
-//       .map((img) => (typeof img === "string" ? img : img?.imageUrl))
-//       .filter(Boolean)
-//       .map(getImageUrl);
-//   }, [product]);
-
-//   const [selectedImage, setSelectedImage] = useState("");
-
-//   useEffect(() => {
-//     if (!galleryImages.length) {
-//       setSelectedImage("");
-//       return;
-//     }
-
-//     setSelectedImage((prev) =>
-//       galleryImages.includes(prev) ? prev : galleryImages[0]
-//     );
-//   }, [galleryImages]);
-
-//   const handleAddToCart = async () => {
-//     if (!product) return;
-
-//     try {
-//       await dispatch(addToCart({ product, quantity: 1 })).unwrap();
-//       router.push("/cart");
-//     } catch (err) {
-//       console.error("Add to cart failed:", err);
-//       alert("Failed to add product to cart");
-//     }
-//   };
-
-//   if (!product) {
-//     return (
-//       <div
-//         style={{
-//           minHeight: "100vh",
-//           background: "#f6f7fb",
-//           display: "flex",
-//           justifyContent: "center",
-//           alignItems: "center",
-//           fontSize: "18px",
-//           color: "#444",
-//         }}
-//       >
-//         Loading product...
-//       </div>
-//     );
-//   }
-
-//   const reviewCount = product.reviews?.length || 0;
-//   const averageRating =
-//     reviewCount > 0
-//       ? (
-//           product.reviews.reduce((sum, review) => sum + review.rating, 0) /
-//           reviewCount
-//         ).toFixed(1)
-//       : 0;
-
-//   const roundedAverage =
-//     reviewCount > 0 ? Math.round(Number(averageRating)) : 0;
-
-//   const activeImage = selectedImage || galleryImages[0] || "/placeholder.png";
-//   const stockStatus =
-//     product.stock > 0
-//       ? product.stock > 10
-//         ? "In Stock"
-//         : `Only ${product.stock} left`
-//       : "Out of Stock";
-
-//   return (
-//     <div
-//       style={{
-//         background: "#f6f7fb",
-//         minHeight: "100vh",
-//         padding: "32px 20px 60px",
-//       }}
-//     >
-//       <div
-//         style={{
-//           maxWidth: "1380px",
-//           margin: "0 auto",
-//         }}
-//       >
-//         <div
-//           style={{
-//             fontSize: "14px",
-//             color: "#6b7280",
-//             marginBottom: "18px",
-//             display: "flex",
-//             gap: "8px",
-//             flexWrap: "wrap",
-//           }}
-//         >
-//           <span>Home</span>
-//           <span>/</span>
-//           <span>Products</span>
-//           <span>/</span>
-//           <span style={{ color: "#111827", fontWeight: 700 }}>
-//             {product.title}
-//           </span>
-//         </div>
-
-//         <div
-//           style={{
-//             display: "flex",
-//             gap: "32px",
-//             alignItems: "flex-start",
-//             flexWrap: "wrap",
-//           }}
-//         >
-//           {/* LEFT SIDE IMAGES */}
-//           <div
-//             style={{
-//               flex: "1 1 720px",
-//               background: "#fff",
-//               borderRadius: "20px",
-//               padding: "24px",
-//               boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-//               border: "1px solid #ececec",
-//             }}
-//           >
-//             <div
-//               style={{
-//                 display: "grid",
-//                 gridTemplateColumns:
-//                   galleryImages.length > 1 ? "92px minmax(0, 1fr)" : "1fr",
-//                 gap: "18px",
-//                 alignItems: "start",
-//               }}
-//             >
-//               {galleryImages.length > 1 && (
-//                 <div
-//                   style={{
-//                     display: "flex",
-//                     flexDirection: "column",
-//                     gap: "12px",
-//                   }}
-//                 >
-//                   {galleryImages.map((img, i) => {
-//                     const isActive = activeImage === img;
-
-//                     return (
-//                       <button
-//                         key={i}
-//                         type="button"
-//                         onClick={() => setSelectedImage(img)}
-//                         style={{
-//                           border: isActive
-//                             ? "2px solid #111827"
-//                             : "1px solid #e5e7eb",
-//                           background: "#fff",
-//                           borderRadius: "14px",
-//                           overflow: "hidden",
-//                           padding: "6px",
-//                           cursor: "pointer",
-//                           boxShadow: isActive
-//                             ? "0 6px 18px rgba(17,24,39,0.12)"
-//                             : "none",
-//                           transition: "all 0.25s ease",
-//                         }}
-//                       >
-//                         <img
-//                           src={img}
-//                           alt={`${product.title} thumbnail ${i + 1}`}
-//                           style={{
-//                             width: "100%",
-//                             height: "88px",
-//                             objectFit: "cover",
-//                             borderRadius: "10px",
-//                             display: "block",
-//                             background: "#fff",
-//                           }}
-//                         />
-//                       </button>
-//                     );
-//                   })}
-//                 </div>
-//               )}
-
-//               <div>
-//                 <div
-//                   style={{
-//                     position: "relative",
-//                     background: "#fff",
-//                     border: "1px solid #e5e7eb",
-//                     borderRadius: "18px",
-//                     overflow: "hidden",
-//                     padding: "14px",
-//                   }}
-//                 >
-//                   <div
-//                     style={{
-//                       position: "absolute",
-//                       top: "22px",
-//                       left: "22px",
-//                       zIndex: 2,
-//                       display: "flex",
-//                       gap: "10px",
-//                       flexWrap: "wrap",
-//                     }}
-//                   >
-//                     <span
-//                       style={{
-//                         background: "#111827",
-//                         color: "#fff",
-//                         padding: "7px 12px",
-//                         borderRadius: "999px",
-//                         fontSize: "11px",
-//                         fontWeight: "800",
-//                         letterSpacing: "0.5px",
-//                       }}
-//                     >
-//                       PREMIUM
-//                     </span>
-
-//                     {galleryImages.length > 1 && (
-//                       <span
-//                         style={{
-//                           background: "#ffffff",
-//                           color: "#111827",
-//                           padding: "7px 12px",
-//                           borderRadius: "999px",
-//                           fontSize: "11px",
-//                           fontWeight: "800",
-//                           border: "1px solid #e5e7eb",
-//                         }}
-//                       >
-//                         {galleryImages.findIndex((img) => img === activeImage) + 1} /{" "}
-//                         {galleryImages.length}
-//                       </span>
-//                     )}
-//                   </div>
-
-//                   <img
-//                     src={activeImage}
-//                     alt={product.title}
-//                     style={{
-//                       width: "100%",
-//                       height: "620px",
-//                       objectFit: "cover",
-//                       borderRadius: "14px",
-//                       display: "block",
-//                       background: "#fff",
-//                     }}
-//                   />
-//                 </div>
-
-                
-//               </div>
-//             </div>
-//           </div>
-
-//           {/* RIGHT SIDE PRODUCT INFO */}
-//           <div
-//             style={{
-//               flex: "1 1 420px",
-//               background: "#fff",
-//               borderRadius: "20px",
-//               padding: "30px",
-//               boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-//               border: "1px solid #ececec",
-//               position: "sticky",
-//               top: "20px",
-//             }}
-//           >
-//             <div
-//               style={{
-//                 display: "inline-block",
-//                 background: "#111827",
-//                 color: "#fff",
-//                 padding: "6px 12px",
-//                 borderRadius: "999px",
-//                 fontSize: "12px",
-//                 fontWeight: "700",
-//                 letterSpacing: "0.4px",
-//                 marginBottom: "16px",
-//               }}
-//             >
-//               PREMIUM COLLECTION
-//             </div>
-
-//             <h1
-//               style={{
-//                 fontSize: "34px",
-//                 lineHeight: "1.25",
-//                 margin: "0 0 14px",
-//                 color: "#111827",
-//                 fontWeight: "800",
-//               }}
-//             >
-//               {product.title}
-//             </h1>
-
-//             <div
-//               style={{
-//                 display: "flex",
-//                 alignItems: "center",
-//                 gap: "12px",
-//                 flexWrap: "wrap",
-//                 marginBottom: "20px",
-//               }}
-//             >
-//               <div
-//                 style={{
-//                   color: "#f59e0b",
-//                   fontWeight: "700",
-//                   fontSize: "20px",
-//                   letterSpacing: "1px",
-//                 }}
-//               >
-//                 {"★".repeat(roundedAverage)}
-//                 {"☆".repeat(5 - roundedAverage)}
-//               </div>
-
-//               <div
-//                 style={{
-//                   color: "#374151",
-//                   fontSize: "15px",
-//                   fontWeight: "600",
-//                 }}
-//               >
-//                 {reviewCount > 0
-//                   ? `${averageRating} rating • ${reviewCount} review${
-//                       reviewCount > 1 ? "s" : ""
-//                     }`
-//                   : "No ratings yet"}
-//               </div>
-//             </div>
-
-//             <div
-//               style={{
-//                 marginBottom: "22px",
-//                 display: "flex",
-//                 alignItems: "center",
-//                 gap: "14px",
-//                 flexWrap: "wrap",
-//               }}
-//             >
-//               <h2
-//                 style={{
-//                   color: "#B12704",
-//                   fontSize: "34px",
-//                   fontWeight: "800",
-//                   margin: 0,
-//                 }}
-//               >
-//                 ₹ {product.priceInr}
-//               </h2>
-
-//               <span
-//                 style={{
-//                   background: product.stock > 0 ? "#ecfdf5" : "#fef2f2",
-//                   color: product.stock > 0 ? "#047857" : "#b91c1c",
-//                   padding: "6px 12px",
-//                   borderRadius: "999px",
-//                   fontSize: "13px",
-//                   fontWeight: "700",
-//                 }}
-//               >
-//                 {stockStatus}
-//               </span>
-//             </div>
-
-//             <div
-//               style={{
-//                 borderTop: "1px solid #f0f0f0",
-//                 borderBottom: "1px solid #f0f0f0",
-//                 padding: "18px 0",
-//                 marginBottom: "22px",
-//               }}
-//             >
-//               <p
-//                 style={{
-//                   margin: 0,
-//                   color: "#4b5563",
-//                   fontSize: "16px",
-//                   lineHeight: "1.8",
-//                 }}
-//               >
-//                 {product.description}
-//               </p>
-//             </div>
-
-//             <div
-//               style={{
-//                 display: "grid",
-//                 gridTemplateColumns: "repeat(2, minmax(140px, 1fr))",
-//                 gap: "14px",
-//                 marginBottom: "26px",
-//               }}
-//             >
-             
-
-//               <div
-//                 style={{
-//                   background: "#f9fafb",
-//                   border: "1px solid #e5e7eb",
-//                   borderRadius: "12px",
-//                   padding: "14px",
-//                 }}
-//               >
-//                 <div
-//                   style={{
-//                     fontSize: "12px",
-//                     color: "#6b7280",
-//                     marginBottom: "6px",
-//                     fontWeight: "700",
-//                     textTransform: "uppercase",
-//                     letterSpacing: "0.5px",
-//                   }}
-//                 >
-//                   Category
-//                 </div>
-//                 <div
-//                   style={{
-//                     fontSize: "18px",
-//                     color: "#111827",
-//                     fontWeight: "700",
-//                   }}
-//                 >
-//                   {product.category || "N/A"}
-//                 </div>
-//               </div>
-//             </div>
-
-//             <button
-//               onClick={handleAddToCart}
-//               disabled={product.stock <= 0}
-//               style={{
-//                 width: "100%",
-//                 padding: "16px 24px",
-//                 background:
-//                   product.stock > 0
-//                     ? "linear-gradient(135deg, #111827 0%, #1f2937 100%)"
-//                     : "#9ca3af",
-//                 color: "#fff",
-//                 border: "none",
-//                 borderRadius: "14px",
-//                 cursor: product.stock > 0 ? "pointer" : "not-allowed",
-//                 fontWeight: "800",
-//                 fontSize: "16px",
-//                 boxShadow:
-//                   product.stock > 0
-//                     ? "0 12px 24px rgba(17,24,39,0.18)"
-//                     : "none",
-//                 transition: "0.3s ease",
-//               }}
-//             >
-//               {product.stock > 0 ? "Add To Cart" : "Out of Stock"}
-//             </button>
-
-//             <div
-//               style={{
-//                 marginTop: "18px",
-//                 display: "grid",
-//                 gap: "10px",
-//               }}
-//             >
-//               <div
-//                 style={{
-//                   background: "#f9fafb",
-//                   borderRadius: "12px",
-//                   padding: "12px 14px",
-//                   color: "#374151",
-//                   fontSize: "14px",
-//                   border: "1px solid #eceff3",
-//                 }}
-//               >
-//                 Secure checkout and trusted shopping experience
-//               </div>
-//               <div
-//                 style={{
-//                   background: "#f9fafb",
-//                   borderRadius: "12px",
-//                   padding: "12px 14px",
-//                   color: "#374151",
-//                   fontSize: "14px",
-//                   border: "1px solid #eceff3",
-//                 }}
-//               >
-//                 Premium quality product with customer satisfaction focus
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-
-//         {/* REVIEWS SECTION */}
-//         <div
-//           style={{
-//             marginTop: "42px",
-//             background: "#fff",
-//             borderRadius: "18px",
-//             padding: "30px",
-//             boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-//             border: "1px solid #ececec",
-//           }}
-//         >
-//           <div
-//             style={{
-//               display: "flex",
-//               justifyContent: "space-between",
-//               alignItems: "center",
-//               flexWrap: "wrap",
-//               gap: "12px",
-//               marginBottom: "24px",
-//             }}
-//           >
-//             <h2
-//               style={{
-//                 margin: 0,
-//                 fontSize: "28px",
-//                 color: "#111827",
-//                 fontWeight: "800",
-//               }}
-//             >
-//               Customer Reviews
-//             </h2>
-
-//             {reviewCount > 0 && (
-//               <div
-//                 style={{
-//                   background: "#f9fafb",
-//                   border: "1px solid #e5e7eb",
-//                   borderRadius: "12px",
-//                   padding: "10px 14px",
-//                   display: "flex",
-//                   alignItems: "center",
-//                   gap: "10px",
-//                 }}
-//               >
-//                 <span
-//                   style={{
-//                     color: "#f59e0b",
-//                     fontSize: "18px",
-//                     fontWeight: "700",
-//                   }}
-//                 >
-//                   {"★".repeat(roundedAverage)}
-//                   {"☆".repeat(5 - roundedAverage)}
-//                 </span>
-//                 <span
-//                   style={{
-//                     color: "#374151",
-//                     fontSize: "14px",
-//                     fontWeight: "600",
-//                   }}
-//                 >
-//                   {averageRating} / 5 from {reviewCount} review
-//                   {reviewCount > 1 ? "s" : ""}
-//                 </span>
-//               </div>
-//             )}
-//           </div>
-
-//           {!product.reviews || product.reviews.length === 0 ? (
-//             <div
-//               style={{
-//                 textAlign: "center",
-//                 padding: "32px 20px",
-//                 background: "#f9fafb",
-//                 borderRadius: "14px",
-//                 border: "1px dashed #d1d5db",
-//                 color: "#6b7280",
-//                 fontSize: "16px",
-//               }}
-//             >
-//               No reviews yet.
-//             </div>
-//           ) : (
-//             <div style={{ display: "grid", gap: "18px" }}>
-//               {product.reviews.map((review) => (
-//                 <div
-//                   key={review.id}
-//                   style={{
-//                     border: "1px solid #e5e7eb",
-//                     borderRadius: "14px",
-//                     padding: "20px",
-//                     background: "#fcfcfd",
-//                     boxShadow: "0 4px 14px rgba(0,0,0,0.03)",
-//                   }}
-//                 >
-//                   <div
-//                     style={{
-//                       display: "flex",
-//                       justifyContent: "space-between",
-//                       alignItems: "center",
-//                       marginBottom: "10px",
-//                       flexWrap: "wrap",
-//                       gap: "10px",
-//                     }}
-//                   >
-//                     <div>
-//                       <div
-//                         style={{
-//                           fontWeight: "800",
-//                           color: "#111827",
-//                           fontSize: "16px",
-//                           marginBottom: "4px",
-//                         }}
-//                       >
-//                         {review.reviewerName}
-//                       </div>
-//                       <div
-//                         style={{
-//                           color: "#6b7280",
-//                           fontSize: "13px",
-//                         }}
-//                       >
-//                         Verified customer review
-//                       </div>
-//                     </div>
-
-//                     <div
-//                       style={{
-//                         color: "#f59e0b",
-//                         fontWeight: "800",
-//                         fontSize: "16px",
-//                         letterSpacing: "1px",
-//                       }}
-//                     >
-//                       {"★".repeat(review.rating)}
-//                       {"☆".repeat(5 - review.rating)}
-//                     </div>
-//                   </div>
-
-//                   {review.featured && (
-//                     <div
-//                       style={{
-//                         display: "inline-block",
-//                         marginBottom: "12px",
-//                         padding: "6px 10px",
-//                         borderRadius: "999px",
-//                         background: "#eef2ff",
-//                         color: "#4338ca",
-//                         fontSize: "12px",
-//                         fontWeight: "800",
-//                       }}
-//                     >
-//                       Featured Review
-//                     </div>
-//                   )}
-
-//                   <p
-//                     style={{
-//                       margin: 0,
-//                       lineHeight: "1.8",
-//                       color: "#374151",
-//                       fontSize: "15px",
-//                     }}
-//                   >
-//                     {review.reviewText}
-//                   </p>
-//                 </div>
-//               ))}
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -731,6 +17,9 @@ function getImageUrl(imageUrl) {
   return base ? `${base}${path}` : path;
 }
 
+const DESKTOP_VISIBLE_THUMBS = 6;
+const MOBILE_VISIBLE_THUMBS = 4;
+
 export default function ProductPage() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -739,10 +28,25 @@ export default function ProductPage() {
   const id = params?.id;
   const product = useSelector((state) => state.products.product);
 
+  const [selectedImage, setSelectedImage] = useState("");
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     if (!id) return;
     dispatch(fetchProduct(id));
   }, [id, dispatch]);
+
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMobile(window.innerWidth <= 767);
+    };
+
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
 
   const galleryImages = useMemo(() => {
     if (!product?.images?.length) return [];
@@ -752,8 +56,6 @@ export default function ProductPage() {
       .filter(Boolean)
       .map(getImageUrl);
   }, [product]);
-
-  const [selectedImage, setSelectedImage] = useState("");
 
   useEffect(() => {
     if (!galleryImages.length) {
@@ -766,6 +68,26 @@ export default function ProductPage() {
     );
   }, [galleryImages]);
 
+  useEffect(() => {
+    if (!isGalleryOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsGalleryOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isGalleryOpen]);
+
   const handleAddToCart = async () => {
     if (!product) return;
 
@@ -776,6 +98,25 @@ export default function ProductPage() {
       console.error("Add to cart failed:", err);
       alert("Failed to add product to cart");
     }
+  };
+
+  const openGallery = (img = null) => {
+    if (img) {
+      setSelectedImage(img);
+    }
+    setIsGalleryOpen(true);
+  };
+
+  const closeGallery = () => {
+    setIsGalleryOpen(false);
+  };
+
+  const handleGalleryImageClick = (img) => {
+    setSelectedImage(img);
+  };
+
+  const handleMainThumbClick = (img) => {
+    setSelectedImage(img);
   };
 
   if (!product) {
@@ -799,6 +140,7 @@ export default function ProductPage() {
   }
 
   const reviewCount = product.reviews?.length || 0;
+
   const averageRating =
     reviewCount > 0
       ? (
@@ -811,12 +153,27 @@ export default function ProductPage() {
     reviewCount > 0 ? Math.round(Number(averageRating)) : 0;
 
   const activeImage = selectedImage || galleryImages[0] || "/placeholder.png";
+
   const stockStatus =
     product.stock > 0
       ? product.stock > 10
         ? "In Stock"
         : `Only ${product.stock} left`
       : "Out of Stock";
+
+  const visibleThumbCount = isMobile
+    ? MOBILE_VISIBLE_THUMBS
+    : DESKTOP_VISIBLE_THUMBS;
+
+  const showThumbRail = galleryImages.length > 1;
+  const hasExtraImages = galleryImages.length > visibleThumbCount;
+  const extraCount = hasExtraImages
+    ? galleryImages.length - (visibleThumbCount - 1)
+    : 0;
+
+  const visibleThumbs = hasExtraImages
+    ? galleryImages.slice(0, visibleThumbCount - 1)
+    : galleryImages;
 
   return (
     <>
@@ -838,45 +195,56 @@ export default function ProductPage() {
             <span>/</span>
             <span>Products</span>
             <span>/</span>
-            <span style={{ color: "#111827", fontWeight: 700 }}>
-              {product.title}
-            </span>
+            <span className="breadcrumb-current">{product.title}</span>
           </div>
 
           <div className="product-main-layout">
-            {/* LEFT SIDE IMAGES */}
             <div className="product-gallery-card">
               <div
                 className={`product-gallery-grid ${
-                  galleryImages.length > 1 ? "has-thumbs" : "no-thumbs"
+                  showThumbRail ? "has-thumbs" : "no-thumbs"
                 }`}
               >
-                {galleryImages.length > 1 && (
-                  <div className="thumbnail-list">
-                    {galleryImages.map((img, i) => {
-                      const isActive = activeImage === img;
+                {showThumbRail && (
+                  <div className="thumbnail-rail">
+                    <div className="thumbnail-list">
+                      {visibleThumbs.map((img, i) => {
+                        const isActive = activeImage === img;
 
-                      return (
+                        return (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => handleMainThumbClick(img)}
+                            className={`thumbnail-btn ${
+                              isActive ? "active-thumb" : ""
+                            }`}
+                            aria-label={`View product image ${i + 1}`}
+                          >
+                            <img
+                              src={img}
+                              alt={`${product.title} thumbnail ${i + 1}`}
+                              className="thumbnail-img"
+                            />
+                          </button>
+                        );
+                      })}
+
+                      {hasExtraImages && (
                         <button
-                          key={i}
                           type="button"
-                          onClick={() => setSelectedImage(img)}
-                          className={`thumbnail-btn ${
-                            isActive ? "active-thumb" : ""
-                          }`}
+                          onClick={() => openGallery(activeImage)}
+                          className="thumbnail-btn more-thumb-btn"
+                          aria-label={`View ${extraCount} more product images`}
                         >
-                          <img
-                            src={img}
-                            alt={`${product.title} thumbnail ${i + 1}`}
-                            className="thumbnail-img"
-                          />
+                          <span className="more-thumb-count">+{extraCount}</span>
                         </button>
-                      );
-                    })}
+                      )}
+                    </div>
                   </div>
                 )}
 
-                <div>
+                <div className="main-image-column">
                   <div className="main-image-wrapper">
                     <div className="main-image-badges">
                       <span className="badge-dark">PREMIUM</span>
@@ -889,17 +257,34 @@ export default function ProductPage() {
                       )}
                     </div>
 
-                    <img
-                      src={activeImage}
-                      alt={product.title}
-                      className="main-product-image"
-                    />
+                    <button
+                      type="button"
+                      className="main-image-button"
+                      onClick={() => openGallery(activeImage)}
+                      aria-label="Open full image gallery"
+                    >
+                      <img
+                        src={activeImage}
+                        alt={product.title}
+                        className="main-product-image"
+                      />
+                    </button>
                   </div>
+
+                  {galleryImages.length > 1 && (
+                    <button
+                      type="button"
+                      className="full-view-trigger"
+                      onClick={() => openGallery(activeImage)}
+                      aria-label="Click to see full view"
+                    >
+                      Click to see full view
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* RIGHT SIDE PRODUCT INFO */}
             <div className="product-info-card">
               <div className="top-label">PREMIUM COLLECTION</div>
 
@@ -938,13 +323,6 @@ export default function ProductPage() {
                 <p className="description-text">{product.description}</p>
               </div>
 
-              <div className="info-grid">
-                <div className="info-box">
-                  <div className="info-label">Category</div>
-                  <div className="info-value">{product.category || "N/A"}</div>
-                </div>
-              </div>
-
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock <= 0}
@@ -975,7 +353,6 @@ export default function ProductPage() {
             </div>
           </div>
 
-          {/* REVIEWS SECTION */}
           <div className="reviews-card">
             <div className="reviews-head">
               <h2 className="reviews-title">Customer Reviews</h2>
@@ -1027,6 +404,79 @@ export default function ProductPage() {
         </div>
       </div>
 
+      {isGalleryOpen && (
+        <div
+          className="gallery-modal-overlay"
+          onClick={closeGallery}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Product image gallery"
+        >
+          <div
+            className="gallery-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="gallery-close-btn"
+              onClick={closeGallery}
+              aria-label="Close gallery"
+            >
+              ×
+            </button>
+
+            <div className="gallery-modal-topbar">
+              <div className="gallery-tab-group">
+                <button type="button" className="gallery-tab-btn gallery-tab-muted">
+                  VIDEOS
+                </button>
+                <button type="button" className="gallery-tab-btn gallery-tab-active">
+                  IMAGES
+                </button>
+              </div>
+            </div>
+
+            <div className="gallery-modal-content">
+              <div className="gallery-preview-panel">
+                <img
+                  src={activeImage}
+                  alt={product.title}
+                  className="gallery-preview-image"
+                />
+              </div>
+
+              <div className="gallery-sidebar">
+                <h3 className="gallery-product-title">{product.title}</h3>
+
+                <div className="gallery-thumb-grid">
+                  {galleryImages.map((img, index) => {
+                    const isActive = activeImage === img;
+
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        className={`gallery-grid-thumb ${
+                          isActive ? "gallery-grid-thumb-active" : ""
+                        }`}
+                        onClick={() => handleGalleryImageClick(img)}
+                        aria-label={`Open gallery image ${index + 1}`}
+                      >
+                        <img
+                          src={img}
+                          alt={`${product.title} gallery image ${index + 1}`}
+                          className="gallery-grid-thumb-img"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .product-breadcrumb {
           font-size: 14px;
@@ -1037,27 +487,34 @@ export default function ProductPage() {
           flex-wrap: wrap;
         }
 
+        .breadcrumb-current {
+          color: #111827;
+          font-weight: 700;
+          word-break: break-word;
+        }
+
         .product-main-layout {
-          display: flex;
+          display: grid;
+          grid-template-columns: minmax(0, 1.2fr) minmax(360px, 440px);
           gap: 32px;
-          align-items: flex-start;
-          flex-wrap: wrap;
+          align-items: start;
         }
 
         .product-gallery-card {
-          flex: 1 1 720px;
           background: #fff;
           border-radius: 20px;
           padding: 24px;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
           border: 1px solid #ececec;
           min-width: 0;
+          overflow: visible;
         }
 
         .product-gallery-grid {
           display: grid;
           gap: 18px;
           align-items: start;
+          min-width: 0;
         }
 
         .product-gallery-grid.has-thumbs {
@@ -1068,20 +525,33 @@ export default function ProductPage() {
           grid-template-columns: 1fr;
         }
 
+        .thumbnail-rail {
+          min-width: 0;
+          overflow: hidden;
+        }
+
         .thumbnail-list {
           display: flex;
           flex-direction: column;
           gap: 12px;
+          max-width: 100%;
         }
 
         .thumbnail-btn {
-          border: 1px solid #e5e7eb;
+          width: 100%;
+          border: 1px solid #dbe1ea;
           background: #fff;
           border-radius: 14px;
           overflow: hidden;
           padding: 6px;
           cursor: pointer;
           transition: all 0.25s ease;
+          flex: 0 0 auto;
+        }
+
+        .thumbnail-btn:hover {
+          border-color: #94a3b8;
+          transform: translateY(-1px);
         }
 
         .thumbnail-btn.active-thumb {
@@ -1096,6 +566,33 @@ export default function ProductPage() {
           border-radius: 10px;
           display: block;
           background: #fff;
+        }
+
+        .more-thumb-btn {
+          height: 100px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1.5px solid #cbd5e1;
+          background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .more-thumb-btn:hover {
+          border-color: #0ea5e9;
+          background: #f0f9ff;
+        }
+
+        .more-thumb-count {
+          font-size: 26px;
+          font-weight: 800;
+          color: #475569;
+          line-height: 1;
+        }
+
+        .main-image-column {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
         }
 
         .main-image-wrapper {
@@ -1115,6 +612,7 @@ export default function ProductPage() {
           display: flex;
           gap: 10px;
           flex-wrap: wrap;
+          pointer-events: none;
         }
 
         .badge-dark {
@@ -1137,17 +635,49 @@ export default function ProductPage() {
           border: 1px solid #e5e7eb;
         }
 
+        .main-image-button {
+          display: block;
+          width: 100%;
+          border: none;
+          background: transparent;
+          padding: 0;
+          margin: 0;
+          cursor: zoom-in;
+          border-radius: 14px;
+          overflow: hidden;
+        }
+
         .main-product-image {
           width: 100%;
-          height: 620px;
+          aspect-ratio: 1 / 1;
+          max-height: 680px;
           object-fit: cover;
           border-radius: 14px;
           display: block;
           background: #fff;
         }
 
+        .full-view-trigger {
+          align-self: center;
+          margin-top: 14px;
+          border: none;
+          background: transparent;
+          color: #2563eb;
+          font-size: 20px;
+          font-weight: 500;
+          line-height: 1.2;
+          text-align: center;
+          cursor: pointer;
+          padding: 0;
+          transition: color 0.2s ease;
+        }
+
+        .full-view-trigger:hover {
+          color: #1d4ed8;
+          text-decoration: underline;
+        }
+
         .product-info-card {
-          flex: 1 1 420px;
           background: #fff;
           border-radius: 20px;
           padding: 30px;
@@ -1177,6 +707,7 @@ export default function ProductPage() {
           color: #111827;
           font-weight: 800;
           word-break: break-word;
+          overflow-wrap: anywhere;
         }
 
         .rating-row {
@@ -1235,36 +766,7 @@ export default function ProductPage() {
           font-size: 16px;
           line-height: 1.8;
           word-break: break-word;
-        }
-
-        .info-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(140px, 1fr));
-          gap: 14px;
-          margin-bottom: 26px;
-        }
-
-        .info-box {
-          background: #f9fafb;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          padding: 14px;
-        }
-
-        .info-label {
-          font-size: 12px;
-          color: #6b7280;
-          margin-bottom: 6px;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .info-value {
-          font-size: 18px;
-          color: #111827;
-          font-weight: 700;
-          word-break: break-word;
+          overflow-wrap: anywhere;
         }
 
         .add-to-cart-btn {
@@ -1409,21 +911,195 @@ export default function ProductPage() {
           color: #374151;
           font-size: 15px;
           word-break: break-word;
+          overflow-wrap: anywhere;
+        }
+
+        .gallery-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(17, 24, 39, 0.45);
+          backdrop-filter: blur(4px);
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+        }
+
+        .gallery-modal {
+          position: relative;
+          width: min(1080px, 100%);
+          max-height: min(84vh, 760px);
+          background: #ffffff;
+          border-radius: 20px;
+          box-shadow: 0 24px 70px rgba(15, 23, 42, 0.22);
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .gallery-close-btn {
+          position: absolute;
+          top: 10px;
+          right: 12px;
+          width: 40px;
+          height: 40px;
+          border: none;
+          background: transparent;
+          color: #111827;
+          font-size: 34px;
+          line-height: 1;
+          cursor: pointer;
+          z-index: 3;
+        }
+
+        .gallery-modal-topbar {
+          border-bottom: 1px solid #e5e7eb;
+          padding: 0 24px;
+        }
+
+        .gallery-tab-group {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+        }
+
+        .gallery-tab-btn {
+          appearance: none;
+          border: none;
+          background: transparent;
+          padding: 16px 0 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: default;
+        }
+
+        .gallery-tab-muted {
+          color: #6b7280;
+        }
+
+        .gallery-tab-active {
+          color: #111827;
+          border-bottom: 2px solid #0ea5e9;
+        }
+
+        .gallery-modal-content {
+          display: grid;
+          grid-template-columns: minmax(0, 1.35fr) 280px;
+          gap: 24px;
+          padding: 24px;
+          min-height: 0;
+          overflow: auto;
+          align-items: start;
+        }
+
+        .gallery-preview-panel {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 0;
+          background: #f8fafc;
+          border: 1px solid #e5e7eb;
+          border-radius: 16px;
+          padding: 16px;
+        }
+
+        .gallery-preview-image {
+          width: 100%;
+          max-width: 620px;
+          height: auto;
+          max-height: 56vh;
+          object-fit: contain;
+          display: block;
+        }
+
+        .gallery-sidebar {
+          min-width: 0;
+          align-self: start;
+        }
+
+        .gallery-product-title {
+          margin: 0 0 16px;
+          font-size: 17px;
+          line-height: 1.45;
+          color: #111827;
+          font-weight: 600;
+          word-break: break-word;
+        }
+
+        .gallery-thumb-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 10px;
+        }
+
+        .gallery-grid-thumb {
+          border: 1px solid #d1d5db;
+          background: #fff;
+          padding: 4px;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .gallery-grid-thumb:hover {
+          border-color: #94a3b8;
+        }
+
+        .gallery-grid-thumb-active {
+          border: 2px solid #0ea5e9;
+        }
+
+        .gallery-grid-thumb-img {
+          width: 100%;
+          aspect-ratio: 1 / 1;
+          object-fit: cover;
+          display: block;
+          background: #fff;
+          border-radius: 8px;
         }
 
         @media (max-width: 1199px) {
           .product-main-layout {
+            grid-template-columns: 1fr;
             gap: 24px;
-          }
-
-          .product-gallery-card,
-          .product-info-card {
-            flex: 1 1 100%;
           }
 
           .product-info-card {
             position: static;
             top: unset;
+          }
+
+          .gallery-modal {
+            width: min(980px, 100%);
+          }
+
+          .gallery-modal-content {
+            grid-template-columns: minmax(0, 1fr) 250px;
+          }
+        }
+
+        @media (max-width: 900px) {
+          .gallery-modal {
+            width: min(760px, 100%);
+            max-height: min(88vh, 720px);
+          }
+
+          .gallery-modal-content {
+            grid-template-columns: 1fr;
+            gap: 18px;
+          }
+
+          .gallery-sidebar {
+            order: 2;
+          }
+
+          .gallery-preview-panel {
+            order: 1;
+          }
+
+          .gallery-preview-image {
+            max-height: 44vh;
           }
         }
 
@@ -1449,18 +1125,28 @@ export default function ProductPage() {
             order: 2;
             flex-direction: row;
             overflow-x: auto;
+            overflow-y: hidden;
             gap: 10px;
             padding-bottom: 4px;
           }
 
           .thumbnail-btn {
             min-width: 72px;
+            width: 72px;
             flex: 0 0 72px;
             padding: 4px;
           }
 
           .thumbnail-img {
             height: 72px;
+          }
+
+          .more-thumb-btn {
+            height: 80px;
+          }
+
+          .more-thumb-count {
+            font-size: 22px;
           }
 
           .main-image-wrapper {
@@ -1481,8 +1167,13 @@ export default function ProductPage() {
           }
 
           .main-product-image {
-            height: 360px;
+            aspect-ratio: 4 / 5;
             border-radius: 12px;
+          }
+
+          .full-view-trigger {
+            font-size: 17px;
+            margin-top: 12px;
           }
 
           .product-title {
@@ -1504,14 +1195,6 @@ export default function ProductPage() {
             font-size: 14px;
           }
 
-          .info-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .info-value {
-            font-size: 16px;
-          }
-
           .add-to-cart-btn {
             padding: 15px 20px;
             font-size: 15px;
@@ -1524,11 +1207,44 @@ export default function ProductPage() {
           .reviews-summary {
             width: 100%;
           }
+
+          .gallery-modal-overlay {
+            padding: 12px;
+            background: rgba(17, 24, 39, 0.55);
+          }
+
+          .gallery-modal {
+            width: 100%;
+            max-height: 92vh;
+            border-radius: 16px;
+          }
+
+          .gallery-close-btn {
+            top: 8px;
+            right: 8px;
+          }
+
+          .gallery-modal-topbar {
+            padding: 0 16px;
+          }
+
+          .gallery-modal-content {
+            padding: 16px;
+          }
+
+          .gallery-thumb-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+          }
+
+          .gallery-product-title {
+            font-size: 16px;
+          }
         }
 
         @media (max-width: 479px) {
           .main-product-image {
-            height: 300px;
+            aspect-ratio: 1 / 1.15;
           }
 
           .product-title {
@@ -1549,6 +1265,14 @@ export default function ProductPage() {
 
           .review-card {
             padding: 16px;
+          }
+
+          .gallery-thumb-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+          }
+
+          .full-view-trigger {
+            font-size: 16px;
           }
         }
       `}</style>
