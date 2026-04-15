@@ -160,7 +160,7 @@ export default function InstagramSection() {
 
   return (
     <section className="bg-[#f8f8f8]">
-      <div className="mx-auto max-w-[1280px] px-4 py-14 sm:px-6 lg:px-10 lg:py-18">
+      <div className="mx-auto w-full max-w-[1280px] px-4 py-14 sm:px-6 lg:max-w-full lg:px-10 lg:py-18">
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">

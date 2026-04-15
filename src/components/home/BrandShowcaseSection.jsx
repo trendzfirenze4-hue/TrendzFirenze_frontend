@@ -1,8 +1,4 @@
 
-
-
-
-
 // "use client";
 
 // import Link from "next/link";
@@ -28,7 +24,9 @@
 
 // export default function BrandShowcaseSection() {
 //   const dispatch = useDispatch();
-//   const { publicItems, loadingPublic } = useSelector((state) => state.brandShowcases);
+//   const { publicItems, loadingPublic } = useSelector(
+//     (state) => state.brandShowcases
+//   );
 
 //   const [currentIndex, setCurrentIndex] = useState(0);
 //   const [isPaused, setIsPaused] = useState(false);
@@ -41,8 +39,10 @@
 //     const items = getSafeArray(publicItems);
 
 //     return [...items].sort((a, b) => {
-//       const aOrder = a?.displayOrder ?? a?.order ?? a?.position ?? a?.sortOrder ?? 9999;
-//       const bOrder = b?.displayOrder ?? b?.order ?? b?.position ?? b?.sortOrder ?? 9999;
+//       const aOrder =
+//         a?.displayOrder ?? a?.order ?? a?.position ?? a?.sortOrder ?? 9999;
+//       const bOrder =
+//         b?.displayOrder ?? b?.order ?? b?.position ?? b?.sortOrder ?? 9999;
 //       return aOrder - bOrder;
 //     });
 //   }, [publicItems]);
@@ -101,13 +101,16 @@
 //                 key={showcase.id}
 //                 className="box-border w-full min-w-full flex-shrink-0 p-2"
 //               >
-//                 <div className="flex h-[250px] w-full gap-2 sm:h-[290px] lg:h-[320px]">
+//                 {/* ✅ INCREASED PREMIUM HEIGHT */}
+//                 <div className="flex h-[380px] sm:h-[420px] lg:h-[480px] min-h-[380px] w-full gap-2">
+
+//                   {/* LEFT MODEL IMAGE */}
 //                   <div className="relative w-1/2 min-w-0 overflow-hidden bg-[#e9e9e9]">
 //                     {showcase?.modelImageUrl ? (
 //                       <img
 //                         src={showcase.modelImageUrl}
 //                         alt={showcase?.title || "Brand showcase"}
-//                         className="block h-full w-full object-cover transition duration-700 hover:scale-[1.02]"
+//                         className="block h-full w-full object-cover transition duration-700 hover:scale-[1.04]"
 //                       />
 //                     ) : (
 //                       <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
@@ -130,6 +133,7 @@
 //                     </div>
 //                   </div>
 
+//                   {/* RIGHT PRODUCT GRID */}
 //                   <div className="flex w-1/2 min-w-0 flex-col bg-[#efefef] p-0">
 //                     {products.length > 0 ? (
 //                       <div className="grid h-full grid-cols-2 gap-2">
@@ -144,7 +148,7 @@
 //                                 <img
 //                                   src={getProductImage(product)}
 //                                   alt={product?.title || "Product image"}
-//                                   className="block h-full w-full object-contain p-2 transition duration-300 group-hover/card:scale-[1.035]"
+//                                   className="block h-full w-full object-contain p-2 transition duration-300 group-hover/card:scale-[1.05]"
 //                                 />
 //                               ) : (
 //                                 <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
@@ -161,6 +165,7 @@
 //                       </div>
 //                     )}
 //                   </div>
+
 //                 </div>
 //               </div>
 //             );
@@ -170,6 +175,30 @@
 //     </section>
 //   );
 // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -246,11 +275,14 @@ export default function BrandShowcaseSection() {
     }
   }, [currentIndex, totalSlides]);
 
+  // ✅ FULL WIDTH LOADING STATE
   if (loadingPublic) {
     return (
-      <section className="mx-auto w-full max-w-[1280px] overflow-x-hidden px-0 py-4">
-        <div className="bg-[#efefef] px-5 py-6 text-sm text-gray-500">
-          Loading brand showcase...
+      <section className="w-full overflow-x-hidden py-4">
+        <div className="px-4 sm:px-6 lg:px-10">
+          <div className="bg-[#efefef] px-5 py-6 text-sm text-gray-500">
+            Loading brand showcase...
+          </div>
         </div>
       </section>
     );
@@ -261,96 +293,98 @@ export default function BrandShowcaseSection() {
   }
 
   return (
-    <section className="mx-auto w-full max-w-[1280px] overflow-x-hidden px-0 py-4">
-      <div
-        className="relative w-full overflow-hidden bg-[#efefef] shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
-        onClick={() => setIsPaused(true)}
-      >
+    // ✅ FULL WIDTH SECTION
+    <section className="w-full overflow-x-hidden py-4">
+      <div className="px-2 sm:px-4 lg:px-6">
         <div
-          className="flex w-full will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{
-            transform: `translate3d(-${currentIndex * 100}%, 0, 0)`,
-          }}
+          className="relative w-full overflow-hidden bg-[#efefef] shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onClick={() => setIsPaused(true)}
         >
-          {orderedItems.map((showcase) => {
-            const products = getSafeArray(showcase?.products).slice(0, 4);
+          <div
+            className="flex w-full will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+            style={{
+              transform: `translate3d(-${currentIndex * 100}%, 0, 0)`,
+            }}
+          >
+            {orderedItems.map((showcase) => {
+              const products = getSafeArray(showcase?.products).slice(0, 4);
 
-            return (
-              <div
-                key={showcase.id}
-                className="box-border w-full min-w-full flex-shrink-0 p-2"
-              >
-                {/* ✅ INCREASED PREMIUM HEIGHT */}
-                <div className="flex h-[380px] sm:h-[420px] lg:h-[480px] min-h-[380px] w-full gap-2">
+              return (
+                <div
+                  key={showcase.id}
+                  className="box-border w-full min-w-full flex-shrink-0 p-2"
+                >
+                  <div className="flex h-[380px] sm:h-[420px] lg:h-[480px] min-h-[380px] w-full gap-2">
 
-                  {/* LEFT MODEL IMAGE */}
-                  <div className="relative w-1/2 min-w-0 overflow-hidden bg-[#e9e9e9]">
-                    {showcase?.modelImageUrl ? (
-                      <img
-                        src={showcase.modelImageUrl}
-                        alt={showcase?.title || "Brand showcase"}
-                        className="block h-full w-full object-cover transition duration-700 hover:scale-[1.04]"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
-                        No showcase image
-                      </div>
-                    )}
+                    {/* LEFT MODEL */}
+                    <div className="relative w-1/2 min-w-0 overflow-hidden bg-[#e9e9e9]">
+                      {showcase?.modelImageUrl ? (
+                        <img
+                          src={showcase.modelImageUrl}
+                          alt={showcase?.title || "Brand showcase"}
+                          className="block h-full w-full object-cover transition duration-700 hover:scale-[1.04]"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+                          No showcase image
+                        </div>
+                      )}
 
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 
-                    <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 lg:p-5">
-                      <p className="line-clamp-2 text-[18px] font-semibold leading-5 tracking-[-0.01em] text-white sm:text-[20px] lg:text-[22px]">
-                        {showcase?.title || "Collection"}
-                      </p>
-
-                      {showcase?.description ? (
-                        <p className="mt-1 line-clamp-2 max-w-[90%] text-[11px] leading-4 text-white/85 sm:text-[12px]">
-                          {showcase.description}
+                      <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 lg:p-5">
+                        <p className="line-clamp-2 text-[18px] font-semibold text-white sm:text-[20px] lg:text-[22px]">
+                          {showcase?.title || "Collection"}
                         </p>
-                      ) : null}
+
+                        {showcase?.description && (
+                          <p className="mt-1 line-clamp-2 text-[11px] text-white/85 sm:text-[12px]">
+                            {showcase.description}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* RIGHT PRODUCT GRID */}
-                  <div className="flex w-1/2 min-w-0 flex-col bg-[#efefef] p-0">
-                    {products.length > 0 ? (
-                      <div className="grid h-full grid-cols-2 gap-2">
-                        {products.map((product) => (
-                          <Link
-                            key={product.id}
-                            href={`/product/${product.id}`}
-                            className="group/card flex min-w-0 flex-col overflow-hidden bg-[#f5f5f5] transition duration-300 hover:bg-white"
-                          >
-                            <div className="flex h-full w-full items-center justify-center overflow-hidden bg-[#f7f7f7]">
-                              {getProductImage(product) ? (
-                                <img
-                                  src={getProductImage(product)}
-                                  alt={product?.title || "Product image"}
-                                  className="block h-full w-full object-contain p-2 transition duration-300 group-hover/card:scale-[1.05]"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-gray-400">
-                                  No image
-                                </div>
-                              )}
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
-                        No products available
-                      </div>
-                    )}
-                  </div>
+                    {/* RIGHT PRODUCTS */}
+                    <div className="flex w-1/2 min-w-0 flex-col bg-[#efefef]">
+                      {products.length > 0 ? (
+                        <div className="grid h-full grid-cols-2 gap-2">
+                          {products.map((product) => (
+                            <Link
+                              key={product.id}
+                              href={`/product/${product.id}`}
+                              className="group/card flex flex-col overflow-hidden bg-[#f5f5f5] transition hover:bg-white"
+                            >
+                              <div className="flex h-full items-center justify-center bg-[#f7f7f7]">
+                                {getProductImage(product) ? (
+                                  <img
+                                    src={getProductImage(product)}
+                                    alt={product?.title || "Product image"}
+                                    className="h-full w-full object-contain p-2 transition group-hover/card:scale-[1.05]"
+                                  />
+                                ) : (
+                                  <div className="text-xs text-gray-400">
+                                    No image
+                                  </div>
+                                )}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-sm text-gray-400">
+                          No products available
+                        </div>
+                      )}
+                    </div>
 
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

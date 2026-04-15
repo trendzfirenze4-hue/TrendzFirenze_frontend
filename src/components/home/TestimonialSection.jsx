@@ -1,86 +1,4 @@
-// "use client";
 
-// const testimonials = [
-//   {
-//     name: "Aditi",
-//     text: "The finish looks premium and the bag feels elegant for office and outings.",
-//   },
-//   {
-//     name: "Sneha",
-//     text: "Beautiful styling, spacious inside, and the design looks far more premium in person.",
-//   },
-//   {
-//     name: "Riya",
-//     text: "A very polished everyday bag. It instantly made my outfit look more put together.",
-//   },
-// ];
-
-// export default function TestimonialSection() {
-//   return (
-//     <section className="relative overflow-hidden bg-white">
-//       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,0,0,0.03),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(0,0,0,0.04),transparent_34%)]" />
-
-//       <div className="relative mx-auto max-w-[1280px] px-4 py-14 sm:px-6 sm:py-16 lg:px-10 lg:py-18">
-//         <div className="mb-8 animate-[fadeUp_0.7s_ease-out] sm:mb-10">
-//           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
-//             Testimonials
-//           </p>
-
-//           <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.03em] text-[#111111] sm:text-[34px] lg:text-[38px]">
-//             What customers are saying
-//           </h2>
-//         </div>
-
-//         <div className="grid grid-cols-1 gap-5 sm:gap-6 lg:grid-cols-3">
-//           {testimonials.map((item, index) => (
-//             <div
-//               key={item.name}
-//               className="group animate-[fadeUp_0.8s_ease-out] rounded-[24px] border border-neutral-200 bg-[#fafafa] p-6 transition-all duration-500 ease-out hover:-translate-y-1 hover:border-neutral-300 hover:bg-white hover:shadow-[0_18px_40px_rgba(0,0,0,0.08)] sm:p-7"
-//               style={{
-//                 animationDelay: `${index * 120}ms`,
-//                 animationFillMode: "both",
-//               }}
-//             >
-//               <div className="mb-5 flex items-center gap-2">
-//                 <span className="text-[28px] leading-none text-black/20 transition-colors duration-300 group-hover:text-black/30">
-//                   “
-//                 </span>
-//                 <div className="h-[1px] w-10 bg-black/10 transition-all duration-300 group-hover:w-14 group-hover:bg-black/20" />
-//               </div>
-
-//               <p className="text-[15px] leading-7 text-neutral-700 sm:text-[16px]">
-//                 {item.text}
-//               </p>
-
-//               <div className="mt-6 flex items-center justify-between">
-//                 <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#111111]">
-//                   {item.name}
-//                 </p>
-
-//                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-neutral-300 bg-white text-[11px] font-semibold text-[#111111] transition-all duration-300 group-hover:border-black group-hover:bg-black group-hover:text-white">
-//                   ★
-//                 </span>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-
-//       <style jsx>{`
-//         @keyframes fadeUp {
-//           from {
-//             opacity: 0;
-//             transform: translateY(24px);
-//           }
-//           to {
-//             opacity: 1;
-//             transform: translateY(0);
-//           }
-//         }
-//       `}</style>
-//     </section>
-//   );
-// }
 
 "use client";
 
@@ -110,7 +28,7 @@ export default function TestimonialSection() {
     <section className="relative overflow-hidden bg-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,0,0,0.03),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(0,0,0,0.04),transparent_34%)]" />
 
-      <div className="relative mx-auto max-w-[1280px] px-4 py-14 sm:px-6 sm:py-16 lg:px-10 lg:py-18">
+      <div className="relative mx-auto w-full max-w-[1280px] px-4 py-14 sm:px-6 sm:py-16 lg:max-w-full lg:px-10 lg:py-18">
         <div className="mb-8 animate-[fadeUp_0.7s_ease-out] sm:mb-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
             Testimonials
