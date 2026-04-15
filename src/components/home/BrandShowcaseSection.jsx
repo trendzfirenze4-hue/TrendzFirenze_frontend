@@ -208,7 +208,6 @@
 
 
 
-
 "use client";
 
 import Link from "next/link";
@@ -275,7 +274,6 @@ export default function BrandShowcaseSection() {
     }
   }, [currentIndex, totalSlides]);
 
-  // ✅ FULL WIDTH LOADING STATE
   if (loadingPublic) {
     return (
       <section className="w-full overflow-x-hidden py-4">
@@ -293,7 +291,6 @@ export default function BrandShowcaseSection() {
   }
 
   return (
-    // ✅ FULL WIDTH SECTION
     <section className="w-full overflow-x-hidden py-4">
       <div className="px-2 sm:px-4 lg:px-6">
         <div
@@ -316,18 +313,17 @@ export default function BrandShowcaseSection() {
                   key={showcase.id}
                   className="box-border w-full min-w-full flex-shrink-0 p-2"
                 >
-                  <div className="flex h-[380px] sm:h-[420px] lg:h-[480px] min-h-[380px] w-full gap-2">
-
+                  <div className="flex h-auto w-full flex-col gap-2 sm:h-[420px] sm:flex-row lg:h-[480px]">
                     {/* LEFT MODEL */}
-                    <div className="relative w-1/2 min-w-0 overflow-hidden bg-[#e9e9e9]">
+                    <div className="relative w-full min-w-0 overflow-hidden bg-[#e9e9e9] sm:w-1/2">
                       {showcase?.modelImageUrl ? (
                         <img
                           src={showcase.modelImageUrl}
                           alt={showcase?.title || "Brand showcase"}
-                          className="block h-full w-full object-cover transition duration-700 hover:scale-[1.04]"
+                          className="block h-[240px] w-full object-cover transition duration-700 hover:scale-[1.04] sm:h-full"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
+                        <div className="flex h-[240px] w-full items-center justify-center text-sm text-gray-400 sm:h-full">
                           No showcase image
                         </div>
                       )}
@@ -335,7 +331,7 @@ export default function BrandShowcaseSection() {
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 
                       <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 lg:p-5">
-                        <p className="line-clamp-2 text-[18px] font-semibold text-white sm:text-[20px] lg:text-[22px]">
+                        <p className="line-clamp-2 text-[16px] font-semibold text-white sm:text-[20px] lg:text-[22px]">
                           {showcase?.title || "Collection"}
                         </p>
 
@@ -348,21 +344,21 @@ export default function BrandShowcaseSection() {
                     </div>
 
                     {/* RIGHT PRODUCTS */}
-                    <div className="flex w-1/2 min-w-0 flex-col bg-[#efefef]">
+                    <div className="flex w-full min-w-0 flex-col bg-[#efefef] sm:w-1/2">
                       {products.length > 0 ? (
-                        <div className="grid h-full grid-cols-2 gap-2">
+                        <div className="grid h-[240px] grid-cols-2 gap-2 sm:h-full">
                           {products.map((product) => (
                             <Link
                               key={product.id}
                               href={`/product/${product.id}`}
-                              className="group/card flex flex-col overflow-hidden bg-[#f5f5f5] transition hover:bg-white"
+                              className="group/card flex min-w-0 flex-col overflow-hidden bg-[#f5f5f5] transition hover:bg-white"
                             >
-                              <div className="flex h-full items-center justify-center bg-[#f7f7f7]">
+                              <div className="flex h-full w-full items-center justify-center bg-[#f7f7f7]">
                                 {getProductImage(product) ? (
                                   <img
                                     src={getProductImage(product)}
                                     alt={product?.title || "Product image"}
-                                    className="h-full w-full object-contain p-2 transition group-hover/card:scale-[1.05]"
+                                    className="block h-full w-full object-contain p-2 transition group-hover/card:scale-[1.05]"
                                   />
                                 ) : (
                                   <div className="text-xs text-gray-400">
@@ -374,12 +370,11 @@ export default function BrandShowcaseSection() {
                           ))}
                         </div>
                       ) : (
-                        <div className="flex h-full items-center justify-center text-sm text-gray-400">
+                        <div className="flex h-[240px] items-center justify-center text-sm text-gray-400 sm:h-full">
                           No products available
                         </div>
                       )}
                     </div>
-
                   </div>
                 </div>
               );
