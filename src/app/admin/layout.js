@@ -56,6 +56,8 @@ export default function AdminLayout({ children }) {
 
             <Link href="/admin/users">Users</Link>
 
+            <Link href="/admin/instagram">Meta Token</Link>
+
             <button
               onClick={handleLogout}
               style={{
