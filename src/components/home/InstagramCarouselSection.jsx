@@ -1,0 +1,176 @@
+
+
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+function CarouselCard({ post }) {
+  const items =
+    Array.isArray(post.items) && post.items.length > 0
+      ? post.items
+      : [
+          {
+            id: post.id,
+            mediaType: post.mediaType,
+            mediaUrl: post.mediaUrl,
+            thumbnailUrl: post.thumbnailUrl,
+            alt: post.alt,
+          },
+        ];
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (items.length <= 1 || isPaused) return;
+
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % items.length);
+    }, 2500);
+
+    return () => clearInterval(timer);
+  }, [items.length, isPaused]);
+
+  const activeItem = items[activeIndex];
+
+  return (
+    <a
+      href={post.permalink}
+      target="_blank"
+      rel="noreferrer"
+      className="group block overflow-hidden rounded-[20px] border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100">
+        <img
+          src={activeItem.mediaUrl}
+          alt={activeItem.alt || "Trendz Firenze Instagram post"}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          loading="lazy"
+        />
+
+        {items.length > 1 && (
+          <>
+            <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-1.5">
+              {items.map((item, idx) => (
+                <span
+                  key={item.id || idx}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    idx === activeIndex ? "w-4 bg-white" : "w-1.5 bg-white/60"
+                  }`}
+                />
+              ))}
+            </div>
+
+            <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-semibold text-white">
+              {activeIndex + 1}/{items.length}
+            </div>
+          </>
+        )}
+
+        <div className="pointer-events-none absolute inset-0 bg-black/0 transition-all duration-300 group-hover:bg-black/10" />
+      </div>
+    </a>
+  );
+}
+
+export default function InstagramCarouselSection() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadInstagramPosts() {
+      try {
+        setError("");
+
+        const res = await fetch("/api/instagram?limit=20", {
+          cache: "no-store",
+        });
+
+        const data = await res.json();
+
+        if (ignore) return;
+
+        if (res.ok && Array.isArray(data.posts)) {
+          setPosts(data.posts);
+        } else {
+          setPosts([]);
+          setError(data?.error || "Unable to load Instagram posts right now.");
+        }
+      } catch (err) {
+        if (!ignore) {
+          setPosts([]);
+          setError("Unable to load Instagram posts right now.");
+          console.error("Instagram fetch failed:", err);
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadInstagramPosts();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  const visiblePosts = useMemo(() => {
+    return posts
+      .filter((post) => post.mediaType === "CAROUSEL_ALBUM")
+      .slice(0, 4);
+  }, [posts]);
+
+  return (
+    <section className="bg-[#f8f8f8]">
+      <div className="mx-auto w-full max-w-[1280px] px-4 py-14 sm:px-6 lg:px-10 lg:py-18">
+        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-[680px]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
+              Instagram Edit
+            </p>
+            <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.03em] text-[#111111] sm:text-[38px]">
+              Latest Carousel Posts
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-neutral-600 sm:text-[15px]">
+              Explore our latest carousel stories, signature details, and luxury style moments from Trendz Firenze.
+            </p>
+          </div>
+
+          <a
+            href="https://www.instagram.com/trendzfirenze/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#111111] transition-opacity hover:opacity-70"
+          >
+            Follow @trendzfirenze
+          </a>
+        </div>
+
+        {loading ? (
+          <p className="text-sm text-neutral-500">
+            Loading latest carousel posts...
+          </p>
+        ) : error ? (
+          <p className="text-sm text-red-500">{error}</p>
+        ) : visiblePosts.length === 0 ? (
+          <p className="text-sm text-neutral-500">
+            No carousel posts available right now.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+            {visiblePosts.map((post) => (
+              <CarouselCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

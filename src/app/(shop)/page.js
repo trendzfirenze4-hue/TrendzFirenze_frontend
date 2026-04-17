@@ -11,6 +11,7 @@ import { getPublicCategoriesApi } from "@/features/categories/categoryApi";
 
 import HeroCarousel from "@/components/home/HeroCarousel";
 import DiscountTicker from "@/components/home/DiscountTicker";
+import InstagramReelsSection from "@/components/home/InstagramReelsSection";
 import CategorySection from "@/components/home/CategorySection";
 import BestSellerSection from "@/components/home/BestSellerSection";
 import BrandShowcaseSection from "@/components/home/BrandShowcaseSection";
@@ -19,7 +20,7 @@ import BrandStorySection from "@/components/home/BrandStorySection";
 import FeaturedBanner from "@/components/home/FeaturedBanner";
 import TrustSection from "@/components/home/TrustSection";
 import TestimonialSection from "@/components/home/TestimonialSection";
-import InstagramSection from "@/components/home/InstagramSection";
+import InstagramCarouselSection from "@/components/home/InstagramCarouselSection";
 import NewsletterSection from "@/components/home/NewsletterSection";
 
 import HeroSectionCustom from "@/components/home/HeroSectionCustom";
@@ -80,6 +81,7 @@ export default function HomePage() {
         categoryId={categoryId}
         setCategoryId={setCategoryId}
       /> */}
+      <InstagramReelsSection />
       <BestSellerSection products={bestSellers} />
       <BrandShowcaseSection/>
       {/* <NewArrivalSection products={newArrivals} /> */}
@@ -88,7 +90,7 @@ export default function HomePage() {
       {/* <TrustSection /> */}
       <HeroSectionCustom />
       <TestimonialSection />
-      <InstagramSection />
+      <InstagramCarouselSection />
       <NewsletterSection />
     </main>
   );
