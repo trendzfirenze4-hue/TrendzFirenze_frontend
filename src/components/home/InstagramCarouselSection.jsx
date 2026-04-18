@@ -38,7 +38,7 @@ function CarouselCard({ post }) {
       href={post.permalink}
       target="_blank"
       rel="noreferrer"
-      className="group block overflow-hidden rounded-[20px] border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+      className="group block h-full overflow-hidden rounded-[16px] border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:rounded-[20px]"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -128,18 +128,21 @@ export default function InstagramCarouselSection() {
   }, [posts]);
 
   return (
-    <section className="bg-[#f8f8f8]">
-      <div className="mx-auto w-full max-w-[1280px] px-4 py-14 sm:px-6 lg:px-10 lg:py-18">
-        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="max-w-[680px]">
+    <section className="w-full bg-[#f8f8f8]">
+      <div className="w-full px-4 py-12 sm:px-6 sm:py-14 md:px-8 lg:px-10 lg:py-16 xl:px-14 2xl:px-20">
+        <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-full xl:max-w-[760px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Instagram Edit
             </p>
-            <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.03em] text-[#111111] sm:text-[38px]">
+
+            <h2 className="mt-3 text-[24px] font-semibold tracking-[-0.03em] text-[#111111] sm:text-[32px] lg:text-[38px]">
               Latest Carousel Posts
             </h2>
+
             <p className="mt-3 text-sm leading-6 text-neutral-600 sm:text-[15px]">
-              Explore our latest carousel stories, signature details, and luxury style moments from Trendz Firenze.
+              Explore our latest carousel stories, signature details, and luxury
+              style moments from Trendz Firenze.
             </p>
           </div>
 
@@ -147,7 +150,7 @@ export default function InstagramCarouselSection() {
             href="https://www.instagram.com/trendzfirenze/"
             target="_blank"
             rel="noreferrer"
-            className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#111111] transition-opacity hover:opacity-70"
+            className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#111111] transition-opacity duration-300 hover:opacity-70 sm:text-[13px]"
           >
             Follow @trendzfirenze
           </a>
@@ -164,7 +167,7 @@ export default function InstagramCarouselSection() {
             No carousel posts available right now.
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6 2xl:gap-7">
             {visiblePosts.map((post) => (
               <CarouselCard key={post.id} post={post} />
             ))}

@@ -22,22 +22,24 @@ function ReelCard({ post }) {
       href={post.permalink}
       target="_blank"
       rel="noreferrer"
-      className="group block overflow-hidden rounded-[20px] border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md"
+      className="group block h-full overflow-hidden rounded-[16px] sm:rounded-[20px] border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md"
     >
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-100">
         <video
           src={item.mediaUrl}
           poster={item.thumbnailUrl || ""}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           muted
           playsInline
           autoPlay
           loop
           preload="metadata"
         />
-        <div className="pointer-events-none absolute right-2 top-2 rounded-full bg-black/70 px-2 py-1 text-[10px] font-semibold text-white">
+
+        <div className="pointer-events-none absolute right-2 top-2 rounded-full bg-black/70 px-2 py-1 text-[10px] font-semibold text-white sm:right-3 sm:top-3">
           Reel
         </div>
+
         <div className="pointer-events-none absolute inset-0 bg-black/0 transition-all duration-300 group-hover:bg-black/10" />
       </div>
     </a>
@@ -95,14 +97,15 @@ export default function InstagramReelsSection() {
   }, [posts]);
 
   return (
-    <section className="bg-[#f8f8f8]">
-      <div className="mx-auto w-full max-w-[1280px] px-4 py-14 sm:px-6 lg:px-8 lg:py-16">
-        <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+    <section className="w-full bg-[#f8f8f8]">
+      <div className="w-full px-4 py-12 sm:px-6 sm:py-14 md:px-8 lg:px-10 lg:py-16 xl:px-14 2xl:px-20">
+        <div className="mb-8 flex flex-col gap-3 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-full">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
               Social Style
             </p>
-            <h2 className="mt-3 text-[28px] font-semibold tracking-[-0.03em] text-[#111111] sm:text-[38px]">
+
+            <h2 className="mt-3 text-[24px] font-semibold tracking-[-0.03em] text-[#111111] sm:text-[32px] lg:text-[38px]">
               Latest Reels
             </h2>
           </div>
@@ -111,7 +114,7 @@ export default function InstagramReelsSection() {
             href="https://www.instagram.com/trendzfirenze/"
             target="_blank"
             rel="noreferrer"
-            className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#111111]"
+            className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#111111] transition-colors duration-300 hover:text-neutral-600 sm:text-[13px]"
           >
             @trendzfirenze
           </a>
@@ -128,7 +131,7 @@ export default function InstagramReelsSection() {
             Instagram reels will appear here soon.
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:gap-7">
             {visiblePosts.map((post) => (
               <ReelCard key={post.id} post={post} />
             ))}
