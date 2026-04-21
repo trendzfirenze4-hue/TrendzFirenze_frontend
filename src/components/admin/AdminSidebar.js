@@ -1,111 +1,120 @@
 
-
 "use client";
 
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { logout } from "@/features/auth/authSlice";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
 export default function AdminSidebar() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
+
   const [isMobile, setIsMobile] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      if (window.innerWidth > 768) {
-        setIsOpen(true);
-      }
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      setIsOpen(!mobile);
     };
-    
+
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
-    
+
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  const closeSidebarOnMobile = () => {
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  };
+
   const handleLogout = () => {
     dispatch(logout());
+    closeSidebarOnMobile();
     router.push("/login");
   };
 
-  const linkStyle = {
+  const toggleSidebar = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  const getLinkStyle = (href) => ({
     color: "#f5f5f5",
     textDecoration: "none",
     fontSize: "14px",
     fontWeight: "500",
     padding: "10px 12px",
     borderRadius: "10px",
-    background: "rgba(255,255,255,0.04)",
-    border: "1px solid rgba(255,255,255,0.07)",
+    background:
+      pathname === href
+        ? "linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.08))"
+        : "rgba(255,255,255,0.04)",
+    border:
+      pathname === href
+        ? "1px solid rgba(255,255,255,0.18)"
+        : "1px solid rgba(255,255,255,0.07)",
     transition: "all 0.25s ease",
     display: "block",
+    whiteSpace: "nowrap",
+  });
+
+  const sidebarBaseStyle = {
+    background: "linear-gradient(180deg, #0f0f0f 0%, #191919 100%)",
+    color: "#fff",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    borderRight: "1px solid rgba(255,255,255,0.06)",
+    boxShadow: "4px 0 24px rgba(0,0,0,0.16)",
+    zIndex: 1000,
+    transition: "all 0.3s ease",
   };
 
-  const sidebarStyles = {
-    desktop: {
-      width: "230px",
-      minHeight: "100vh",
-      background: "linear-gradient(180deg, #0f0f0f 0%, #191919 100%)",
-      color: "#fff",
-      padding: "18px 14px",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      borderRight: "1px solid rgba(255,255,255,0.06)",
-      boxShadow: "4px 0 24px rgba(0,0,0,0.16)",
-      position: "relative",
-      zIndex: 1000,
-    },
-    mobileClosed: {
-      width: "0px",
-      minHeight: "100vh",
-      background: "linear-gradient(180deg, #0f0f0f 0%, #191919 100%)",
-      color: "#fff",
-      padding: "18px 0px",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      borderRight: "none",
-      boxShadow: "none",
-      position: "fixed",
-      left: 0,
-      top: 0,
-      overflow: "hidden",
-      transition: "all 0.3s ease",
-      zIndex: 1000,
-    },
-    mobileOpen: {
-      width: "250px",
-      minHeight: "100vh",
-      background: "linear-gradient(180deg, #0f0f0f 0%, #191919 100%)",
-      color: "#fff",
-      padding: "18px 14px",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      borderRight: "1px solid rgba(255,255,255,0.06)",
-      boxShadow: "4px 0 24px rgba(0,0,0,0.16)",
-      position: "fixed",
-      left: 0,
-      top: 0,
-      transition: "all 0.3s ease",
-      zIndex: 1000,
-    },
+  const desktopStyle = {
+    ...sidebarBaseStyle,
+    width: "230px",
+    minHeight: "100vh",
+    padding: "18px 14px",
+    position: "relative",
+    flexShrink: 0,
   };
 
-  const getSidebarStyle = () => {
-    if (!isMobile) return sidebarStyles.desktop;
-    return isOpen ? sidebarStyles.mobileOpen : sidebarStyles.mobileClosed;
+  const mobileClosedStyle = {
+    ...sidebarBaseStyle,
+    width: "0px",
+    minHeight: "100vh",
+    padding: "18px 0px",
+    position: "fixed",
+    left: 0,
+    top: 0,
+    overflow: "hidden",
+    boxShadow: "none",
+    borderRight: "none",
   };
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
+  const mobileOpenStyle = {
+    ...sidebarBaseStyle,
+    width: "250px",
+    minHeight: "100vh",
+    padding: "18px 14px",
+    position: "fixed",
+    left: 0,
+    top: 0,
   };
+
+  const sidebarStyle = !isMobile
+    ? desktopStyle
+    : isOpen
+    ? mobileOpenStyle
+    : mobileClosedStyle;
+
+  const contentVisible = !isMobile || isOpen;
 
   const overlayStyle = {
     position: "fixed",
@@ -120,17 +129,25 @@ export default function AdminSidebar() {
 
   const menuButtonStyle = {
     position: "fixed",
-    top: "10px",
-    left: "10px",
+    top: "12px",
+    left: "12px",
     zIndex: 1001,
     background: "#0f0f0f",
     color: "#fff",
-    border: "1px solid rgba(255,255,255,0.07)",
-    borderRadius: "8px",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: "10px",
     padding: "8px 12px",
     cursor: "pointer",
     fontSize: "20px",
     display: isMobile ? "block" : "none",
+    boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+  };
+
+  const sectionStyle = {
+    opacity: contentVisible ? 1 : 0,
+    pointerEvents: contentVisible ? "auto" : "none",
+    transition: "opacity 0.2s ease",
+    whiteSpace: "nowrap",
   };
 
   return (
@@ -140,17 +157,14 @@ export default function AdminSidebar() {
           {isOpen ? "✕" : "☰"}
         </button>
       )}
-      
-      {isMobile && isOpen && <div style={overlayStyle} onClick={toggleSidebar} />}
-      
-      <aside style={getSidebarStyle()}>
+
+      {isMobile && isOpen && (
+        <div style={overlayStyle} onClick={toggleSidebar} />
+      )}
+
+      <aside style={sidebarStyle}>
         <div>
-          <div style={{ 
-            marginBottom: "20px",
-            opacity: (!isMobile && isMobile) ? 1 : (isMobile && !isOpen ? 0 : 1),
-            transition: "opacity 0.2s ease",
-            whiteSpace: "nowrap",
-          }}>
+          <div style={{ ...sectionStyle, marginBottom: "20px" }}>
             <h2
               style={{
                 margin: 0,
@@ -173,24 +187,97 @@ export default function AdminSidebar() {
             </p>
           </div>
 
-          <nav style={{ 
-            display: "flex", 
-            flexDirection: "column", 
-            gap: "9px",
-            opacity: (!isMobile && isMobile) ? 1 : (isMobile && !isOpen ? 0 : 1),
-            transition: "opacity 0.2s ease",
-          }}>
-            <Link href="/" style={linkStyle}>Home</Link>
-            <Link href="/admin/dashboard" style={linkStyle}>Dashboard</Link>
-            <Link href="/admin/brand-showcases" style={linkStyle}>Brand Show Case</Link>
-            <Link href="/admin/categories/list" style={linkStyle}>Categories</Link>
-            <Link href="/admin/products" style={linkStyle}>Products</Link>
-            <Link href="/admin/gift-boxes/list" style={linkStyle}>Gift Boxes</Link>
-            <Link href="/admin/bulk-orders" style={linkStyle}>Bulk Orders</Link>
-            <Link href="/admin/hero-sections" style={linkStyle}>Hero Sections</Link>
-            <Link href="/admin/orders" style={linkStyle}>Orders</Link>
-            <Link href="/admin/users" style={linkStyle}>Users</Link>
-            <Link href="/admin/instagram" style={linkStyle}>Meta Token</Link>
+          <nav
+            style={{
+              ...sectionStyle,
+              display: "flex",
+              flexDirection: "column",
+              gap: "9px",
+            }}
+          >
+            <Link href="/" style={getLinkStyle("/")} onClick={closeSidebarOnMobile}>
+              Home
+            </Link>
+
+            <Link
+              href="/admin/dashboard"
+              style={getLinkStyle("/admin/dashboard")}
+              onClick={closeSidebarOnMobile}
+            >
+              Dashboard
+            </Link>
+
+            <Link
+              href="/admin/brand-showcases"
+              style={getLinkStyle("/admin/brand-showcases")}
+              onClick={closeSidebarOnMobile}
+            >
+              Brand Show Case
+            </Link>
+
+            <Link
+              href="/admin/categories/list"
+              style={getLinkStyle("/admin/categories/list")}
+              onClick={closeSidebarOnMobile}
+            >
+              Categories
+            </Link>
+
+            <Link
+              href="/admin/products"
+              style={getLinkStyle("/admin/products")}
+              onClick={closeSidebarOnMobile}
+            >
+              Products
+            </Link>
+
+            <Link
+              href="/admin/gift-boxes/list"
+              style={getLinkStyle("/admin/gift-boxes/list")}
+              onClick={closeSidebarOnMobile}
+            >
+              Gift Boxes
+            </Link>
+
+            <Link
+              href="/admin/bulk-orders"
+              style={getLinkStyle("/admin/bulk-orders")}
+              onClick={closeSidebarOnMobile}
+            >
+              Bulk Orders
+            </Link>
+
+            <Link
+              href="/admin/hero-sections"
+              style={getLinkStyle("/admin/hero-sections")}
+              onClick={closeSidebarOnMobile}
+            >
+              Hero Sections
+            </Link>
+
+            <Link
+              href="/admin/orders"
+              style={getLinkStyle("/admin/orders")}
+              onClick={closeSidebarOnMobile}
+            >
+              Orders
+            </Link>
+
+            <Link
+              href="/admin/users"
+              style={getLinkStyle("/admin/users")}
+              onClick={closeSidebarOnMobile}
+            >
+              Users
+            </Link>
+
+            <Link
+              href="/admin/instagram"
+              style={getLinkStyle("/admin/instagram")}
+              onClick={closeSidebarOnMobile}
+            >
+              Meta Token
+            </Link>
           </nav>
         </div>
 
@@ -207,10 +294,10 @@ export default function AdminSidebar() {
             fontSize: "14px",
             fontWeight: "600",
             boxShadow: "0 8px 18px rgba(229,57,53,0.22)",
-            transition: "all 0.25s ease",
-            opacity: (!isMobile && isMobile) ? 1 : (isMobile && !isOpen ? 0 : 1),
-            transition: "all 0.25s ease",
             whiteSpace: "nowrap",
+            opacity: contentVisible ? 1 : 0,
+            pointerEvents: contentVisible ? "auto" : "none",
+            transition: "all 0.25s ease",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-2px)";
