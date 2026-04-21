@@ -328,8 +328,6 @@
 
 
 
-
-
 "use client";
 
 import Link from "next/link";
@@ -548,12 +546,48 @@ export default function AdminSidebar() {
     overflowY: "auto",
     overflowX: "hidden",
     minHeight: 0,
-    paddingRight: "4px",
-    marginRight: "-4px",
+    paddingRight: "0px",
+    marginRight: "0px",
+    paddingBottom: "20px",
+    scrollbarWidth: "none",
+    msOverflowStyle: "none",
+  };
+
+  const logoutWrapStyle = {
+    marginTop: "14px",
+    paddingTop: "12px",
+    borderTop: "1px solid rgba(255,255,255,0.08)",
+    position: "sticky",
+    bottom: 0,
+    background: "linear-gradient(180deg, rgba(17,18,20,0) 0%, #111214 38%)",
+    paddingBottom: "6px",
+  };
+
+  const logoutButtonStyle = {
+    width: "100%",
+    marginTop: "10px",
+    padding: "12px 14px",
+    background: "linear-gradient(135deg, #c62828, #e53935)",
+    color: "#fff",
+    border: "none",
+    borderRadius: "12px",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "600",
+    boxShadow: "0 8px 18px rgba(229,57,53,0.22)",
+    transition: "all 0.25s ease",
   };
 
   return (
     <>
+      <style jsx>{`
+        .sidebar-nav-scroll::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+          display: none;
+        }
+      `}</style>
+
       <button
         onClick={toggleSidebar}
         style={floatingMenuButtonStyle}
@@ -579,7 +613,7 @@ export default function AdminSidebar() {
             <p style={brandSubTitleStyle}>Admin Panel</p>
           </div>
 
-          <div style={navAreaStyle}>
+          <div className="sidebar-nav-scroll" style={navAreaStyle}>
             <nav
               style={{
                 display: "flex",
@@ -671,28 +705,12 @@ export default function AdminSidebar() {
                 Meta Token
               </Link>
             </nav>
-          </div>
 
-          <div style={{ paddingTop: "14px" }}>
-            <button
-              onClick={handleLogout}
-              style={{
-                width: "100%",
-                marginTop: "10px",
-                padding: "12px 14px",
-                background: "linear-gradient(135deg, #c62828, #e53935)",
-                color: "#fff",
-                border: "none",
-                borderRadius: "12px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "600",
-                boxShadow: "0 8px 18px rgba(229,57,53,0.22)",
-                transition: "all 0.25s ease",
-              }}
-            >
-              Logout
-            </button>
+            <div style={logoutWrapStyle}>
+              <button onClick={handleLogout} style={logoutButtonStyle}>
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </aside>
