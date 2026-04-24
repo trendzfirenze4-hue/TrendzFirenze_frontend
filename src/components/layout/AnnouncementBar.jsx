@@ -46,7 +46,7 @@ export default function AnnouncementBar({
   };
 
   return (
-    <div className="relative z-50 w-full border-b border-neutral-200 bg-[#f3f3f3] text-[#111]">
+    <div className="relative z-50 w-full border-b border-neutral-800 bg-black text-white">
       <div className="mx-auto max-w-screen-2xl px-3 sm:px-4 lg:px-6">
         <div className="relative flex min-h-[40px] items-center justify-center sm:min-h-[42px]">
           
@@ -54,10 +54,10 @@ export default function AnnouncementBar({
             type="button"
             onClick={handlePrev}
             aria-label="Previous announcement"
-            className="group absolute left-[25%] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 hover:bg-black/5 active:scale-95"
+            className="group absolute left-[25%] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 hover:bg-white/10 active:scale-95"
           >
             <svg
-              className="h-3.5 w-3.5 text-neutral-600 transition-all duration-300 group-hover:-translate-x-0.5 group-hover:text-black"
+              className="h-3.5 w-3.5 text-white transition-all duration-300 group-hover:-translate-x-0.5"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -101,10 +101,10 @@ export default function AnnouncementBar({
             type="button"
             onClick={handleNext}
             aria-label="Next announcement"
-            className="group absolute right-[25%] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 hover:bg-black/5 active:scale-95"
+            className="group absolute right-[25%] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 hover:bg-white/10 active:scale-95"
           >
             <svg
-              className="h-3.5 w-3.5 text-neutral-600 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-black"
+              className="h-3.5 w-3.5 text-white transition-all duration-300 group-hover:translate-x-0.5"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -116,13 +116,13 @@ export default function AnnouncementBar({
             </svg>
           </button>
 
-          <div className="absolute bottom-0 left-0 h-[1px] w-full bg-black/5">
+          <div className="absolute bottom-0 left-0 h-[1px] w-full bg-white/10">
             <div
               key={activeIndex}
               className="h-full w-full origin-left animate-[announcementProgress_3s_linear]"
               style={{
                 background:
-                  "linear-gradient(90deg, rgba(0,0,0,0.08), rgba(0,0,0,0.35), rgba(0,0,0,0.08))",
+                  "linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.6), rgba(255,255,255,0.2))",
               }}
             />
           </div>
