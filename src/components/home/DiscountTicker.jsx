@@ -11,10 +11,10 @@ export default function DiscountTicker() {
   const tickerItems = [...offers, ...offers, ...offers];
 
   return (
-    <div className="relative w-full overflow-hidden border-y border-gray-200 bg-[#f8f8f8] py-3">
+    <div className="relative w-full overflow-hidden border-y border-gray-800 bg-black py-[6px]">
       {/* Fade */}
-      <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-16 bg-gradient-to-r from-[#f8f8f8] to-transparent" />
-      <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-16 bg-gradient-to-l from-[#f8f8f8] to-transparent" />
+      <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-16 bg-gradient-to-r from-black to-transparent" />
+      <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-16 bg-gradient-to-l from-black to-transparent" />
 
       <style jsx>{`
         @keyframes ticker-scroll {
@@ -42,7 +42,7 @@ export default function DiscountTicker() {
         <div className="flex shrink-0 items-center">
           {tickerItems.map((offer, index) => (
             <div key={`first-${index}`} className="mr-32 shrink-0">
-              <span className="text-sm font-semibold uppercase tracking-wide text-black md:text-base">
+              <span className="text-sm font-semibold uppercase tracking-wide text-white md:text-base">
                 {offer}
               </span>
             </div>
@@ -53,7 +53,7 @@ export default function DiscountTicker() {
         <div className="flex shrink-0 items-center">
           {tickerItems.map((offer, index) => (
             <div key={`second-${index}`} className="mr-32 shrink-0">
-              <span className="text-sm font-semibold uppercase tracking-wide text-black md:text-base">
+              <span className="text-sm font-semibold uppercase tracking-wide text-white md:text-base">
                 {offer}
               </span>
             </div>

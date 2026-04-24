@@ -31,7 +31,7 @@ const addressInfo = {
   corporateAddress:
     "1, Ho Chi Minh Sarani, Kankaria Estates, Park Street Area, Kolkata, West Bengal 700071, India",
   helpline: "+91 9123315539",
-  timing: "10am to 6pm Mon-Sat",
+  timing: "10:00am to 6:00pm (Mon-Sat)",
   email: "support@trendzfirenze.com",
 };
 
