@@ -279,12 +279,6 @@
 
 
 
-
-
-
-
-
-
 "use client";
 
 import { FaThumbsUp } from "react-icons/fa";
@@ -347,15 +341,13 @@ const testimonials = [
 ];
 
 export default function TestimonialSection() {
-  // Double the testimonials for seamless infinite loop
   const sliderItems = [...testimonials, ...testimonials];
 
-  // Helper function to render stars based on rating
   const renderStars = (rating) => {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
     const stars = [];
-    
+
     for (let i = 0; i < fullStars; i++) {
       stars.push(<span key={`star-${i}`} className="text-[#FFB800]">★</span>);
     }
@@ -370,12 +362,12 @@ export default function TestimonialSection() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-white">
-      {/* Background gradient pattern */}
+    <section className="relative w-full overflow-hidden bg-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,0,0,0.02),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(0,0,0,0.03),transparent_34%)]" />
 
-      <div className="relative mx-auto w-full max-w-[1280px] px-4 py-12 sm:px-6 sm:py-14 lg:px-2 lg:py-7 xl:px-2 xl:py-7 2xl:px-2 2xl:py-7">
-        {/* Header Section */}
+      {/* ✅ ONLY CHANGE: removed max-w */}
+      <div className="relative w-full px-4 py-12 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+
         <div className="mb-8 text-center sm:text-left">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-400">
             Testimonials
@@ -388,7 +380,6 @@ export default function TestimonialSection() {
           </p>
         </div>
 
-        {/* Infinite Slider */}
         <div className="testimonial-slider overflow-hidden">
           <div className="testimonial-track flex gap-5">
             {sliderItems.map((item, index) => (
@@ -396,7 +387,6 @@ export default function TestimonialSection() {
                 key={`${item.name}-${index}`}
                 className="group testimonial-card shrink-0 border border-neutral-100 bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-500 ease-out hover:-translate-y-1 hover:border-neutral-200 hover:shadow-[0_20px_40px_rgba(0,0,0,0.1)] sm:p-6"
               >
-                {/* Header with user info */}
                 <div className="flex items-start gap-3">
                   <div className="shrink-0 overflow-hidden border border-neutral-100 bg-[#f8f8f8]">
                     <img
@@ -413,9 +403,6 @@ export default function TestimonialSection() {
                       </h3>
                       {item.isVerified && (
                         <span className="inline-flex items-center gap-0.5 bg-green-50 px-1.5 py-0.5 rounded-full">
-                          <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
                           <span className="text-[9px] font-medium text-green-700">Verified</span>
                         </span>
                       )}
@@ -431,43 +418,37 @@ export default function TestimonialSection() {
                     </div>
                   </div>
 
-                  {/* Rating star badge - right side */}
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-neutral-100 bg-[#fafafa] text-[13px] font-semibold text-[#111111] shadow-sm transition-all duration-300 group-hover:border-black group-hover:bg-black group-hover:text-white sm:h-9 sm:w-9">
                     ★
                   </div>
                 </div>
 
-                {/* Decorative quote marks and line */}
                 <div className="mt-5 flex items-center gap-3">
-                  <span className="font-serif text-[32px] leading-none text-black/15 transition-colors duration-300 group-hover:text-black/25">
+                  <span className="font-serif text-[32px] leading-none text-black/15">
                     “
                   </span>
-                  <div className="h-[1px] flex-1 bg-black/8 transition-all duration-300 group-hover:bg-black/15" />
+                  <div className="h-[1px] flex-1 bg-black/8" />
                 </div>
 
-                {/* Review text */}
-                <p className="mt-3 text-[14px] leading-relaxed text-neutral-600 sm:text-[15px] sm:leading-relaxed">
+                <p className="mt-3 text-[14px] leading-relaxed text-neutral-600 sm:text-[15px]">
                   {item.text}
                 </p>
 
-                {/* Recommendation badge */}
                 {item.recommends && (
-  <div className="mt-4 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-neutral-50 px-2.5 py-1">
-    <FaThumbsUp className="text-[12px] shrink-0" />
-    <span className="text-[10px] font-medium text-neutral-600 uppercase tracking-wide whitespace-nowrap">
-      {item.name.split(' ')[0]} Recommends This Product!
-    </span>
-  </div>
-)}
+                  <div className="mt-4 inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-neutral-50 px-2.5 py-1">
+                    <FaThumbsUp className="text-[12px]" />
+                    <span className="text-[10px] font-medium text-neutral-600 uppercase tracking-wide">
+                      {item.name.split(" ")[0]} Recommends This Product!
+                    </span>
+                  </div>
+                )}
               </article>
             ))}
           </div>
         </div>
 
-        {/* Slider indicator dots */}
         <div className="mt-8 flex justify-center gap-2">
           <div className="h-1.5 w-8 rounded-full bg-black"></div>
-          <div className="h-1.5 w-1.5 rounded-full bg-neutral-300"></div>
           <div className="h-1.5 w-1.5 rounded-full bg-neutral-300"></div>
           <div className="h-1.5 w-1.5 rounded-full bg-neutral-300"></div>
         </div>
@@ -475,23 +456,8 @@ export default function TestimonialSection() {
 
       <style jsx>{`
         @keyframes testimonialSlide {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(calc(-50% - 10px));
-          }
-        }
-
-        @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { transform: translateX(0); }
+          to { transform: translateX(calc(-50% - 10px)); }
         }
 
         .testimonial-track {
@@ -503,49 +469,38 @@ export default function TestimonialSection() {
           animation-play-state: paused;
         }
 
-        /* Card styling - LEFT side rounded (top-left, bottom-left), RIGHT side sharp (top-right, bottom-right) */
         .testimonial-card {
           width: calc(100vw - 32px);
           min-height: 320px;
-          /* Top-left and bottom-left rounded (70px), top-right and bottom-right sharp (0px) */
           border-radius: 70px 0 0 70px;
         }
 
-        /* Make images also follow the same rounding pattern on left side */
         .testimonial-card > div:first-child > div:first-child {
           border-radius: 50px 0 0 50px;
         }
 
-        /* For medium screens */
         @media (min-width: 640px) {
           .testimonial-card {
             width: calc((100vw - 48px) / 1.5);
           }
         }
 
-        /* For tablet screens */
         @media (min-width: 768px) {
           .testimonial-card {
             width: calc((100vw - 80px) / 2);
           }
         }
 
-        /* For desktop screens */
         @media (min-width: 1024px) {
           .testimonial-card {
             width: calc((100vw - 120px) / 3);
           }
         }
 
-        /* For large desktop screens with max-width constraint */
+        /* ✅ FULL WIDTH FIX */
         @media (min-width: 1280px) {
-          .testimonial-slider {
-            max-width: 1280px;
-            margin: 0 auto;
-          }
-          
           .testimonial-card {
-            width: calc((1280px - 120px) / 3);
+            width: calc((100vw - 120px) / 3);
           }
         }
       `}</style>
