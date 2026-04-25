@@ -92,7 +92,7 @@ export default function HeroCarousel() {
                 <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-black/10" />
 
                 {/* CONTENT */}
-                <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-10">
+                <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6 lg:px-2 lg:py-7">
                   <div
                     className={`max-w-[650px] text-center text-white transition-all duration-1000 ${
                       isActive

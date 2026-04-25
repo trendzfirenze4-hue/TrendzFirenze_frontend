@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -21,14 +19,10 @@ export default function BestSellerSection({ products = [] }) {
 
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_BASE || ""}/api/categories`,
-          {
-            cache: "no-store",
-          }
+          { cache: "no-store" }
         );
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch categories");
-        }
+        if (!res.ok) throw new Error("Failed to fetch categories");
 
         const data = await res.json();
 
@@ -40,33 +34,23 @@ export default function BestSellerSection({ products = [] }) {
           ? data.data
           : [];
 
-        if (!ignore) {
-          setCategories(normalized);
-        }
+        if (!ignore) setCategories(normalized);
       } catch (error) {
         console.error("Category fetch error:", error);
-        if (!ignore) {
-          setCategories([]);
-        }
+        if (!ignore) setCategories([]);
       } finally {
-        if (!ignore) {
-          setLoadingCategories(false);
-        }
+        if (!ignore) setLoadingCategories(false);
       }
     }
 
     fetchCategories();
-
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, []);
 
   const filteredProducts = useMemo(() => {
     if (!categoryId) return products;
 
     const selectedId = Number(categoryId);
-
     const selectedCategory = categories.find(
       (c) => Number(c.id) === selectedId
     );
@@ -80,9 +64,7 @@ export default function BestSellerSection({ products = [] }) {
         typeof product.category === "string" &&
         product.category.trim().toLowerCase() ===
           selectedCategory.name.trim().toLowerCase()
-      ) {
-        return true;
-      }
+      ) return true;
 
       return false;
     });
@@ -92,7 +74,9 @@ export default function BestSellerSection({ products = [] }) {
     <section className="relative overflow-hidden bg-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,0,0,0.03),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(0,0,0,0.04),transparent_34%)]" />
 
-      <div className="relative mx-auto w-full max-w-[1280px] px-4 py-12 sm:px-6 sm:py-14 lg:max-w-full lg:px-4 lg:py-10 xl:px-5 xl:py-12 2xl:px-6">
+      {/* ✅ FIXED MAIN PADDING */}
+      <div className="relative mx-auto w-full max-w-[1280px] px-4 py-12 sm:px-6 sm:py-14 lg:max-w-full lg:px-2 lg:py-7 xl:px-2 xl:py-7 2xl:px-2 2xl:py-7">
+        
         <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div className="animate-[fadeUp_0.7s_ease-out]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">

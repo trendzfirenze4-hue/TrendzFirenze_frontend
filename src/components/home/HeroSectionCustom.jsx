@@ -156,8 +156,6 @@
 
 
 
-
-
 "use client";
 
 import Link from "next/link";
@@ -187,6 +185,7 @@ export default function HeroSectionCustom() {
     <>
       <section className="hero-section-custom">
         <div className="hero-card">
+          
           {/* LEFT IMAGE */}
           <Link href={`/product/${hero.productId}`} className="hero-image-link">
             <div className="hero-image-wrap">
@@ -213,6 +212,7 @@ export default function HeroSectionCustom() {
               <span className="hero-button-arrow">→</span>
             </Link>
           </div>
+
         </div>
       </section>
 
@@ -226,7 +226,7 @@ export default function HeroSectionCustom() {
         .hero-card {
           display: flex;
           width: 100%;
-          min-height: 280px; /* ✅ fixed */
+          min-height: 280px;
           border-radius: 20px;
           overflow: hidden;
           background: #ffffff;
@@ -331,7 +331,7 @@ export default function HeroSectionCustom() {
 
         @media (max-width: 1024px) {
           .hero-card {
-            min-height: 240px; /* ✅ fixed */
+            min-height: 240px;
           }
         }
 
@@ -366,6 +366,13 @@ export default function HeroSectionCustom() {
           .hero-button {
             width: 100%;
             justify-content: center;
+          }
+        }
+
+        /* ✅ DESKTOP FIX */
+        @media (min-width: 1024px) {
+          .hero-section-custom {
+            padding: 28px 8px; /* py-7 px-2 */
           }
         }
       `}</style>

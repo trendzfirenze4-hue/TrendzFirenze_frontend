@@ -1,7 +1,3 @@
-
-
-
-
 "use client";
 
 export default function NewsletterSection() {
@@ -9,10 +5,10 @@ export default function NewsletterSection() {
     <section className="relative w-full overflow-hidden bg-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,0,0,0.03),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(0,0,0,0.04),transparent_36%)]" />
 
-      {/* ✅ FULL WIDTH WRAPPER */}
-      <div className="relative w-full px-4 py-14 sm:px-6 sm:py-16 lg:px-10 lg:py-20">
+      {/* ✅ FULL WIDTH WRAPPER (FIXED PADDING) */}
+      <div className="relative w-full px-4 py-14 sm:px-6 sm:py-16 lg:px-2 lg:py-7 xl:px-2 xl:py-7 2xl:px-2 2xl:py-7">
         
-        {/* ✅ CENTERED CONTENT (PREMIUM LOOK) */}
+        {/* ✅ CENTERED CONTENT */}
         <div className="mx-auto w-full max-w-[920px] text-center">
 
           <div className="animate-[fadeUp_0.7s_ease-out]">

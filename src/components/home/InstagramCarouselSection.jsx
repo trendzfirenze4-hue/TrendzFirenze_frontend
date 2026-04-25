@@ -153,8 +153,9 @@ export default function InstagramCarouselSection() {
 
   return (
     <section className="w-full bg-[#f8f8f8]">
-      {/* SAME PADDING FOR ALL SCREEN SIZES */}
-      <div className="w-full px-4 py-7">
+      {/* ✅ FIXED MAIN LAYOUT PADDING */}
+      <div className="w-full px-4 py-7 sm:px-4 sm:py-7 md:px-4 md:py-7 lg:px-2 lg:py-7 xl:px-2 xl:py-7 2xl:px-2 2xl:py-7">
+        
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-full xl:max-w-[760px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">

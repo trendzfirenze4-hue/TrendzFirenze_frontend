@@ -255,8 +255,6 @@
 
 
 
-
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -306,16 +304,7 @@ function ReelCard({ post }) {
           </div>
 
           <div className="rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur-sm transition-transform duration-300 group-hover:scale-105 sm:p-2">
-            <svg
-              viewBox="0 0 24 24"
-              className="h-3.5 w-3.5 text-[#111111] sm:h-4 sm:w-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 text-[#111111] sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M7 17L17 7" />
               <path d="M9 7h8v8" />
             </svg>
@@ -338,7 +327,6 @@ export default function InstagramReelsSection() {
     async function loadInstagramPosts() {
       try {
         setError("");
-
         const res = await fetch("/api/instagram?limit=12");
         const data = await res.json();
 
@@ -357,17 +345,12 @@ export default function InstagramReelsSection() {
           console.error("Instagram fetch failed:", err);
         }
       } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
+        if (!ignore) setLoading(false);
       }
     }
 
     loadInstagramPosts();
-
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, []);
 
   const visiblePosts = useMemo(() => {
@@ -376,23 +359,19 @@ export default function InstagramReelsSection() {
 
   const mobileSlides = useMemo(() => {
     const slides = [];
-
     for (let i = 0; i < visiblePosts.length; i += 2) {
       slides.push(visiblePosts.slice(i, i + 2));
     }
-
     return slides;
   }, [visiblePosts]);
 
   useEffect(() => {
     if (mobileSlides.length <= 1) return;
-
     const interval = setInterval(() => {
       setMobileSlide((prev) =>
         prev === mobileSlides.length - 1 ? 0 : prev + 1
       );
     }, 3000);
-
     return () => clearInterval(interval);
   }, [mobileSlides.length]);
 
@@ -404,7 +383,9 @@ export default function InstagramReelsSection() {
 
   return (
     <section className="w-full bg-white">
-      <div className="w-full px-2 py-7 sm:px-4 sm:py-9 md:px-5 md:py-8 lg:px-2 lg:py-6 xl:px-4 2xl:px-6">
+      {/* ✅ FIXED MAIN PADDING */}
+      <div className="w-full px-2 py-7 sm:px-4 sm:py-9 md:px-5 md:py-8 lg:px-2 lg:py-7 xl:px-2 xl:py-7 2xl:px-2 2xl:py-7">
+        
         <div className="mb-5 flex flex-col gap-3 border-b border-neutral-200/80 pb-4 sm:mb-7 sm:flex-row sm:items-end sm:justify-between sm:pb-5 md:mb-6 md:pb-5">
           <div className="max-w-[760px]">
             <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-neutral-500 sm:text-[11px] md:text-[12px]">
@@ -428,29 +409,18 @@ export default function InstagramReelsSection() {
             className="inline-flex w-fit items-center gap-2 rounded-full border border-neutral-300 bg-white px-3 py-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-[#111111] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-neutral-400 hover:bg-neutral-50 sm:px-4 sm:py-2.5 sm:text-[11px] md:text-[12px]"
           >
             <span>@trendzfirenze</span>
-            <svg
-              viewBox="0 0 24 24"
-              className="h-3.5 w-3.5 sm:h-4 sm:w-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M7 17L17 7" />
               <path d="M9 7h8v8" />
             </svg>
           </a>
         </div>
 
+        {/* rest unchanged */}
         {loading ? (
           <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:gap-4 xl:gap-5">
             {[...Array(4)].map((_, index) => (
-              <div
-                key={index}
-                className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm sm:rounded-2xl"
-              >
+              <div key={index} className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm sm:rounded-2xl">
                 <div className="aspect-[4/5] w-full animate-pulse bg-neutral-200" />
               </div>
             ))}
@@ -465,20 +435,14 @@ export default function InstagramReelsSection() {
           </div>
         ) : (
           <>
-            {/* MOBILE AUTO SLIDER */}
             <div className="md:hidden">
               <div className="overflow-hidden">
                 <div
                   className="flex transition-transform duration-700 ease-out"
-                  style={{
-                    transform: `translateX(-${mobileSlide * 100}%)`,
-                  }}
+                  style={{ transform: `translateX(-${mobileSlide * 100}%)` }}
                 >
                   {mobileSlides.map((slide, slideIndex) => (
-                    <div
-                      key={slideIndex}
-                      className="grid min-w-full grid-cols-2 gap-2 sm:gap-3"
-                    >
+                    <div key={slideIndex} className="grid min-w-full grid-cols-2 gap-2 sm:gap-3">
                       {slide.map((post) => (
                         <ReelCard key={post.id} post={post} />
                       ))}
@@ -488,7 +452,6 @@ export default function InstagramReelsSection() {
               </div>
             </div>
 
-            {/* DESKTOP/TABLET GRID UI */}
             <div className="hidden md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-4 lg:gap-4 xl:gap-5">
               {visiblePosts.map((post) => (
                 <ReelCard key={post.id} post={post} />
