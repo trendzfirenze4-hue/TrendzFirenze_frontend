@@ -78,7 +78,7 @@ function AddressColumn() {
 
         <div>
           <span className="block font-semibold text-white mb-1">
-            Corporate Address Trendz Firenze
+            Corporate Address
           </span>
           <p>{addressInfo.corporateAddress}</p>
         </div>
