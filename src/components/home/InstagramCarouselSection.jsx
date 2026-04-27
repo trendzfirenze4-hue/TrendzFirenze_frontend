@@ -1,3 +1,7 @@
+
+
+
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -77,7 +81,6 @@ export default function InstagramCarouselSection() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [mobileSlide, setMobileSlide] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -123,40 +126,10 @@ export default function InstagramCarouselSection() {
       .slice(0, 4);
   }, [posts]);
 
-  const mobileSlides = useMemo(() => {
-    const slides = [];
-
-    for (let i = 0; i < visiblePosts.length; i += 2) {
-      slides.push(visiblePosts.slice(i, i + 2));
-    }
-
-    return slides;
-  }, [visiblePosts]);
-
-  useEffect(() => {
-    if (mobileSlides.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setMobileSlide((prev) =>
-        prev === mobileSlides.length - 1 ? 0 : prev + 1
-      );
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [mobileSlides.length]);
-
-  useEffect(() => {
-    if (mobileSlide > mobileSlides.length - 1) {
-      setMobileSlide(0);
-    }
-  }, [mobileSlide, mobileSlides.length]);
-
   return (
     <section className="w-full bg-[#f8f8f8]">
-      {/* ✅ FIXED MAIN LAYOUT PADDING */}
-      <div className="w-full px-4 py-7 sm:px-4 sm:py-7 md:px-4 md:py-7 lg:px-2 lg:py-7 xl:px-2 xl:py-7 2xl:px-2 2xl:py-7">
-        
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="w-full px-4 py-12 sm:px-6 sm:py-14 md:px-8 lg:px-10 lg:py-16 xl:px-14 2xl:px-20">
+        <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-full xl:max-w-[760px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">
               Instagram Edit
@@ -193,35 +166,11 @@ export default function InstagramCarouselSection() {
             No carousel posts available right now.
           </p>
         ) : (
-          <>
-            <div className="md:hidden">
-              <div className="overflow-hidden">
-                <div
-                  className="flex transition-transform duration-700 ease-out"
-                  style={{
-                    transform: `translateX(-${mobileSlide * 100}%)`,
-                  }}
-                >
-                  {mobileSlides.map((slide, slideIndex) => (
-                    <div
-                      key={slideIndex}
-                      className="grid min-w-full grid-cols-2 gap-3"
-                    >
-                      {slide.map((post) => (
-                        <CarouselCard key={post.id} post={post} />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="hidden md:grid md:grid-cols-2 md:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6 2xl:gap-7">
-              {visiblePosts.map((post) => (
-                <CarouselCard key={post.id} post={post} />
-              ))}
-            </div>
-          </>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6 2xl:gap-7">
+            {visiblePosts.map((post) => (
+              <CarouselCard key={post.id} post={post} />
+            ))}
+          </div>
         )}
       </div>
     </section>

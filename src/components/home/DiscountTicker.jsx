@@ -11,7 +11,7 @@ export default function DiscountTicker() {
   const tickerItems = [...offers, ...offers, ...offers];
 
   return (
-    <div className="relative w-full overflow-hidden border-y border-gray-800 bg-black py-[2px]">
+    <div className="relative w-full overflow-hidden border-y border-gray-800 bg-black py-[6px]">
       {/* Fade */}
       <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-16 bg-gradient-to-r from-black to-transparent" />
       <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-16 bg-gradient-to-l from-black to-transparent" />

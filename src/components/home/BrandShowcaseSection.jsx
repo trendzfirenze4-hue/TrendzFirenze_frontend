@@ -1,4 +1,6 @@
 
+
+
 "use client";
 
 import Link from "next/link";
@@ -67,8 +69,8 @@ export default function BrandShowcaseSection() {
 
   if (loadingPublic) {
     return (
-      <section className="w-full overflow-x-hidden">
-        <div className="px-4 sm:px-6 lg:px-2 lg:py-7">
+      <section className="w-full overflow-x-hidden py-4">
+        <div className="px-4 sm:px-6 lg:px-10">
           <div className="bg-[#efefef] px-5 py-6 text-sm text-gray-500">
             Loading brand showcase...
           </div>
@@ -82,10 +84,8 @@ export default function BrandShowcaseSection() {
   }
 
   return (
-    <section className="w-full overflow-x-hidden">
-      {/* ✅ FIXED MAIN LAYOUT PADDING */}
-      <div className="px-2 sm:px-4 lg:px-2 lg:py-7 xl:px-2 xl:py-7 2xl:px-2 2xl:py-7">
-        
+    <section className="w-full overflow-x-hidden py-4">
+      <div className="px-2 sm:px-4 lg:px-6">
         <div
           className="relative w-full overflow-hidden bg-[#efefef] shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
           onMouseEnter={() => setIsPaused(true)}
@@ -107,7 +107,6 @@ export default function BrandShowcaseSection() {
                   className="box-border w-full min-w-full flex-shrink-0 p-2"
                 >
                   <div className="flex h-auto w-full flex-col gap-2 sm:h-[420px] sm:flex-row lg:h-[480px]">
-                    
                     {/* LEFT MODEL */}
                     <div className="relative w-full min-w-0 overflow-hidden bg-[#e9e9e9] sm:w-1/2">
                       {showcase?.modelImageUrl ? (
@@ -169,7 +168,6 @@ export default function BrandShowcaseSection() {
                         </div>
                       )}
                     </div>
-
                   </div>
                 </div>
               );
