@@ -43,27 +43,9 @@ export default function HomePage() {
     dispatch(fetchProducts(categoryId));
   }, [categoryId, dispatch]);
 
-  const bestSellers = useMemo(() => {
-    return [...products]
-      .sort((a, b) => {
-        const aReviews = a.reviews?.length || 0;
-        const bReviews = b.reviews?.length || 0;
-
-        const aRating =
-          aReviews > 0
-            ? a.reviews.reduce((sum, r) => sum + r.rating, 0) / aReviews
-            : 0;
-
-        const bRating =
-          bReviews > 0
-            ? b.reviews.reduce((sum, r) => sum + r.rating, 0) / bReviews
-            : 0;
-
-        if (bRating !== aRating) return bRating - aRating;
-        return bReviews - aReviews;
-      })
-      .slice(0, 8);
-  }, [products]);
+ const bestSellers = useMemo(() => {
+  return [...products].sort((a, b) => Number(a.id) - Number(b.id));
+}, [products]);
 
   const newArrivals = useMemo(() => {
     return [...products]
