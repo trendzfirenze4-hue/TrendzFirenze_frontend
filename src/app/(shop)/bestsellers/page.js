@@ -26,7 +26,7 @@ async function getProducts() {
 export default async function BestSellersPage() {
   const products = await getProducts();
 
-  const bestSellerProducts = products.slice(0, 8);
+  const bestSellerProducts = products.slice(0, 30);
 
   return (
     <main className="relative overflow-hidden bg-[#f8f7f4] text-[#111111]">
