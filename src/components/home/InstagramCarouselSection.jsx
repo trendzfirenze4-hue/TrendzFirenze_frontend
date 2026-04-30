@@ -149,7 +149,7 @@ export default function InstagramCarouselSection() {
 
   return (
     <section className="w-full bg-[#f8f8f8]">
-      <div className="w-full px-4 py-12 sm:px-6 sm:py-14 md:px-8 lg:px-10 lg:py-16 xl:px-14 2xl:px-20">
+      <div className="w-full px-4 py-12 sm:px-6 sm:py-14 md:px-8 lg:px-3 lg:py-16 xl:px-4 2xl:px-8">
         <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-full xl:max-w-[760px]">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-neutral-500">

@@ -1,6 +1,3 @@
-
-
-
 "use client";
 
 import Link from "next/link";
@@ -70,7 +67,7 @@ export default function BrandShowcaseSection() {
   if (loadingPublic) {
     return (
       <section className="w-full overflow-x-hidden py-4">
-        <div className="px-4 sm:px-6 lg:px-10">
+        <div className="px-4 sm:px-6 lg:px-3 xl:px-4 2xl:px-8">
           <div className="bg-[#efefef] px-5 py-6 text-sm text-gray-500">
             Loading brand showcase...
           </div>
@@ -85,7 +82,7 @@ export default function BrandShowcaseSection() {
 
   return (
     <section className="w-full overflow-x-hidden py-4">
-      <div className="px-2 sm:px-4 lg:px-6">
+      <div className="px-2 sm:px-4 lg:px-3 xl:px-4 2xl:px-8">
         <div
           className="relative w-full overflow-hidden bg-[#efefef] shadow-[0_6px_20px_rgba(0,0,0,0.04)]"
           onMouseEnter={() => setIsPaused(true)}

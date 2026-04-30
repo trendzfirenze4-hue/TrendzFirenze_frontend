@@ -78,7 +78,7 @@ export default function TestimonialSection() {
     <section className="relative overflow-hidden bg-white">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,0,0,0.03),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(0,0,0,0.04),transparent_34%)]" />
 
-      <div className="relative mx-auto w-full max-w-[1280px] px-4 py-14 sm:px-6 sm:py-16 lg:max-w-full lg:px-10 lg:py-18">
+      <div className="relative mx-auto w-full max-w-[1280px] px-4 py-14 sm:px-6 sm:py-16 lg:max-w-full lg:px-3 lg:py-18 xl:px-4 2xl:px-8">
         <div className="mb-8 animate-[fadeUp_0.7s_ease-out] sm:mb-10">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-neutral-500">
             Testimonials
