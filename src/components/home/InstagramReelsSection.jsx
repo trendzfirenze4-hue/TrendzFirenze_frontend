@@ -149,8 +149,6 @@
 
 
 
-
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -224,6 +222,7 @@ export default function InstagramReelsSection() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mobileSlide, setMobileSlide] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -266,6 +265,30 @@ export default function InstagramReelsSection() {
   const visiblePosts = useMemo(() => {
     return posts.filter((post) => post.mediaType === "VIDEO").slice(0, 4);
   }, [posts]);
+
+  const mobileSlides = useMemo(() => {
+    const slides = [];
+
+    for (let i = 0; i < visiblePosts.length; i += 2) {
+      slides.push(visiblePosts.slice(i, i + 2));
+    }
+
+    return slides;
+  }, [visiblePosts]);
+
+  useEffect(() => {
+    if (mobileSlides.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setMobileSlide((prev) => (prev + 1) % mobileSlides.length);
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [mobileSlides.length]);
+
+  useEffect(() => {
+    setMobileSlide(0);
+  }, [visiblePosts.length]);
 
   return (
     <section className="w-full bg-gradient-to-b from-[#fcfcfc] via-[#f8f8f8] to-[#f3f3f3]">
@@ -329,11 +352,34 @@ export default function InstagramReelsSection() {
             Instagram reels will appear here soon.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:gap-7">
-            {visiblePosts.map((post) => (
-              <ReelCard key={post.id} post={post} />
-            ))}
-          </div>
+          <>
+            {/* Small device only: 2 reels per slide, auto slide, no bottom buttons */}
+            <div className="overflow-hidden sm:hidden">
+              <div
+                className="flex transition-transform duration-700 ease-out"
+                style={{
+                  transform: `translateX(-${mobileSlide * 100}%)`,
+                }}
+              >
+                {mobileSlides.map((slide, slideIndex) => (
+                  <div key={slideIndex} className="min-w-full">
+                    <div className="grid grid-cols-2 gap-3">
+                      {slide.map((post) => (
+                        <ReelCard key={post.id} post={post} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tablet/Desktop unchanged */}
+            <div className="hidden sm:grid sm:grid-cols-2 sm:gap-4 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:gap-7">
+              {visiblePosts.map((post) => (
+                <ReelCard key={post.id} post={post} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </section>

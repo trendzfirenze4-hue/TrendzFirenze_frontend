@@ -1,7 +1,3 @@
-
-
-
-
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -81,6 +77,7 @@ export default function InstagramCarouselSection() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mobileSlide, setMobileSlide] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -126,6 +123,30 @@ export default function InstagramCarouselSection() {
       .slice(0, 4);
   }, [posts]);
 
+  const mobileSlides = useMemo(() => {
+    const slides = [];
+
+    for (let i = 0; i < visiblePosts.length; i += 2) {
+      slides.push(visiblePosts.slice(i, i + 2));
+    }
+
+    return slides;
+  }, [visiblePosts]);
+
+  useEffect(() => {
+    if (mobileSlides.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setMobileSlide((prev) => (prev + 1) % mobileSlides.length);
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, [mobileSlides.length]);
+
+  useEffect(() => {
+    setMobileSlide(0);
+  }, [visiblePosts.length]);
+
   return (
     <section className="w-full bg-[#f8f8f8]">
       <div className="w-full px-4 py-12 sm:px-6 sm:py-14 md:px-8 lg:px-10 lg:py-16 xl:px-14 2xl:px-20">
@@ -166,11 +187,34 @@ export default function InstagramCarouselSection() {
             No carousel posts available right now.
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6 2xl:gap-7">
-            {visiblePosts.map((post) => (
-              <CarouselCard key={post.id} post={post} />
-            ))}
-          </div>
+          <>
+            {/* Small device only: 2 posts per slide, auto slide, no bottom buttons */}
+            <div className="overflow-hidden sm:hidden">
+              <div
+                className="flex transition-transform duration-700 ease-out"
+                style={{
+                  transform: `translateX(-${mobileSlide * 100}%)`,
+                }}
+              >
+                {mobileSlides.map((slide, slideIndex) => (
+                  <div key={slideIndex} className="min-w-full">
+                    <div className="grid grid-cols-2 gap-3">
+                      {slide.map((post) => (
+                        <CarouselCard key={post.id} post={post} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tablet/Desktop unchanged */}
+            <div className="hidden sm:grid sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6 2xl:gap-7">
+              {visiblePosts.map((post) => (
+                <CarouselCard key={post.id} post={post} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </section>

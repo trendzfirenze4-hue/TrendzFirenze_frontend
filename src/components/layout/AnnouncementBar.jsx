@@ -54,7 +54,7 @@ export default function AnnouncementBar({
             type="button"
             onClick={handlePrev}
             aria-label="Previous announcement"
-            className="group absolute left-[25%] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 hover:bg-white/10 active:scale-95"
+            className="group absolute left-[15%] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 hover:bg-white/10 active:scale-95 sm:left-[25%]"
           >
             <svg
               className="h-3.5 w-3.5 text-white transition-all duration-300 group-hover:-translate-x-0.5"
@@ -82,7 +82,7 @@ export default function AnnouncementBar({
                   key={`${message}-${index}`}
                   className={[
                     "absolute left-1/2 top-1/2 w-full max-w-[90%] -translate-x-1/2 text-center",
-                    "px-16 text-[11px] font-medium uppercase tracking-[0.14em] sm:text-xs md:text-[13px]",
+                    "px-14 text-[10.5px] font-medium uppercase tracking-[0.12em] sm:px-16 sm:text-xs sm:tracking-[0.14em] md:text-[13px]",
                     "transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
                     isActive
                       ? "translate-y-[-50%] opacity-100 blur-0"
@@ -101,7 +101,7 @@ export default function AnnouncementBar({
             type="button"
             onClick={handleNext}
             aria-label="Next announcement"
-            className="group absolute right-[25%] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 hover:bg-white/10 active:scale-95"
+            className="group absolute right-[15%] top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300 hover:bg-white/10 active:scale-95 sm:right-[25%]"
           >
             <svg
               className="h-3.5 w-3.5 text-white transition-all duration-300 group-hover:translate-x-0.5"
