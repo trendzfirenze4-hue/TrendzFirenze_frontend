@@ -610,7 +610,7 @@ export default function ProductPage() {
         .thumbnail-img {
           width: 100%;
           height: 88px;
-          object-fit: cover;
+          object-fit: contain;
           border-radius: 10px;
           display: block;
           background: #fff;
@@ -696,14 +696,17 @@ export default function ProductPage() {
         }
 
         .main-product-image {
-          width: 100%;
-          aspect-ratio: 1 / 1;
-          max-height: 680px;
-          object-fit: cover;
-          border-radius: 14px;
-          display: block;
-          background: #fff;
-        }
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 680px;
+
+  object-fit: contain;   /* 🔥 FIX */
+  padding: 30px;         /* 🔥 ADD SPACE */
+
+  border-radius: 14px;
+  display: block;
+  background: #fff;
+}
 
         .full-view-trigger {
   align-self: center;
@@ -1173,7 +1176,7 @@ export default function ProductPage() {
         .gallery-grid-thumb-img {
           width: 100%;
           aspect-ratio: 1 / 1;
-          object-fit: cover;
+          object-fit: contain;
           display: block;
           background: #fff;
           border-radius: 8px;
