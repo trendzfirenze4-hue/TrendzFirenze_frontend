@@ -1542,9 +1542,6 @@
 
 
 
-
-
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -1564,6 +1561,20 @@ function getImageUrl(imageUrl) {
   return base ? `${base}${path}` : path;
 }
 
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3.4;
+const TAP_ZOOM_STEP = 0.45;
+
+function clampValue(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getTouchDistance(touch1, touch2) {
+  const dx = touch1.clientX - touch2.clientX;
+  const dy = touch1.clientY - touch2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
 export default function ProductPage() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -1573,8 +1584,10 @@ export default function ProductPage() {
   const product = useSelector((state) => state.products.product);
 
   const [selectedImage, setSelectedImage] = useState("");
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(0);
+  const [zoomScale, setZoomScale] = useState(1);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+
+  const isZoomed = zoomScale > 1.01;
 
   const zoomStageRef = useRef(null);
 
@@ -1582,8 +1595,8 @@ export default function ProductPage() {
     isDragging: false,
     startX: 0,
     startY: 0,
-    scrollLeft: 0,
-    scrollTop: 0,
+    startPosX: 0,
+    startPosY: 0,
     moved: false,
   });
 
@@ -1593,6 +1606,17 @@ export default function ProductPage() {
     endX: 0,
     endY: 0,
     isSwiping: false,
+    moved: false,
+  });
+
+  const touchZoomRef = useRef({
+    mode: "none",
+    startDistance: 0,
+    startScale: 1,
+    startX: 0,
+    startY: 0,
+    startPosX: 0,
+    startPosY: 0,
     moved: false,
   });
 
@@ -1628,17 +1652,60 @@ export default function ProductPage() {
     galleryImages.findIndex((img) => img === activeImage)
   );
 
-  const resetZoomScroll = () => {
+  const clampZoomPosition = (x, y, scale = zoomScale) => {
     const stage = zoomStageRef.current;
-    if (!stage) return;
 
-    stage.scrollLeft = 0;
-    stage.scrollTop = 0;
+    if (!stage || scale <= 1.01) {
+      return { x: 0, y: 0 };
+    }
+
+    const rect = stage.getBoundingClientRect();
+
+    const maxX = (rect.width * (scale - 1)) / 2;
+    const maxY = (rect.height * (scale - 1)) / 2;
+
+    return {
+      x: clampValue(x, -maxX, maxX),
+      y: clampValue(y, -maxY, maxY),
+    };
   };
 
   const resetZoom = () => {
-    setIsZoomed(false);
-    setZoomLevel(0);
+    setZoomScale(1);
+    setZoomPosition({ x: 0, y: 0 });
+
+    dragDataRef.current = {
+      isDragging: false,
+      startX: 0,
+      startY: 0,
+      startPosX: 0,
+      startPosY: 0,
+      moved: false,
+    };
+
+    touchZoomRef.current = {
+      mode: "none",
+      startDistance: 0,
+      startScale: 1,
+      startX: 0,
+      startY: 0,
+      startPosX: 0,
+      startPosY: 0,
+      moved: false,
+    };
+  };
+
+  const setSmoothZoom = (nextScale) => {
+    const cleanScale = clampValue(nextScale, MIN_ZOOM, MAX_ZOOM);
+
+    if (cleanScale <= 1.01) {
+      setZoomScale(1);
+      setZoomPosition({ x: 0, y: 0 });
+      return;
+    }
+
+    setZoomScale(cleanScale);
+    setZoomPosition((prev) => clampZoomPosition(prev.x, prev.y, cleanScale));
   };
 
   const goToPreviousImage = () => {
@@ -1686,10 +1753,8 @@ export default function ProductPage() {
   }, [activeImageIndex, galleryImages]);
 
   useEffect(() => {
-    if (!isZoomed) {
-      resetZoomScroll();
-    }
-  }, [isZoomed, activeImage]);
+    resetZoom();
+  }, [activeImage]);
 
   const handleAddToCart = async () => {
     if (!product || product.stock <= 0) return;
@@ -1726,11 +1791,18 @@ export default function ProductPage() {
   };
 
   const handleZoomToggle = () => {
-    setZoomLevel((prev) => {
-      const nextLevel = prev >= 10 ? 0 : prev + 1;
-      setIsZoomed(nextLevel > 0);
-      return nextLevel;
-    });
+    if (dragDataRef.current.moved || touchZoomRef.current.moved) {
+      dragDataRef.current.moved = false;
+      touchZoomRef.current.moved = false;
+      return;
+    }
+
+    if (zoomScale >= MAX_ZOOM - 0.05) {
+      resetZoom();
+      return;
+    }
+
+    setSmoothZoom(zoomScale <= 1.01 ? 1.65 : zoomScale + TAP_ZOOM_STEP);
   };
 
   const handleZoomStageMouseDown = (event) => {
@@ -1740,16 +1812,14 @@ export default function ProductPage() {
       isDragging: true,
       startX: event.clientX,
       startY: event.clientY,
-      scrollLeft: zoomStageRef.current.scrollLeft,
-      scrollTop: zoomStageRef.current.scrollTop,
+      startPosX: zoomPosition.x,
+      startPosY: zoomPosition.y,
       moved: false,
     };
   };
 
   const handleZoomStageMouseMove = (event) => {
-    if (!isZoomed || !dragDataRef.current.isDragging || !zoomStageRef.current) {
-      return;
-    }
+    if (!isZoomed || !dragDataRef.current.isDragging) return;
 
     event.preventDefault();
 
@@ -1760,8 +1830,13 @@ export default function ProductPage() {
       dragDataRef.current.moved = true;
     }
 
-    zoomStageRef.current.scrollLeft = dragDataRef.current.scrollLeft - deltaX;
-    zoomStageRef.current.scrollTop = dragDataRef.current.scrollTop - deltaY;
+    const next = clampZoomPosition(
+      dragDataRef.current.startPosX + deltaX,
+      dragDataRef.current.startPosY + deltaY,
+      zoomScale
+    );
+
+    setZoomPosition(next);
   };
 
   const handleZoomStageMouseUp = () => {
@@ -1773,6 +1848,23 @@ export default function ProductPage() {
   };
 
   const handleZoomStageTouchStart = (event) => {
+    if (event.touches.length === 2) {
+      const distance = getTouchDistance(event.touches[0], event.touches[1]);
+
+      touchZoomRef.current = {
+        mode: "pinch",
+        startDistance: distance,
+        startScale: zoomScale,
+        startX: 0,
+        startY: 0,
+        startPosX: zoomPosition.x,
+        startPosY: zoomPosition.y,
+        moved: false,
+      };
+
+      return;
+    }
+
     const touch = event.touches[0];
     if (!touch) return;
 
@@ -1785,22 +1877,53 @@ export default function ProductPage() {
         isSwiping: true,
         moved: false,
       };
+
+      touchZoomRef.current.mode = "swipe";
       return;
     }
 
-    if (!zoomStageRef.current) return;
-
-    dragDataRef.current = {
-      isDragging: true,
+    touchZoomRef.current = {
+      mode: "drag",
+      startDistance: 0,
+      startScale: zoomScale,
       startX: touch.clientX,
       startY: touch.clientY,
-      scrollLeft: zoomStageRef.current.scrollLeft,
-      scrollTop: zoomStageRef.current.scrollTop,
+      startPosX: zoomPosition.x,
+      startPosY: zoomPosition.y,
       moved: false,
     };
   };
 
   const handleZoomStageTouchMove = (event) => {
+    if (event.touches.length === 2 && touchZoomRef.current.mode === "pinch") {
+      event.preventDefault();
+
+      const distance = getTouchDistance(event.touches[0], event.touches[1]);
+
+      if (!touchZoomRef.current.startDistance) return;
+
+      const pinchRatio = distance / touchZoomRef.current.startDistance;
+      const nextScale = clampValue(
+        touchZoomRef.current.startScale * pinchRatio,
+        MIN_ZOOM,
+        MAX_ZOOM
+      );
+
+      if (Math.abs(nextScale - touchZoomRef.current.startScale) > 0.03) {
+        touchZoomRef.current.moved = true;
+      }
+
+      if (nextScale <= 1.01) {
+        setZoomScale(1);
+        setZoomPosition({ x: 0, y: 0 });
+      } else {
+        setZoomScale(nextScale);
+        setZoomPosition((prev) => clampZoomPosition(prev.x, prev.y, nextScale));
+      }
+
+      return;
+    }
+
     const touch = event.touches[0];
     if (!touch) return;
 
@@ -1815,7 +1938,7 @@ export default function ProductPage() {
 
       if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
         swipeDataRef.current.moved = true;
-        dragDataRef.current.moved = true;
+        touchZoomRef.current.moved = true;
       }
 
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
@@ -1825,19 +1948,25 @@ export default function ProductPage() {
       return;
     }
 
-    if (!dragDataRef.current.isDragging || !zoomStageRef.current) {
-      return;
-    }
+    if (touchZoomRef.current.mode !== "drag") return;
 
-    const deltaX = touch.clientX - dragDataRef.current.startX;
-    const deltaY = touch.clientY - dragDataRef.current.startY;
+    event.preventDefault();
+
+    const deltaX = touch.clientX - touchZoomRef.current.startX;
+    const deltaY = touch.clientY - touchZoomRef.current.startY;
 
     if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+      touchZoomRef.current.moved = true;
       dragDataRef.current.moved = true;
     }
 
-    zoomStageRef.current.scrollLeft = dragDataRef.current.scrollLeft - deltaX;
-    zoomStageRef.current.scrollTop = dragDataRef.current.scrollTop - deltaY;
+    const next = clampZoomPosition(
+      touchZoomRef.current.startPosX + deltaX,
+      touchZoomRef.current.startPosY + deltaY,
+      zoomScale
+    );
+
+    setZoomPosition(next);
   };
 
   const handleZoomStageTouchEnd = () => {
@@ -1855,7 +1984,7 @@ export default function ProductPage() {
           goToPreviousImage();
         }
 
-        dragDataRef.current.moved = true;
+        touchZoomRef.current.moved = true;
       }
 
       swipeDataRef.current = {
@@ -1867,18 +1996,15 @@ export default function ProductPage() {
         moved: false,
       };
 
+      touchZoomRef.current.mode = "none";
       return;
     }
 
     dragDataRef.current.isDragging = false;
+    touchZoomRef.current.mode = "none";
   };
 
   const handleZoomStageClick = () => {
-    if (dragDataRef.current.moved) {
-      dragDataRef.current.moved = false;
-      return;
-    }
-
     handleZoomToggle();
   };
 
@@ -2002,7 +2128,7 @@ export default function ProductPage() {
                       )}
                     </div>
 
-                    {galleryImages.length > 1 && (
+                    {galleryImages.length > 1 && !isZoomed && (
                       <button
                         type="button"
                         className="main-arrow-btn main-arrow-left"
@@ -2019,7 +2145,7 @@ export default function ProductPage() {
                       tabIndex={0}
                       className={`main-zoom-stage ${
                         isZoomed ? "main-zoomed" : ""
-                      } zoom-level-${zoomLevel}`}
+                      }`}
                       onClick={handleZoomStageClick}
                       onMouseDown={handleZoomStageMouseDown}
                       onMouseMove={handleZoomStageMouseMove}
@@ -2028,17 +2154,24 @@ export default function ProductPage() {
                       onTouchStart={handleZoomStageTouchStart}
                       onTouchMove={handleZoomStageTouchMove}
                       onTouchEnd={handleZoomStageTouchEnd}
-                      aria-label={isZoomed ? "Zoom out image" : "Zoom in image"}
+                      aria-label={
+                        isZoomed
+                          ? "Drag or pinch to zoom product image"
+                          : "Tap to zoom product image"
+                      }
                     >
                       <img
                         src={activeImage}
                         alt={product.title}
                         className="main-product-image"
                         draggable={false}
+                        style={{
+                          transform: `translate3d(${zoomPosition.x}px, ${zoomPosition.y}px, 0) scale(${zoomScale})`,
+                        }}
                       />
                     </div>
 
-                    {galleryImages.length > 1 && (
+                    {galleryImages.length > 1 && !isZoomed && (
                       <button
                         type="button"
                         className="main-arrow-btn main-arrow-right"
@@ -2051,8 +2184,8 @@ export default function ProductPage() {
 
                     <div className="main-zoom-hint">
                       {isZoomed
-                        ? "Drag image to move • Click to zoom more"
-                        : "Click image to zoom in"}
+                        ? "Drag to move • Pinch to zoom • Tap to zoom more"
+                        : "Tap to zoom • Swipe image"}
                     </div>
                   </div>
 
@@ -2064,8 +2197,8 @@ export default function ProductPage() {
                       aria-label="Zoom product image"
                     >
                       {isZoomed
-                        ? "Click to zoom more"
-                        : "Click to see full view"}
+                        ? "Tap / pinch to zoom more"
+                        : "Tap to see full view"}
                     </button>
                   )}
                 </div>
@@ -2379,19 +2512,16 @@ export default function ProductPage() {
           align-items: center;
           justify-content: center;
           cursor: zoom-in;
-          overflow: auto;
+          overflow: hidden;
           border-radius: 14px;
           outline: none;
-          -webkit-overflow-scrolling: touch;
           overscroll-behavior: contain;
           touch-action: pan-y;
-          scrollbar-width: thin;
+          user-select: none;
         }
 
         .main-zoom-stage.main-zoomed {
           cursor: grab;
-          align-items: center;
-          justify-content: center;
           touch-action: none;
         }
 
@@ -2407,59 +2537,16 @@ export default function ProductPage() {
           border-radius: 14px;
           display: block;
           background: #fff;
-          transition: transform 0.35s ease;
+          transition: transform 0.18s ease-out;
           transform-origin: center center;
           user-select: none;
           -webkit-user-drag: none;
           pointer-events: none;
+          will-change: transform;
         }
 
         .main-zoomed .main-product-image {
-          width: 100%;
-          height: 100%;
-          max-width: 100%;
-          max-height: 100%;
-          padding: 30px;
-        }
-
-        .zoom-level-1 .main-product-image {
-          transform: scale(1.04);
-        }
-
-        .zoom-level-2 .main-product-image {
-          transform: scale(1.08);
-        }
-
-        .zoom-level-3 .main-product-image {
-          transform: scale(1.12);
-        }
-
-        .zoom-level-4 .main-product-image {
-          transform: scale(1.18);
-        }
-
-        .zoom-level-5 .main-product-image {
-          transform: scale(1.25);
-        }
-
-        .zoom-level-6 .main-product-image {
-          transform: scale(1.34);
-        }
-
-        .zoom-level-7 .main-product-image {
-          transform: scale(1.45);
-        }
-
-        .zoom-level-8 .main-product-image {
-          transform: scale(1.58);
-        }
-
-        .zoom-level-9 .main-product-image {
-          transform: scale(1.72);
-        }
-
-        .zoom-level-10 .main-product-image {
-          transform: scale(1.9);
+          transition: transform 0.06s linear;
         }
 
         .main-arrow-btn {
@@ -2632,10 +2719,6 @@ export default function ProductPage() {
           font-weight: 500;
           line-height: 1.3;
           margin-top: 4px;
-        }
-
-        .mrp-label {
-          color: #6b7280;
         }
 
         .mrp-value {
@@ -2919,54 +3002,6 @@ export default function ProductPage() {
             border-radius: 12px;
           }
 
-          .main-zoomed .main-product-image {
-            width: 100%;
-            height: 100%;
-            max-width: 100%;
-            max-height: 100%;
-            padding: 24px;
-          }
-
-          .zoom-level-1 .main-product-image {
-            transform: scale(1.03);
-          }
-
-          .zoom-level-2 .main-product-image {
-            transform: scale(1.06);
-          }
-
-          .zoom-level-3 .main-product-image {
-            transform: scale(1.1);
-          }
-
-          .zoom-level-4 .main-product-image {
-            transform: scale(1.15);
-          }
-
-          .zoom-level-5 .main-product-image {
-            transform: scale(1.22);
-          }
-
-          .zoom-level-6 .main-product-image {
-            transform: scale(1.3);
-          }
-
-          .zoom-level-7 .main-product-image {
-            transform: scale(1.4);
-          }
-
-          .zoom-level-8 .main-product-image {
-            transform: scale(1.52);
-          }
-
-          .zoom-level-9 .main-product-image {
-            transform: scale(1.65);
-          }
-
-          .zoom-level-10 .main-product-image {
-            transform: scale(1.8);
-          }
-
           .main-arrow-btn {
             width: 40px;
             height: 40px;
@@ -3077,46 +3112,6 @@ export default function ProductPage() {
 
           .main-zoom-hint {
             display: none;
-          }
-
-          .zoom-level-1 .main-product-image {
-            transform: scale(1.02);
-          }
-
-          .zoom-level-2 .main-product-image {
-            transform: scale(1.04);
-          }
-
-          .zoom-level-3 .main-product-image {
-            transform: scale(1.07);
-          }
-
-          .zoom-level-4 .main-product-image {
-            transform: scale(1.11);
-          }
-
-          .zoom-level-5 .main-product-image {
-            transform: scale(1.16);
-          }
-
-          .zoom-level-6 .main-product-image {
-            transform: scale(1.23);
-          }
-
-          .zoom-level-7 .main-product-image {
-            transform: scale(1.31);
-          }
-
-          .zoom-level-8 .main-product-image {
-            transform: scale(1.41);
-          }
-
-          .zoom-level-9 .main-product-image {
-            transform: scale(1.53);
-          }
-
-          .zoom-level-10 .main-product-image {
-            transform: scale(1.68);
           }
         }
       `}</style>
