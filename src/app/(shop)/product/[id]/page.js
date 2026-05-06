@@ -1,6 +1,19 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 // "use client";
 
 // import { useEffect, useMemo, useRef, useState } from "react";
@@ -30,14 +43,25 @@
 
 //   const [selectedImage, setSelectedImage] = useState("");
 //   const [isZoomed, setIsZoomed] = useState(false);
+//   const [zoomLevel, setZoomLevel] = useState(0);
 
 //   const zoomStageRef = useRef(null);
+
 //   const dragDataRef = useRef({
 //     isDragging: false,
 //     startX: 0,
 //     startY: 0,
 //     scrollLeft: 0,
 //     scrollTop: 0,
+//     moved: false,
+//   });
+
+//   const swipeDataRef = useRef({
+//     startX: 0,
+//     startY: 0,
+//     endX: 0,
+//     endY: 0,
+//     isSwiping: false,
 //     moved: false,
 //   });
 
@@ -81,10 +105,15 @@
 //     stage.scrollTop = 0;
 //   };
 
+//   const resetZoom = () => {
+//     setIsZoomed(false);
+//     setZoomLevel(0);
+//   };
+
 //   const goToPreviousImage = () => {
 //     if (galleryImages.length <= 1) return;
 
-//     setIsZoomed(false);
+//     resetZoom();
 
 //     const previousIndex =
 //       activeImageIndex <= 0 ? galleryImages.length - 1 : activeImageIndex - 1;
@@ -95,7 +124,7 @@
 //   const goToNextImage = () => {
 //     if (galleryImages.length <= 1) return;
 
-//     setIsZoomed(false);
+//     resetZoom();
 
 //     const nextIndex =
 //       activeImageIndex >= galleryImages.length - 1 ? 0 : activeImageIndex + 1;
@@ -114,7 +143,7 @@
 //       }
 
 //       if (event.key === "Escape") {
-//         setIsZoomed(false);
+//         resetZoom();
 //       }
 //     };
 
@@ -143,50 +172,34 @@
 //     }
 //   };
 
-//   // const handleBuyNow = async () => {
-//   //   if (!product || product.stock <= 0) return;
-
-//   //   try {
-//   //     await dispatch(addToCart({ product, quantity: 1 })).unwrap();
-//   //     router.push("/checkout");
-//   //   } catch (err) {
-//   //     console.error("Buy now failed:", err);
-//   //     alert("Failed to proceed to checkout");
-//   //   }
-//   // };
 //   const handleBuyNow = async () => {
-//   if (!product || product.stock <= 0) return;
+//     if (!product || product.stock <= 0) return;
 
-//   try {
-//     const result = await dispatch(
-//       addToCart({ product, quantity: 1 })
-//     ).unwrap();
+//     try {
+//       const result = await dispatch(addToCart({ product, quantity: 1 })).unwrap();
 
-//     // 🔥 CRITICAL FIX
-//     if (!result.cartId) {
-//       // guest cart
-//       router.push("/checkout?guest=true");
-//     } else {
-//       // logged-in cart
-//       router.push("/checkout");
+//       if (!result.cartId) {
+//         router.push("/checkout?guest=true");
+//       } else {
+//         router.push("/checkout");
+//       }
+//     } catch (err) {
+//       console.error("Buy now failed:", err);
+//       alert("Failed to proceed to checkout");
 //     }
-
-//   } catch (err) {
-//     console.error("Buy now failed:", err);
-//     alert("Failed to proceed to checkout");
-//   }
-// };
-
-
-
+//   };
 
 //   const handleMainThumbClick = (img) => {
 //     setSelectedImage(img);
-//     setIsZoomed(false);
+//     resetZoom();
 //   };
 
 //   const handleZoomToggle = () => {
-//     setIsZoomed((prev) => !prev);
+//     setZoomLevel((prev) => {
+//       const nextLevel = prev >= 3 ? 0 : prev + 1;
+//       setIsZoomed(nextLevel > 0);
+//       return nextLevel;
+//     });
 //   };
 
 //   const handleZoomStageMouseDown = (event) => {
@@ -216,8 +229,7 @@
 //       dragDataRef.current.moved = true;
 //     }
 
-//     zoomStageRef.current.scrollLeft =
-//       dragDataRef.current.scrollLeft - deltaX;
+//     zoomStageRef.current.scrollLeft = dragDataRef.current.scrollLeft - deltaX;
 //     zoomStageRef.current.scrollTop = dragDataRef.current.scrollTop - deltaY;
 //   };
 
@@ -230,9 +242,22 @@
 //   };
 
 //   const handleZoomStageTouchStart = (event) => {
-//     if (!isZoomed || !zoomStageRef.current) return;
-
 //     const touch = event.touches[0];
+//     if (!touch) return;
+
+//     if (!isZoomed) {
+//       swipeDataRef.current = {
+//         startX: touch.clientX,
+//         startY: touch.clientY,
+//         endX: touch.clientX,
+//         endY: touch.clientY,
+//         isSwiping: true,
+//         moved: false,
+//       };
+//       return;
+//     }
+
+//     if (!zoomStageRef.current) return;
 
 //     dragDataRef.current = {
 //       isDragging: true,
@@ -245,11 +270,33 @@
 //   };
 
 //   const handleZoomStageTouchMove = (event) => {
-//     if (!isZoomed || !dragDataRef.current.isDragging || !zoomStageRef.current) {
+//     const touch = event.touches[0];
+//     if (!touch) return;
+
+//     if (!isZoomed) {
+//       if (!swipeDataRef.current.isSwiping) return;
+
+//       const deltaX = touch.clientX - swipeDataRef.current.startX;
+//       const deltaY = touch.clientY - swipeDataRef.current.startY;
+
+//       swipeDataRef.current.endX = touch.clientX;
+//       swipeDataRef.current.endY = touch.clientY;
+
+//       if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
+//         swipeDataRef.current.moved = true;
+//         dragDataRef.current.moved = true;
+//       }
+
+//       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+//         event.preventDefault();
+//       }
+
 //       return;
 //     }
 
-//     const touch = event.touches[0];
+//     if (!dragDataRef.current.isDragging || !zoomStageRef.current) {
+//       return;
+//     }
 
 //     const deltaX = touch.clientX - dragDataRef.current.startX;
 //     const deltaY = touch.clientY - dragDataRef.current.startY;
@@ -258,12 +305,40 @@
 //       dragDataRef.current.moved = true;
 //     }
 
-//     zoomStageRef.current.scrollLeft =
-//       dragDataRef.current.scrollLeft - deltaX;
+//     zoomStageRef.current.scrollLeft = dragDataRef.current.scrollLeft - deltaX;
 //     zoomStageRef.current.scrollTop = dragDataRef.current.scrollTop - deltaY;
 //   };
 
 //   const handleZoomStageTouchEnd = () => {
+//     if (!isZoomed && swipeDataRef.current.isSwiping) {
+//       const deltaX = swipeDataRef.current.endX - swipeDataRef.current.startX;
+//       const deltaY = swipeDataRef.current.endY - swipeDataRef.current.startY;
+
+//       const isHorizontalSwipe =
+//         Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY);
+
+//       if (galleryImages.length > 1 && isHorizontalSwipe) {
+//         if (deltaX < 0) {
+//           goToNextImage();
+//         } else {
+//           goToPreviousImage();
+//         }
+
+//         dragDataRef.current.moved = true;
+//       }
+
+//       swipeDataRef.current = {
+//         startX: 0,
+//         startY: 0,
+//         endX: 0,
+//         endY: 0,
+//         isSwiping: false,
+//         moved: false,
+//       };
+
+//       return;
+//     }
+
 //     dragDataRef.current.isDragging = false;
 //   };
 
@@ -413,7 +488,7 @@
 //                       tabIndex={0}
 //                       className={`main-zoom-stage ${
 //                         isZoomed ? "main-zoomed" : ""
-//                       }`}
+//                       } zoom-level-${zoomLevel}`}
 //                       onClick={handleZoomStageClick}
 //                       onMouseDown={handleZoomStageMouseDown}
 //                       onMouseMove={handleZoomStageMouseMove}
@@ -445,7 +520,7 @@
 
 //                     <div className="main-zoom-hint">
 //                       {isZoomed
-//                         ? "Drag image to move • Click to zoom out"
+//                         ? "Drag image to move • Click to zoom more"
 //                         : "Click image to zoom in"}
 //                     </div>
 //                   </div>
@@ -457,7 +532,9 @@
 //                       onClick={handleZoomToggle}
 //                       aria-label="Zoom product image"
 //                     >
-//                       {isZoomed ? "Click to zoom out" : "Click to see full view"}
+//                       {isZoomed
+//                         ? "Click to zoom more"
+//                         : "Click to see full view"}
 //                     </button>
 //                   )}
 //                 </div>
@@ -776,14 +853,15 @@
 //           outline: none;
 //           -webkit-overflow-scrolling: touch;
 //           overscroll-behavior: contain;
-//           touch-action: none;
+//           touch-action: pan-y;
 //           scrollbar-width: thin;
 //         }
 
 //         .main-zoom-stage.main-zoomed {
 //           cursor: grab;
-//           align-items: flex-start;
-//           justify-content: flex-start;
+//           align-items: center;
+//           justify-content: center;
+//           touch-action: none;
 //         }
 
 //         .main-zoom-stage.main-zoomed:active {
@@ -798,7 +876,7 @@
 //           border-radius: 14px;
 //           display: block;
 //           background: #fff;
-//           transition: transform 0.28s ease;
+//           transition: transform 0.35s ease;
 //           transform-origin: center center;
 //           user-select: none;
 //           -webkit-user-drag: none;
@@ -806,13 +884,23 @@
 //         }
 
 //         .main-zoomed .main-product-image {
-//           width: auto;
-//           height: auto;
-//           max-width: none;
-//           max-height: none;
-//           transform: scale(1.85);
-//           margin: 120px;
-//           padding: 0;
+//           width: 100%;
+//           height: 100%;
+//           max-width: 100%;
+//           max-height: 100%;
+//           padding: 30px;
+//         }
+
+//         .zoom-level-1 .main-product-image {
+//           transform: scale(1.06);
+//         }
+
+//         .zoom-level-2 .main-product-image {
+//           transform: scale(1.12);
+//         }
+
+//         .zoom-level-3 .main-product-image {
+//           transform: scale(1.2);
 //         }
 
 //         .main-arrow-btn {
@@ -1273,9 +1361,23 @@
 //           }
 
 //           .main-zoomed .main-product-image {
-//             transform: scale(1.65);
-//             margin: 80px;
-//             padding: 0;
+//             width: 100%;
+//             height: 100%;
+//             max-width: 100%;
+//             max-height: 100%;
+//             padding: 24px;
+//           }
+
+//           .zoom-level-1 .main-product-image {
+//             transform: scale(1.04);
+//           }
+
+//           .zoom-level-2 .main-product-image {
+//             transform: scale(1.08);
+//           }
+
+//           .zoom-level-3 .main-product-image {
+//             transform: scale(1.14);
 //           }
 
 //           .main-arrow-btn {
@@ -1390,9 +1492,16 @@
 //             display: none;
 //           }
 
-//           .main-zoomed .main-product-image {
-//             transform: scale(1.55);
-//             margin: 60px;
+//           .zoom-level-1 .main-product-image {
+//             transform: scale(1.03);
+//           }
+
+//           .zoom-level-2 .main-product-image {
+//             transform: scale(1.06);
+//           }
+
+//           .zoom-level-3 .main-product-image {
+//             transform: scale(1.1);
 //           }
 //         }
 //       `}</style>
@@ -1465,6 +1574,7 @@ export default function ProductPage() {
 
   const [selectedImage, setSelectedImage] = useState("");
   const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(0);
 
   const zoomStageRef = useRef(null);
 
@@ -1477,7 +1587,6 @@ export default function ProductPage() {
     moved: false,
   });
 
-  // ✅ ADDED: mobile swipe image slider data
   const swipeDataRef = useRef({
     startX: 0,
     startY: 0,
@@ -1527,10 +1636,15 @@ export default function ProductPage() {
     stage.scrollTop = 0;
   };
 
+  const resetZoom = () => {
+    setIsZoomed(false);
+    setZoomLevel(0);
+  };
+
   const goToPreviousImage = () => {
     if (galleryImages.length <= 1) return;
 
-    setIsZoomed(false);
+    resetZoom();
 
     const previousIndex =
       activeImageIndex <= 0 ? galleryImages.length - 1 : activeImageIndex - 1;
@@ -1541,7 +1655,7 @@ export default function ProductPage() {
   const goToNextImage = () => {
     if (galleryImages.length <= 1) return;
 
-    setIsZoomed(false);
+    resetZoom();
 
     const nextIndex =
       activeImageIndex >= galleryImages.length - 1 ? 0 : activeImageIndex + 1;
@@ -1560,7 +1674,7 @@ export default function ProductPage() {
       }
 
       if (event.key === "Escape") {
-        setIsZoomed(false);
+        resetZoom();
       }
     };
 
@@ -1595,12 +1709,9 @@ export default function ProductPage() {
     try {
       const result = await dispatch(addToCart({ product, quantity: 1 })).unwrap();
 
-      // 🔥 CRITICAL FIX
       if (!result.cartId) {
-        // guest cart
         router.push("/checkout?guest=true");
       } else {
-        // logged-in cart
         router.push("/checkout");
       }
     } catch (err) {
@@ -1611,11 +1722,15 @@ export default function ProductPage() {
 
   const handleMainThumbClick = (img) => {
     setSelectedImage(img);
-    setIsZoomed(false);
+    resetZoom();
   };
 
   const handleZoomToggle = () => {
-    setIsZoomed((prev) => !prev);
+    setZoomLevel((prev) => {
+      const nextLevel = prev >= 10 ? 0 : prev + 1;
+      setIsZoomed(nextLevel > 0);
+      return nextLevel;
+    });
   };
 
   const handleZoomStageMouseDown = (event) => {
@@ -1661,7 +1776,6 @@ export default function ProductPage() {
     const touch = event.touches[0];
     if (!touch) return;
 
-    // ✅ ADDED: when image is not zoomed, use finger swipe to change images
     if (!isZoomed) {
       swipeDataRef.current = {
         startX: touch.clientX,
@@ -1690,7 +1804,6 @@ export default function ProductPage() {
     const touch = event.touches[0];
     if (!touch) return;
 
-    // ✅ ADDED: mobile swipe tracking when not zoomed
     if (!isZoomed) {
       if (!swipeDataRef.current.isSwiping) return;
 
@@ -1705,7 +1818,6 @@ export default function ProductPage() {
         dragDataRef.current.moved = true;
       }
 
-      // prevent page moving only during horizontal image swipe
       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
         event.preventDefault();
       }
@@ -1729,7 +1841,6 @@ export default function ProductPage() {
   };
 
   const handleZoomStageTouchEnd = () => {
-    // ✅ ADDED: mobile swipe action when image is not zoomed
     if (!isZoomed && swipeDataRef.current.isSwiping) {
       const deltaX = swipeDataRef.current.endX - swipeDataRef.current.startX;
       const deltaY = swipeDataRef.current.endY - swipeDataRef.current.startY;
@@ -1908,7 +2019,7 @@ export default function ProductPage() {
                       tabIndex={0}
                       className={`main-zoom-stage ${
                         isZoomed ? "main-zoomed" : ""
-                      }`}
+                      } zoom-level-${zoomLevel}`}
                       onClick={handleZoomStageClick}
                       onMouseDown={handleZoomStageMouseDown}
                       onMouseMove={handleZoomStageMouseMove}
@@ -1940,7 +2051,7 @@ export default function ProductPage() {
 
                     <div className="main-zoom-hint">
                       {isZoomed
-                        ? "Drag image to move • Click to zoom out"
+                        ? "Drag image to move • Click to zoom more"
                         : "Click image to zoom in"}
                     </div>
                   </div>
@@ -1952,7 +2063,9 @@ export default function ProductPage() {
                       onClick={handleZoomToggle}
                       aria-label="Zoom product image"
                     >
-                      {isZoomed ? "Click to zoom out" : "Click to see full view"}
+                      {isZoomed
+                        ? "Click to zoom more"
+                        : "Click to see full view"}
                     </button>
                   )}
                 </div>
@@ -2277,8 +2390,8 @@ export default function ProductPage() {
 
         .main-zoom-stage.main-zoomed {
           cursor: grab;
-          align-items: flex-start;
-          justify-content: flex-start;
+          align-items: center;
+          justify-content: center;
           touch-action: none;
         }
 
@@ -2294,7 +2407,7 @@ export default function ProductPage() {
           border-radius: 14px;
           display: block;
           background: #fff;
-          transition: transform 0.28s ease;
+          transition: transform 0.35s ease;
           transform-origin: center center;
           user-select: none;
           -webkit-user-drag: none;
@@ -2302,13 +2415,51 @@ export default function ProductPage() {
         }
 
         .main-zoomed .main-product-image {
-          width: auto;
-          height: auto;
-          max-width: none;
-          max-height: none;
-          transform: scale(1.85);
-          margin: 120px;
-          padding: 0;
+          width: 100%;
+          height: 100%;
+          max-width: 100%;
+          max-height: 100%;
+          padding: 30px;
+        }
+
+        .zoom-level-1 .main-product-image {
+          transform: scale(1.04);
+        }
+
+        .zoom-level-2 .main-product-image {
+          transform: scale(1.08);
+        }
+
+        .zoom-level-3 .main-product-image {
+          transform: scale(1.12);
+        }
+
+        .zoom-level-4 .main-product-image {
+          transform: scale(1.18);
+        }
+
+        .zoom-level-5 .main-product-image {
+          transform: scale(1.25);
+        }
+
+        .zoom-level-6 .main-product-image {
+          transform: scale(1.34);
+        }
+
+        .zoom-level-7 .main-product-image {
+          transform: scale(1.45);
+        }
+
+        .zoom-level-8 .main-product-image {
+          transform: scale(1.58);
+        }
+
+        .zoom-level-9 .main-product-image {
+          transform: scale(1.72);
+        }
+
+        .zoom-level-10 .main-product-image {
+          transform: scale(1.9);
         }
 
         .main-arrow-btn {
@@ -2769,9 +2920,51 @@ export default function ProductPage() {
           }
 
           .main-zoomed .main-product-image {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            padding: 24px;
+          }
+
+          .zoom-level-1 .main-product-image {
+            transform: scale(1.03);
+          }
+
+          .zoom-level-2 .main-product-image {
+            transform: scale(1.06);
+          }
+
+          .zoom-level-3 .main-product-image {
+            transform: scale(1.1);
+          }
+
+          .zoom-level-4 .main-product-image {
+            transform: scale(1.15);
+          }
+
+          .zoom-level-5 .main-product-image {
+            transform: scale(1.22);
+          }
+
+          .zoom-level-6 .main-product-image {
+            transform: scale(1.3);
+          }
+
+          .zoom-level-7 .main-product-image {
+            transform: scale(1.4);
+          }
+
+          .zoom-level-8 .main-product-image {
+            transform: scale(1.52);
+          }
+
+          .zoom-level-9 .main-product-image {
             transform: scale(1.65);
-            margin: 80px;
-            padding: 0;
+          }
+
+          .zoom-level-10 .main-product-image {
+            transform: scale(1.8);
           }
 
           .main-arrow-btn {
@@ -2886,9 +3079,44 @@ export default function ProductPage() {
             display: none;
           }
 
-          .main-zoomed .main-product-image {
-            transform: scale(1.55);
-            margin: 60px;
+          .zoom-level-1 .main-product-image {
+            transform: scale(1.02);
+          }
+
+          .zoom-level-2 .main-product-image {
+            transform: scale(1.04);
+          }
+
+          .zoom-level-3 .main-product-image {
+            transform: scale(1.07);
+          }
+
+          .zoom-level-4 .main-product-image {
+            transform: scale(1.11);
+          }
+
+          .zoom-level-5 .main-product-image {
+            transform: scale(1.16);
+          }
+
+          .zoom-level-6 .main-product-image {
+            transform: scale(1.23);
+          }
+
+          .zoom-level-7 .main-product-image {
+            transform: scale(1.31);
+          }
+
+          .zoom-level-8 .main-product-image {
+            transform: scale(1.41);
+          }
+
+          .zoom-level-9 .main-product-image {
+            transform: scale(1.53);
+          }
+
+          .zoom-level-10 .main-product-image {
+            transform: scale(1.68);
           }
         }
       `}</style>
