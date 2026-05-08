@@ -1,3 +1,8 @@
+
+
+
+
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -27,6 +32,10 @@ async function parseResponse(res) {
   return data;
 }
 
+/* ================================
+   EMAIL PASSWORD RESET
+================================ */
+
 export async function requestPasswordResetApi(email) {
   const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
     method: "POST",
@@ -53,6 +62,58 @@ export async function resetPasswordApi({
     },
     body: JSON.stringify({
       token,
+      newPassword,
+      repeatPassword,
+    }),
+  });
+
+  return parseResponse(res);
+}
+
+/* ================================
+   MOBILE OTP PASSWORD RESET
+================================ */
+
+export async function requestMobilePasswordOtpApi(phone) {
+  const cleanPhone = String(phone || "")
+    .replace(/\D/g, "")
+    .slice(0, 10);
+
+  const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password/mobile`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      phone: cleanPhone,
+    }),
+  });
+
+  return parseResponse(res);
+}
+
+export async function resetPasswordWithMobileOtpApi({
+  phone,
+  otp,
+  newPassword,
+  repeatPassword,
+}) {
+  const cleanPhone = String(phone || "")
+    .replace(/\D/g, "")
+    .slice(0, 10);
+
+  const cleanOtp = String(otp || "")
+    .replace(/\D/g, "")
+    .slice(0, 6);
+
+  const res = await fetch(`${API_BASE_URL}/api/auth/reset-password/mobile`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      phone: cleanPhone,
+      otp: cleanOtp,
       newPassword,
       repeatPassword,
     }),
