@@ -70,7 +70,7 @@ export default function AdminNewsletterPage() {
             <table className="w-full border-collapse text-left text-sm">
               <thead className="bg-neutral-100 text-xs uppercase tracking-[0.12em] text-neutral-500">
                 <tr>
-                  <th className="px-4 py-4">ID</th>
+                  {/* <th className="px-4 py-4">ID</th> */}
                   <th className="px-4 py-4">Email</th>
                   <th className="px-4 py-4">Subscribed At</th>
                   <th className="px-4 py-4 text-right">Action</th>
@@ -83,7 +83,7 @@ export default function AdminNewsletterPage() {
                     key={item.id}
                     className="border-t border-neutral-200 transition hover:bg-neutral-50"
                   >
-                    <td className="px-4 py-4 text-neutral-500">{item.id}</td>
+                    {/* <td className="px-4 py-4 text-neutral-500">{item.id}</td> */}
 
                     <td className="px-4 py-4 font-medium text-[#111111]">
                       {item.email}
