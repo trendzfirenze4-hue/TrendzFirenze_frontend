@@ -2177,6 +2177,30 @@
 //   fontWeight: 500,
 // };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -3147,7 +3171,18 @@ export default function CheckoutPage() {
                           <div className="checkout-action-row existing-user-action-row">
                             <button
                               type="button"
-                              onClick={() => router.push("/forgot-password")}
+                              // onClick={() => router.push("/forgot-password")}
+                              
+                              onClick={() =>
+  router.push(
+    `/forgot-password?email=${encodeURIComponent(
+      guestEmail.trim().toLowerCase()
+    )}&from=checkout`
+  )
+}
+
+
+
                               style={forgotPasswordButtonStyle}
                               className="forgot-password-link"
                             >

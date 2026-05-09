@@ -1,8 +1,3 @@
-
-
-
-
-
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
@@ -33,17 +28,35 @@ async function parseResponse(res) {
 }
 
 /* ================================
+   RESET OPTIONS
+================================ */
+
+export async function getPasswordResetOptionsApi(email) {
+  const cleanEmail = String(email || "").trim().toLowerCase();
+
+  const res = await fetch(
+    `${API_BASE_URL}/api/auth/password-reset/options?email=${encodeURIComponent(
+      cleanEmail
+    )}`
+  );
+
+  return parseResponse(res);
+}
+
+/* ================================
    EMAIL PASSWORD RESET
 ================================ */
 
 export async function requestPasswordResetApi(email) {
+  const cleanEmail = String(email || "").trim().toLowerCase();
+
   const res = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      email,
+      email: cleanEmail,
     }),
   });
 
@@ -88,6 +101,25 @@ export async function requestMobilePasswordOtpApi(phone) {
       phone: cleanPhone,
     }),
   });
+
+  return parseResponse(res);
+}
+
+export async function requestMobilePasswordOtpByEmailApi(email) {
+  const cleanEmail = String(email || "").trim().toLowerCase();
+
+  const res = await fetch(
+    `${API_BASE_URL}/api/auth/forgot-password/mobile/by-email`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: cleanEmail,
+      }),
+    }
+  );
 
   return parseResponse(res);
 }
