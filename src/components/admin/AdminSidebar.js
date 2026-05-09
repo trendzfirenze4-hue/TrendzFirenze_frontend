@@ -697,6 +697,15 @@ export default function AdminSidebar() {
                 Users
               </Link>
 
+
+              <Link
+                href="/admin/newsletter"
+                style={getLinkStyle("/admin/newsletter")}
+                onClick={closeSidebarOnMobile}
+              >
+                subscribers
+              </Link>
+
               <Link
                 href="/admin/instagram"
                 style={getLinkStyle("/admin/instagram")}

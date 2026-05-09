@@ -13,6 +13,8 @@ import giftSetReducer from "@/features/giftSet/giftSetSlice";
 import brandShowcaseReducer from "@/features/brandShowcases/brandShowcaseSlice";
 import heroSectionsReducer from "@/features/heroSections/heroSectionSlice";
 import bulkOrderReducer from "@/features/bulkOrders/bulkOrderSlice";
+import newsletterReducer from "@/features/newsletter/newsletterSlice";
+
 
 export const store = configureStore({
   reducer: {
@@ -30,5 +32,6 @@ export const store = configureStore({
     giftSet: giftSetReducer,
     brandShowcases: brandShowcaseReducer,
     bulkOrders: bulkOrderReducer,
+    newsletter: newsletterReducer,
   },
 });
