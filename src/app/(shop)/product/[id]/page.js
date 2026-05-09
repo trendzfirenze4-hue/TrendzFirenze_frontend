@@ -1,19 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // "use client";
 
 // import { useEffect, useMemo, useRef, useState } from "react";
@@ -33,6 +17,24 @@
 //   return base ? `${base}${path}` : path;
 // }
 
+// function isVideoUrl(url) {
+//   return /\.(mp4|webm|mov)$/i.test(url || "");
+// }
+
+// const MIN_ZOOM = 1;
+// const MAX_ZOOM = 3.4;
+// const TAP_ZOOM_STEP = 0.45;
+
+// function clampValue(value, min, max) {
+//   return Math.min(Math.max(value, min), max);
+// }
+
+// function getTouchDistance(touch1, touch2) {
+//   const dx = touch1.clientX - touch2.clientX;
+//   const dy = touch1.clientY - touch2.clientY;
+//   return Math.sqrt(dx * dx + dy * dy);
+// }
+
 // export default function ProductPage() {
 //   const dispatch = useDispatch();
 //   const router = useRouter();
@@ -42,8 +44,10 @@
 //   const product = useSelector((state) => state.products.product);
 
 //   const [selectedImage, setSelectedImage] = useState("");
-//   const [isZoomed, setIsZoomed] = useState(false);
-//   const [zoomLevel, setZoomLevel] = useState(0);
+//   const [zoomScale, setZoomScale] = useState(1);
+//   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+
+//   const isZoomed = zoomScale > 1.01;
 
 //   const zoomStageRef = useRef(null);
 
@@ -51,8 +55,8 @@
 //     isDragging: false,
 //     startX: 0,
 //     startY: 0,
-//     scrollLeft: 0,
-//     scrollTop: 0,
+//     startPosX: 0,
+//     startPosY: 0,
 //     moved: false,
 //   });
 
@@ -62,6 +66,17 @@
 //     endX: 0,
 //     endY: 0,
 //     isSwiping: false,
+//     moved: false,
+//   });
+
+//   const touchZoomRef = useRef({
+//     mode: "none",
+//     startDistance: 0,
+//     startScale: 1,
+//     startX: 0,
+//     startY: 0,
+//     startPosX: 0,
+//     startPosY: 0,
 //     moved: false,
 //   });
 
@@ -86,7 +101,7 @@
 //     }
 
 //     setSelectedImage((prev) =>
-//       galleryImages.includes(prev) ? prev : galleryImages[0]
+//       galleryImages.includes(prev) ? prev : galleryImages[0],
 //     );
 //   }, [galleryImages]);
 
@@ -94,20 +109,63 @@
 
 //   const activeImageIndex = Math.max(
 //     0,
-//     galleryImages.findIndex((img) => img === activeImage)
+//     galleryImages.findIndex((img) => img === activeImage),
 //   );
 
-//   const resetZoomScroll = () => {
+//   const clampZoomPosition = (x, y, scale = zoomScale) => {
 //     const stage = zoomStageRef.current;
-//     if (!stage) return;
 
-//     stage.scrollLeft = 0;
-//     stage.scrollTop = 0;
+//     if (!stage || scale <= 1.01) {
+//       return { x: 0, y: 0 };
+//     }
+
+//     const rect = stage.getBoundingClientRect();
+
+//     const maxX = (rect.width * (scale - 1)) / 2;
+//     const maxY = (rect.height * (scale - 1)) / 2;
+
+//     return {
+//       x: clampValue(x, -maxX, maxX),
+//       y: clampValue(y, -maxY, maxY),
+//     };
 //   };
 
 //   const resetZoom = () => {
-//     setIsZoomed(false);
-//     setZoomLevel(0);
+//     setZoomScale(1);
+//     setZoomPosition({ x: 0, y: 0 });
+
+//     dragDataRef.current = {
+//       isDragging: false,
+//       startX: 0,
+//       startY: 0,
+//       startPosX: 0,
+//       startPosY: 0,
+//       moved: false,
+//     };
+
+//     touchZoomRef.current = {
+//       mode: "none",
+//       startDistance: 0,
+//       startScale: 1,
+//       startX: 0,
+//       startY: 0,
+//       startPosX: 0,
+//       startPosY: 0,
+//       moved: false,
+//     };
+//   };
+
+//   const setSmoothZoom = (nextScale) => {
+//     const cleanScale = clampValue(nextScale, MIN_ZOOM, MAX_ZOOM);
+
+//     if (cleanScale <= 1.01) {
+//       setZoomScale(1);
+//       setZoomPosition({ x: 0, y: 0 });
+//       return;
+//     }
+
+//     setZoomScale(cleanScale);
+//     setZoomPosition((prev) => clampZoomPosition(prev.x, prev.y, cleanScale));
 //   };
 
 //   const goToPreviousImage = () => {
@@ -155,10 +213,8 @@
 //   }, [activeImageIndex, galleryImages]);
 
 //   useEffect(() => {
-//     if (!isZoomed) {
-//       resetZoomScroll();
-//     }
-//   }, [isZoomed, activeImage]);
+//     resetZoom();
+//   }, [activeImage]);
 
 //   const handleAddToCart = async () => {
 //     if (!product || product.stock <= 0) return;
@@ -176,7 +232,9 @@
 //     if (!product || product.stock <= 0) return;
 
 //     try {
-//       const result = await dispatch(addToCart({ product, quantity: 1 })).unwrap();
+//       const result = await dispatch(
+//         addToCart({ product, quantity: 1 }),
+//       ).unwrap();
 
 //       if (!result.cartId) {
 //         router.push("/checkout?guest=true");
@@ -195,11 +253,18 @@
 //   };
 
 //   const handleZoomToggle = () => {
-//     setZoomLevel((prev) => {
-//       const nextLevel = prev >= 3 ? 0 : prev + 1;
-//       setIsZoomed(nextLevel > 0);
-//       return nextLevel;
-//     });
+//     if (dragDataRef.current.moved || touchZoomRef.current.moved) {
+//       dragDataRef.current.moved = false;
+//       touchZoomRef.current.moved = false;
+//       return;
+//     }
+
+//     if (zoomScale >= MAX_ZOOM - 0.05) {
+//       resetZoom();
+//       return;
+//     }
+
+//     setSmoothZoom(zoomScale <= 1.01 ? 1.65 : zoomScale + TAP_ZOOM_STEP);
 //   };
 
 //   const handleZoomStageMouseDown = (event) => {
@@ -209,16 +274,14 @@
 //       isDragging: true,
 //       startX: event.clientX,
 //       startY: event.clientY,
-//       scrollLeft: zoomStageRef.current.scrollLeft,
-//       scrollTop: zoomStageRef.current.scrollTop,
+//       startPosX: zoomPosition.x,
+//       startPosY: zoomPosition.y,
 //       moved: false,
 //     };
 //   };
 
 //   const handleZoomStageMouseMove = (event) => {
-//     if (!isZoomed || !dragDataRef.current.isDragging || !zoomStageRef.current) {
-//       return;
-//     }
+//     if (!isZoomed || !dragDataRef.current.isDragging) return;
 
 //     event.preventDefault();
 
@@ -229,8 +292,13 @@
 //       dragDataRef.current.moved = true;
 //     }
 
-//     zoomStageRef.current.scrollLeft = dragDataRef.current.scrollLeft - deltaX;
-//     zoomStageRef.current.scrollTop = dragDataRef.current.scrollTop - deltaY;
+//     const next = clampZoomPosition(
+//       dragDataRef.current.startPosX + deltaX,
+//       dragDataRef.current.startPosY + deltaY,
+//       zoomScale,
+//     );
+
+//     setZoomPosition(next);
 //   };
 
 //   const handleZoomStageMouseUp = () => {
@@ -242,6 +310,23 @@
 //   };
 
 //   const handleZoomStageTouchStart = (event) => {
+//     if (event.touches.length === 2) {
+//       const distance = getTouchDistance(event.touches[0], event.touches[1]);
+
+//       touchZoomRef.current = {
+//         mode: "pinch",
+//         startDistance: distance,
+//         startScale: zoomScale,
+//         startX: 0,
+//         startY: 0,
+//         startPosX: zoomPosition.x,
+//         startPosY: zoomPosition.y,
+//         moved: false,
+//       };
+
+//       return;
+//     }
+
 //     const touch = event.touches[0];
 //     if (!touch) return;
 
@@ -254,22 +339,53 @@
 //         isSwiping: true,
 //         moved: false,
 //       };
+
+//       touchZoomRef.current.mode = "swipe";
 //       return;
 //     }
 
-//     if (!zoomStageRef.current) return;
-
-//     dragDataRef.current = {
-//       isDragging: true,
+//     touchZoomRef.current = {
+//       mode: "drag",
+//       startDistance: 0,
+//       startScale: zoomScale,
 //       startX: touch.clientX,
 //       startY: touch.clientY,
-//       scrollLeft: zoomStageRef.current.scrollLeft,
-//       scrollTop: zoomStageRef.current.scrollTop,
+//       startPosX: zoomPosition.x,
+//       startPosY: zoomPosition.y,
 //       moved: false,
 //     };
 //   };
 
 //   const handleZoomStageTouchMove = (event) => {
+//     if (event.touches.length === 2 && touchZoomRef.current.mode === "pinch") {
+//       event.preventDefault();
+
+//       const distance = getTouchDistance(event.touches[0], event.touches[1]);
+
+//       if (!touchZoomRef.current.startDistance) return;
+
+//       const pinchRatio = distance / touchZoomRef.current.startDistance;
+//       const nextScale = clampValue(
+//         touchZoomRef.current.startScale * pinchRatio,
+//         MIN_ZOOM,
+//         MAX_ZOOM,
+//       );
+
+//       if (Math.abs(nextScale - touchZoomRef.current.startScale) > 0.03) {
+//         touchZoomRef.current.moved = true;
+//       }
+
+//       if (nextScale <= 1.01) {
+//         setZoomScale(1);
+//         setZoomPosition({ x: 0, y: 0 });
+//       } else {
+//         setZoomScale(nextScale);
+//         setZoomPosition((prev) => clampZoomPosition(prev.x, prev.y, nextScale));
+//       }
+
+//       return;
+//     }
+
 //     const touch = event.touches[0];
 //     if (!touch) return;
 
@@ -284,7 +400,7 @@
 
 //       if (Math.abs(deltaX) > 8 || Math.abs(deltaY) > 8) {
 //         swipeDataRef.current.moved = true;
-//         dragDataRef.current.moved = true;
+//         touchZoomRef.current.moved = true;
 //       }
 
 //       if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
@@ -294,19 +410,25 @@
 //       return;
 //     }
 
-//     if (!dragDataRef.current.isDragging || !zoomStageRef.current) {
-//       return;
-//     }
+//     if (touchZoomRef.current.mode !== "drag") return;
 
-//     const deltaX = touch.clientX - dragDataRef.current.startX;
-//     const deltaY = touch.clientY - dragDataRef.current.startY;
+//     event.preventDefault();
+
+//     const deltaX = touch.clientX - touchZoomRef.current.startX;
+//     const deltaY = touch.clientY - touchZoomRef.current.startY;
 
 //     if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+//       touchZoomRef.current.moved = true;
 //       dragDataRef.current.moved = true;
 //     }
 
-//     zoomStageRef.current.scrollLeft = dragDataRef.current.scrollLeft - deltaX;
-//     zoomStageRef.current.scrollTop = dragDataRef.current.scrollTop - deltaY;
+//     const next = clampZoomPosition(
+//       touchZoomRef.current.startPosX + deltaX,
+//       touchZoomRef.current.startPosY + deltaY,
+//       zoomScale,
+//     );
+
+//     setZoomPosition(next);
 //   };
 
 //   const handleZoomStageTouchEnd = () => {
@@ -324,7 +446,7 @@
 //           goToPreviousImage();
 //         }
 
-//         dragDataRef.current.moved = true;
+//         touchZoomRef.current.moved = true;
 //       }
 
 //       swipeDataRef.current = {
@@ -336,18 +458,15 @@
 //         moved: false,
 //       };
 
+//       touchZoomRef.current.mode = "none";
 //       return;
 //     }
 
 //     dragDataRef.current.isDragging = false;
+//     touchZoomRef.current.mode = "none";
 //   };
 
 //   const handleZoomStageClick = () => {
-//     if (dragDataRef.current.moved) {
-//       dragDataRef.current.moved = false;
-//       return;
-//     }
-
 //     handleZoomToggle();
 //   };
 
@@ -447,11 +566,20 @@
 //                             }`}
 //                             aria-label={`View product image ${i + 1}`}
 //                           >
-//                             <img
-//                               src={img}
-//                               alt={`${product.title} thumbnail ${i + 1}`}
-//                               className="thumbnail-img"
-//                             />
+//                             {isVideoUrl(img) ? (
+//                               <video
+//                                 src={img}
+//                                 muted
+//                                 playsInline
+//                                 className="thumbnail-img"
+//                               />
+//                             ) : (
+//                               <img
+//                                 src={img}
+//                                 alt={`${product.title} thumbnail ${i + 1}`}
+//                                 className="thumbnail-img"
+//                               />
+//                             )}
 //                           </button>
 //                         );
 //                       })}
@@ -471,7 +599,7 @@
 //                       )}
 //                     </div>
 
-//                     {galleryImages.length > 1 && (
+//                     {galleryImages.length > 1 && !isZoomed && (
 //                       <button
 //                         type="button"
 //                         className="main-arrow-btn main-arrow-left"
@@ -488,7 +616,7 @@
 //                       tabIndex={0}
 //                       className={`main-zoom-stage ${
 //                         isZoomed ? "main-zoomed" : ""
-//                       } zoom-level-${zoomLevel}`}
+//                       }`}
 //                       onClick={handleZoomStageClick}
 //                       onMouseDown={handleZoomStageMouseDown}
 //                       onMouseMove={handleZoomStageMouseMove}
@@ -497,17 +625,34 @@
 //                       onTouchStart={handleZoomStageTouchStart}
 //                       onTouchMove={handleZoomStageTouchMove}
 //                       onTouchEnd={handleZoomStageTouchEnd}
-//                       aria-label={isZoomed ? "Zoom out image" : "Zoom in image"}
+//                       aria-label={
+//                         isZoomed
+//                           ? "Drag or pinch to zoom product image"
+//                           : "Tap to zoom product image"
+//                       }
 //                     >
-//                       <img
-//                         src={activeImage}
-//                         alt={product.title}
-//                         className="main-product-image"
-//                         draggable={false}
-//                       />
+//                       {isVideoUrl(activeImage) ? (
+//                         <video
+//                           src={activeImage}
+//                           controls
+//                           muted
+//                           playsInline
+//                           className="main-product-image"
+//                         />
+//                       ) : (
+//                         <img
+//                           src={activeImage}
+//                           alt={product.title}
+//                           className="main-product-image"
+//                           draggable={false}
+//                           style={{
+//                             transform: `translate3d(${zoomPosition.x}px, ${zoomPosition.y}px, 0) scale(${zoomScale})`,
+//                           }}
+//                         />
+//                       )}
 //                     </div>
 
-//                     {galleryImages.length > 1 && (
+//                     {galleryImages.length > 1 && !isZoomed && (
 //                       <button
 //                         type="button"
 //                         className="main-arrow-btn main-arrow-right"
@@ -520,8 +665,8 @@
 
 //                     <div className="main-zoom-hint">
 //                       {isZoomed
-//                         ? "Drag image to move • Click to zoom more"
-//                         : "Click image to zoom in"}
+//                         ? "Drag to move • Pinch to zoom • Tap to zoom more"
+//                         : "Tap to zoom • Swipe image"}
 //                     </div>
 //                   </div>
 
@@ -533,8 +678,8 @@
 //                       aria-label="Zoom product image"
 //                     >
 //                       {isZoomed
-//                         ? "Click to zoom more"
-//                         : "Click to see full view"}
+//                         ? "Tap / pinch to zoom more"
+//                         : "Tap to see full view"}
 //                     </button>
 //                   )}
 //                 </div>
@@ -848,19 +993,16 @@
 //           align-items: center;
 //           justify-content: center;
 //           cursor: zoom-in;
-//           overflow: auto;
+//           overflow: hidden;
 //           border-radius: 14px;
 //           outline: none;
-//           -webkit-overflow-scrolling: touch;
 //           overscroll-behavior: contain;
 //           touch-action: pan-y;
-//           scrollbar-width: thin;
+//           user-select: none;
 //         }
 
 //         .main-zoom-stage.main-zoomed {
 //           cursor: grab;
-//           align-items: center;
-//           justify-content: center;
 //           touch-action: none;
 //         }
 
@@ -876,31 +1018,16 @@
 //           border-radius: 14px;
 //           display: block;
 //           background: #fff;
-//           transition: transform 0.35s ease;
+//           transition: transform 0.18s ease-out;
 //           transform-origin: center center;
 //           user-select: none;
 //           -webkit-user-drag: none;
 //           pointer-events: none;
+//           will-change: transform;
 //         }
 
 //         .main-zoomed .main-product-image {
-//           width: 100%;
-//           height: 100%;
-//           max-width: 100%;
-//           max-height: 100%;
-//           padding: 30px;
-//         }
-
-//         .zoom-level-1 .main-product-image {
-//           transform: scale(1.06);
-//         }
-
-//         .zoom-level-2 .main-product-image {
-//           transform: scale(1.12);
-//         }
-
-//         .zoom-level-3 .main-product-image {
-//           transform: scale(1.2);
+//           transition: transform 0.06s linear;
 //         }
 
 //         .main-arrow-btn {
@@ -1073,10 +1200,6 @@
 //           font-weight: 500;
 //           line-height: 1.3;
 //           margin-top: 4px;
-//         }
-
-//         .mrp-label {
-//           color: #6b7280;
 //         }
 
 //         .mrp-value {
@@ -1360,26 +1483,6 @@
 //             border-radius: 12px;
 //           }
 
-//           .main-zoomed .main-product-image {
-//             width: 100%;
-//             height: 100%;
-//             max-width: 100%;
-//             max-height: 100%;
-//             padding: 24px;
-//           }
-
-//           .zoom-level-1 .main-product-image {
-//             transform: scale(1.04);
-//           }
-
-//           .zoom-level-2 .main-product-image {
-//             transform: scale(1.08);
-//           }
-
-//           .zoom-level-3 .main-product-image {
-//             transform: scale(1.14);
-//           }
-
 //           .main-arrow-btn {
 //             width: 40px;
 //             height: 40px;
@@ -1491,56 +1594,11 @@
 //           .main-zoom-hint {
 //             display: none;
 //           }
-
-//           .zoom-level-1 .main-product-image {
-//             transform: scale(1.03);
-//           }
-
-//           .zoom-level-2 .main-product-image {
-//             transform: scale(1.06);
-//           }
-
-//           .zoom-level-3 .main-product-image {
-//             transform: scale(1.1);
-//           }
 //         }
 //       `}</style>
 //     </>
 //   );
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 "use client";
 
@@ -1555,10 +1613,33 @@ function getImageUrl(imageUrl) {
   if (!imageUrl) return "/placeholder.png";
   if (imageUrl.startsWith("http")) return imageUrl;
 
-  const base = (process.env.NEXT_PUBLIC_API_BASE || "").replace(/\/$/, "");
-  const path = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
+  const base = (
+    process.env.NEXT_PUBLIC_API_BASE ||
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    ""
+  ).replace(/\/$/, "");
 
+  const path = imageUrl.startsWith("/") ? imageUrl : `/${imageUrl}`;
   return base ? `${base}${path}` : path;
+}
+
+function getCleanUrl(url = "") {
+  return String(url).split("?")[0].split("#")[0].toLowerCase();
+}
+
+function isVideoUrl(url) {
+  return /\.(mp4|webm|ogg|mov|m4v)$/i.test(getCleanUrl(url));
+}
+
+function isImageUrl(url) {
+  return /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(getCleanUrl(url));
+}
+
+function getMediaType(url) {
+  if (isVideoUrl(url)) return "video";
+  if (isImageUrl(url)) return "image";
+  return "image";
 }
 
 const MIN_ZOOM = 1;
@@ -1583,13 +1664,14 @@ export default function ProductPage() {
   const id = params?.id;
   const product = useSelector((state) => state.products.product);
 
-  const [selectedImage, setSelectedImage] = useState("");
+  const [selectedMedia, setSelectedMedia] = useState("");
   const [zoomScale, setZoomScale] = useState(1);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
 
-  const isZoomed = zoomScale > 1.01;
-
   const zoomStageRef = useRef(null);
+  const videoRef = useRef(null);
+
+  const isZoomed = zoomScale > 1.01;
 
   const dragDataRef = useRef({
     isDragging: false,
@@ -1625,42 +1707,72 @@ export default function ProductPage() {
     dispatch(fetchProduct(id));
   }, [id, dispatch]);
 
-  const galleryImages = useMemo(() => {
+  const galleryMedia = useMemo(() => {
     if (!product?.images?.length) return [];
 
     return product.images
-      .map((img) => (typeof img === "string" ? img : img?.imageUrl))
-      .filter(Boolean)
-      .map(getImageUrl);
+      .map((item) => {
+        const rawUrl =
+          typeof item === "string"
+            ? item
+            : item?.imageUrl || item?.url || item?.mediaUrl || item?.videoUrl;
+
+        if (!rawUrl) return null;
+
+        const url = getImageUrl(rawUrl);
+        const type =
+          typeof item === "object" && item?.mediaType
+            ? String(item.mediaType).toLowerCase().includes("video")
+              ? "video"
+              : "image"
+            : getMediaType(url);
+
+        return {
+          url,
+          type,
+          alt: item?.alt || product?.title || "Product media",
+        };
+      })
+      .filter(Boolean);
   }, [product]);
 
   useEffect(() => {
-    if (!galleryImages.length) {
-      setSelectedImage("");
+    if (!galleryMedia.length) {
+      setSelectedMedia("");
       return;
     }
 
-    setSelectedImage((prev) =>
-      galleryImages.includes(prev) ? prev : galleryImages[0]
+    setSelectedMedia((prev) =>
+      galleryMedia.some((media) => media.url === prev)
+        ? prev
+        : galleryMedia[0].url,
     );
-  }, [galleryImages]);
+  }, [galleryMedia]);
 
-  const activeImage = selectedImage || galleryImages[0] || "/placeholder.png";
+  const activeMedia = galleryMedia.find(
+    (media) => media.url === selectedMedia,
+  ) ||
+    galleryMedia[0] || {
+      url: "/placeholder.png",
+      type: "image",
+      alt: product?.title || "Product image",
+    };
 
-  const activeImageIndex = Math.max(
+  const activeMediaIndex = Math.max(
     0,
-    galleryImages.findIndex((img) => img === activeImage)
+    galleryMedia.findIndex((media) => media.url === activeMedia.url),
   );
+
+  const isActiveVideo = activeMedia.type === "video";
 
   const clampZoomPosition = (x, y, scale = zoomScale) => {
     const stage = zoomStageRef.current;
 
-    if (!stage || scale <= 1.01) {
+    if (!stage || scale <= 1.01 || isActiveVideo) {
       return { x: 0, y: 0 };
     }
 
     const rect = stage.getBoundingClientRect();
-
     const maxX = (rect.width * (scale - 1)) / 2;
     const maxY = (rect.height * (scale - 1)) / 2;
 
@@ -1696,6 +1808,8 @@ export default function ProductPage() {
   };
 
   const setSmoothZoom = (nextScale) => {
+    if (isActiveVideo) return;
+
     const cleanScale = clampValue(nextScale, MIN_ZOOM, MAX_ZOOM);
 
     if (cleanScale <= 1.01) {
@@ -1709,40 +1823,32 @@ export default function ProductPage() {
   };
 
   const goToPreviousImage = () => {
-    if (galleryImages.length <= 1) return;
+    if (galleryMedia.length <= 1) return;
 
     resetZoom();
 
     const previousIndex =
-      activeImageIndex <= 0 ? galleryImages.length - 1 : activeImageIndex - 1;
+      activeMediaIndex <= 0 ? galleryMedia.length - 1 : activeMediaIndex - 1;
 
-    setSelectedImage(galleryImages[previousIndex]);
+    setSelectedMedia(galleryMedia[previousIndex].url);
   };
 
   const goToNextImage = () => {
-    if (galleryImages.length <= 1) return;
+    if (galleryMedia.length <= 1) return;
 
     resetZoom();
 
     const nextIndex =
-      activeImageIndex >= galleryImages.length - 1 ? 0 : activeImageIndex + 1;
+      activeMediaIndex >= galleryMedia.length - 1 ? 0 : activeMediaIndex + 1;
 
-    setSelectedImage(galleryImages[nextIndex]);
+    setSelectedMedia(galleryMedia[nextIndex].url);
   };
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === "ArrowLeft") {
-        goToPreviousImage();
-      }
-
-      if (event.key === "ArrowRight") {
-        goToNextImage();
-      }
-
-      if (event.key === "Escape") {
-        resetZoom();
-      }
+      if (event.key === "ArrowLeft") goToPreviousImage();
+      if (event.key === "ArrowRight") goToNextImage();
+      if (event.key === "Escape") resetZoom();
     };
 
     document.addEventListener("keydown", handleKeyDown);
@@ -1750,11 +1856,21 @@ export default function ProductPage() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeImageIndex, galleryImages]);
+  }, [activeMediaIndex, galleryMedia]);
 
   useEffect(() => {
     resetZoom();
-  }, [activeImage]);
+
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+
+      if (isActiveVideo) {
+        videoRef.current.play().catch(() => {});
+      } else {
+        videoRef.current.pause();
+      }
+    }
+  }, [activeMedia.url, isActiveVideo]);
 
   const handleAddToCart = async () => {
     if (!product || product.stock <= 0) return;
@@ -1772,7 +1888,9 @@ export default function ProductPage() {
     if (!product || product.stock <= 0) return;
 
     try {
-      const result = await dispatch(addToCart({ product, quantity: 1 })).unwrap();
+      const result = await dispatch(
+        addToCart({ product, quantity: 1 }),
+      ).unwrap();
 
       if (!result.cartId) {
         router.push("/checkout?guest=true");
@@ -1785,12 +1903,14 @@ export default function ProductPage() {
     }
   };
 
-  const handleMainThumbClick = (img) => {
-    setSelectedImage(img);
+  const handleMainThumbClick = (media) => {
+    setSelectedMedia(media.url);
     resetZoom();
   };
 
   const handleZoomToggle = () => {
+    if (isActiveVideo) return;
+
     if (dragDataRef.current.moved || touchZoomRef.current.moved) {
       dragDataRef.current.moved = false;
       touchZoomRef.current.moved = false;
@@ -1806,7 +1926,7 @@ export default function ProductPage() {
   };
 
   const handleZoomStageMouseDown = (event) => {
-    if (!isZoomed || !zoomStageRef.current) return;
+    if (isActiveVideo || !isZoomed || !zoomStageRef.current) return;
 
     dragDataRef.current = {
       isDragging: true,
@@ -1819,7 +1939,7 @@ export default function ProductPage() {
   };
 
   const handleZoomStageMouseMove = (event) => {
-    if (!isZoomed || !dragDataRef.current.isDragging) return;
+    if (isActiveVideo || !isZoomed || !dragDataRef.current.isDragging) return;
 
     event.preventDefault();
 
@@ -1833,7 +1953,7 @@ export default function ProductPage() {
     const next = clampZoomPosition(
       dragDataRef.current.startPosX + deltaX,
       dragDataRef.current.startPosY + deltaY,
-      zoomScale
+      zoomScale,
     );
 
     setZoomPosition(next);
@@ -1848,6 +1968,8 @@ export default function ProductPage() {
   };
 
   const handleZoomStageTouchStart = (event) => {
+    if (isActiveVideo) return;
+
     if (event.touches.length === 2) {
       const distance = getTouchDistance(event.touches[0], event.touches[1]);
 
@@ -1895,6 +2017,8 @@ export default function ProductPage() {
   };
 
   const handleZoomStageTouchMove = (event) => {
+    if (isActiveVideo) return;
+
     if (event.touches.length === 2 && touchZoomRef.current.mode === "pinch") {
       event.preventDefault();
 
@@ -1906,7 +2030,7 @@ export default function ProductPage() {
       const nextScale = clampValue(
         touchZoomRef.current.startScale * pinchRatio,
         MIN_ZOOM,
-        MAX_ZOOM
+        MAX_ZOOM,
       );
 
       if (Math.abs(nextScale - touchZoomRef.current.startScale) > 0.03) {
@@ -1963,13 +2087,15 @@ export default function ProductPage() {
     const next = clampZoomPosition(
       touchZoomRef.current.startPosX + deltaX,
       touchZoomRef.current.startPosY + deltaY,
-      zoomScale
+      zoomScale,
     );
 
     setZoomPosition(next);
   };
 
   const handleZoomStageTouchEnd = () => {
+    if (isActiveVideo) return;
+
     if (!isZoomed && swipeDataRef.current.isSwiping) {
       const deltaX = swipeDataRef.current.endX - swipeDataRef.current.startX;
       const deltaY = swipeDataRef.current.endY - swipeDataRef.current.startY;
@@ -1977,7 +2103,7 @@ export default function ProductPage() {
       const isHorizontalSwipe =
         Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY);
 
-      if (galleryImages.length > 1 && isHorizontalSwipe) {
+      if (galleryMedia.length > 1 && isHorizontalSwipe) {
         if (deltaX < 0) {
           goToNextImage();
         } else {
@@ -2005,6 +2131,7 @@ export default function ProductPage() {
   };
 
   const handleZoomStageClick = () => {
+    if (isActiveVideo) return;
     handleZoomToggle();
   };
 
@@ -2048,7 +2175,7 @@ export default function ProductPage() {
         : `Only ${product.stock} left`
       : "Out of Stock";
 
-  const showThumbRail = galleryImages.length > 1;
+  const showThumbRail = galleryMedia.length > 1;
 
   const sellingPrice = Number(product.priceInr || 0);
   const mrp = Number(product.mrpInr || 0);
@@ -2067,12 +2194,7 @@ export default function ProductPage() {
           padding: "32px 20px 60px",
         }}
       >
-        <div
-          style={{
-            maxWidth: "1380px",
-            margin: "0 auto",
-          }}
-        >
+        <div style={{ maxWidth: "1380px", margin: "0 auto" }}>
           <div className="product-breadcrumb">
             <span>Home</span>
             <span>/</span>
@@ -2091,24 +2213,38 @@ export default function ProductPage() {
                 {showThumbRail && (
                   <div className="thumbnail-rail">
                     <div className="thumbnail-list">
-                      {galleryImages.map((img, i) => {
-                        const isActive = activeImage === img;
+                      {galleryMedia.map((media, i) => {
+                        const isActive = activeMedia.url === media.url;
 
                         return (
                           <button
-                            key={i}
+                            key={`${media.url}-${i}`}
                             type="button"
-                            onClick={() => handleMainThumbClick(img)}
+                            onClick={() => handleMainThumbClick(media)}
                             className={`thumbnail-btn ${
                               isActive ? "active-thumb" : ""
                             }`}
-                            aria-label={`View product image ${i + 1}`}
+                            aria-label={`View product media ${i + 1}`}
                           >
-                            <img
-                              src={img}
-                              alt={`${product.title} thumbnail ${i + 1}`}
-                              className="thumbnail-img"
-                            />
+                            {media.type === "video" ? (
+                              <div className="thumbnail-video-wrap">
+                                <video
+                                  src={media.url}
+                                  muted
+                                  playsInline
+                                  preload="metadata"
+                                  className="thumbnail-img"
+                                />
+                                <span className="thumb-play-icon">▶</span>
+                              </div>
+                            ) : (
+                              <img
+                                src={media.url}
+                                alt={`${product.title} thumbnail ${i + 1}`}
+                                className="thumbnail-img"
+                                loading="lazy"
+                              />
+                            )}
                           </button>
                         );
                       })}
@@ -2121,19 +2257,21 @@ export default function ProductPage() {
                     <div className="main-image-badges">
                       <span className="badge-dark">PREMIUM</span>
 
-                      {galleryImages.length > 1 && (
+                      {galleryMedia.length > 1 && (
                         <span className="badge-light">
-                          {activeImageIndex + 1} / {galleryImages.length}
+                          {activeMediaIndex + 1} / {galleryMedia.length}
                         </span>
                       )}
+
+                     
                     </div>
 
-                    {galleryImages.length > 1 && !isZoomed && (
+                    {galleryMedia.length > 1 && !isZoomed && (
                       <button
                         type="button"
                         className="main-arrow-btn main-arrow-left"
                         onClick={goToPreviousImage}
-                        aria-label="Previous image"
+                        aria-label="Previous media"
                       >
                         ‹
                       </button>
@@ -2141,11 +2279,11 @@ export default function ProductPage() {
 
                     <div
                       ref={zoomStageRef}
-                      role="button"
-                      tabIndex={0}
+                      role={isActiveVideo ? "region" : "button"}
+                      tabIndex={isActiveVideo ? -1 : 0}
                       className={`main-zoom-stage ${
                         isZoomed ? "main-zoomed" : ""
-                      }`}
+                      } ${isActiveVideo ? "video-stage" : ""}`}
                       onClick={handleZoomStageClick}
                       onMouseDown={handleZoomStageMouseDown}
                       onMouseMove={handleZoomStageMouseMove}
@@ -2155,41 +2293,62 @@ export default function ProductPage() {
                       onTouchMove={handleZoomStageTouchMove}
                       onTouchEnd={handleZoomStageTouchEnd}
                       aria-label={
-                        isZoomed
-                          ? "Drag or pinch to zoom product image"
-                          : "Tap to zoom product image"
+                        isActiveVideo
+                          ? "Product video"
+                          : isZoomed
+                            ? "Drag or pinch to zoom product image"
+                            : "Tap to zoom product image"
                       }
                     >
-                      <img
-                        src={activeImage}
-                        alt={product.title}
-                        className="main-product-image"
-                        draggable={false}
-                        style={{
-                          transform: `translate3d(${zoomPosition.x}px, ${zoomPosition.y}px, 0) scale(${zoomScale})`,
-                        }}
-                      />
+                      {isActiveVideo ? (
+                        <video
+                          ref={videoRef}
+                          src={activeMedia.url}
+                          controls
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="metadata"
+                          controlsList="nodownload"
+                          className="main-product-video"
+                        >
+                          Your browser does not support product video.
+                        </video>
+                      ) : (
+                        <img
+                          src={activeMedia.url}
+                          alt={activeMedia.alt || product.title}
+                          className="main-product-image"
+                          draggable={false}
+                          style={{
+                            transform: `translate3d(${zoomPosition.x}px, ${zoomPosition.y}px, 0) scale(${zoomScale})`,
+                          }}
+                        />
+                      )}
                     </div>
 
-                    {galleryImages.length > 1 && !isZoomed && (
+                    {galleryMedia.length > 1 && !isZoomed && (
                       <button
                         type="button"
                         className="main-arrow-btn main-arrow-right"
                         onClick={goToNextImage}
-                        aria-label="Next image"
+                        aria-label="Next media"
                       >
                         ›
                       </button>
                     )}
 
-                    <div className="main-zoom-hint">
-                      {isZoomed
-                        ? "Drag to move • Pinch to zoom • Tap to zoom more"
-                        : "Tap to zoom • Swipe image"}
-                    </div>
+                    {!isActiveVideo && (
+                      <div className="main-zoom-hint">
+                        {isZoomed
+                          ? "Drag to move • Pinch to zoom • Tap to zoom more"
+                          : "Tap to zoom • Swipe image"}
+                      </div>
+                    )}
                   </div>
 
-                  {galleryImages.length > 1 && (
+                  {galleryMedia.length > 1 && !isActiveVideo && (
                     <button
                       type="button"
                       className="full-view-trigger"
@@ -2433,6 +2592,7 @@ export default function ProductPage() {
           cursor: pointer;
           transition: all 0.25s ease;
           flex: 0 0 auto;
+          position: relative;
         }
 
         .thumbnail-btn:hover {
@@ -2445,6 +2605,15 @@ export default function ProductPage() {
           box-shadow: 0 6px 18px rgba(17, 24, 39, 0.12);
         }
 
+        .thumbnail-video-wrap {
+          position: relative;
+          width: 100%;
+          height: 88px;
+          border-radius: 10px;
+          overflow: hidden;
+          background: #000;
+        }
+
         .thumbnail-img {
           width: 100%;
           height: 88px;
@@ -2452,6 +2621,29 @@ export default function ProductPage() {
           border-radius: 10px;
           display: block;
           background: #fff;
+        }
+
+        .thumbnail-video-wrap .thumbnail-img {
+          background: #000;
+        }
+
+        .thumb-play-icon {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 30px;
+          height: 30px;
+          border-radius: 999px;
+          background: rgba(17, 24, 39, 0.85);
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          padding-left: 2px;
+          box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+          pointer-events: none;
         }
 
         .main-image-column {
@@ -2520,6 +2712,12 @@ export default function ProductPage() {
           user-select: none;
         }
 
+        .main-zoom-stage.video-stage {
+          cursor: default;
+          background: #000;
+          touch-action: auto;
+        }
+
         .main-zoom-stage.main-zoomed {
           cursor: grab;
           touch-action: none;
@@ -2543,6 +2741,16 @@ export default function ProductPage() {
           -webkit-user-drag: none;
           pointer-events: none;
           will-change: transform;
+        }
+
+        .main-product-video {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          display: block;
+          background: #000;
+          border-radius: 14px;
+          outline: none;
         }
 
         .main-zoomed .main-product-image {
@@ -2971,7 +3179,8 @@ export default function ProductPage() {
             padding: 4px;
           }
 
-          .thumbnail-img {
+          .thumbnail-img,
+          .thumbnail-video-wrap {
             height: 72px;
           }
 
@@ -2999,6 +3208,10 @@ export default function ProductPage() {
 
           .main-product-image {
             padding: 24px;
+            border-radius: 12px;
+          }
+
+          .main-product-video {
             border-radius: 12px;
           }
 

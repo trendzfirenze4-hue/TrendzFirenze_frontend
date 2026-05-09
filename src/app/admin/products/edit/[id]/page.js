@@ -1,6 +1,9 @@
+
+
+
 // "use client";
 
-// import { useEffect, useState } from "react";
+// import { useEffect, useMemo, useState } from "react";
 // import { useRouter, useParams } from "next/navigation";
 // import { useDispatch, useSelector } from "react-redux";
 // import api from "@/lib/apiClient";
@@ -25,7 +28,6 @@
 
 //   const [loading, setLoading] = useState(false);
 
-//   // FIXED: use adminCategories and keep safe fallback
 //   const categories = useSelector(
 //     (state) => state.categories?.adminCategories || []
 //   );
@@ -35,6 +37,7 @@
 //   const [title, setTitle] = useState("");
 //   const [description, setDescription] = useState("");
 //   const [price, setPrice] = useState("");
+//   const [mrp, setMrp] = useState("");
 //   const [stock, setStock] = useState("");
 //   const [categoryId, setCategoryId] = useState("");
 
@@ -57,21 +60,61 @@
 //   useEffect(() => {
 //     if (!id) return;
 
-//     api.get(`/api/admin/products/${id}`).then((res) => {
-//       const p = res.data;
+//     api
+//       .get(`/api/admin/products/${id}`)
+//       .then((res) => {
+//         const p = res.data;
 
-//       setProduct(p);
+//         setProduct(p);
 
-//       setTitle(p.title || "");
-//       setDescription(p.description || "");
-//       setPrice(p.priceInr || "");
-//       setStock(p.stock || "");
-//       setCategoryId(p.category?.id || "");
+//         setTitle(p.title || "");
+//         setDescription(p.description || "");
+//         setPrice(
+//           p.priceInr === null || p.priceInr === undefined ? "" : String(p.priceInr)
+//         );
+//         setMrp(
+//           p.mrpInr === null || p.mrpInr === undefined ? "" : String(p.mrpInr)
+//         );
+//         setStock(
+//           p.stock === null || p.stock === undefined ? "" : String(p.stock)
+//         );
 
-//       setImages(p.images || []);
-//       setReviews(p.reviews || []);
-//     });
+//         const resolvedCategoryId =
+//           typeof p.category === "object" && p.category !== null
+//             ? p.category.id
+//             : p.categoryId;
+
+//         setCategoryId(
+//           resolvedCategoryId === null || resolvedCategoryId === undefined
+//             ? ""
+//             : String(resolvedCategoryId)
+//         );
+
+//         setImages(p.images || []);
+//         setReviews(p.reviews || []);
+//       })
+//       .catch((err) => {
+//         console.error(err);
+//         alert("Failed to load product");
+//       });
 //   }, [id]);
+
+//   const discountPercent = useMemo(() => {
+//     const sellingPrice = Number(price);
+//     const originalPrice = Number(mrp);
+
+//     if (
+//       !Number.isFinite(sellingPrice) ||
+//       !Number.isFinite(originalPrice) ||
+//       sellingPrice <= 0 ||
+//       originalPrice <= 0 ||
+//       sellingPrice >= originalPrice
+//     ) {
+//       return 0;
+//     }
+
+//     return Math.round(((originalPrice - sellingPrice) * 100) / originalPrice);
+//   }, [price, mrp]);
 
 //   const removeImage = (index) => {
 //     const arr = [...images];
@@ -80,13 +123,18 @@
 //   };
 
 //   const handleUpload = async () => {
-//     if (files.length === 0) return;
+//     if (files.length === 0) {
+//       alert("Please select image files first");
+//       return;
+//     }
 
 //     try {
 //       const res = await dispatch(uploadProductImages(files)).unwrap();
 //       setImages((prev) => [...prev, ...res]);
 //       setFiles([]);
+//       alert("Images uploaded successfully");
 //     } catch (err) {
+//       console.error(err);
 //       alert("Upload failed");
 //     }
 //   };
@@ -94,15 +142,51 @@
 //   const handleUpdate = async () => {
 //     if (loading) return;
 
+//     if (!title.trim()) {
+//       alert("Title is required");
+//       return;
+//     }
+
+//     if (!price || Number(price) <= 0) {
+//       alert("Please enter a valid selling price");
+//       return;
+//     }
+
+//     if (mrp && Number(mrp) <= 0) {
+//       alert("Please enter a valid MRP");
+//       return;
+//     }
+
+//     if (mrp && Number(mrp) < Number(price)) {
+//       alert("MRP must be greater than or equal to selling price");
+//       return;
+//     }
+
+//     if (!stock && stock !== 0) {
+//       alert("Stock is required");
+//       return;
+//     }
+
+//     if (Number(stock) < 0) {
+//       alert("Stock cannot be negative");
+//       return;
+//     }
+
+//     if (!categoryId) {
+//       alert("Please select category");
+//       return;
+//     }
+
 //     setLoading(true);
 
 //     try {
 //       const data = {
-//         title,
-//         description,
+//         title: title.trim(),
+//         description: description.trim(),
 //         priceInr: Number(price),
+//         mrpInr: mrp ? Number(mrp) : null,
 //         stock: Number(stock),
-//         categoryId: Number(categoryId) || 1,
+//         categoryId: Number(categoryId),
 //         images: images.map((img) =>
 //           typeof img === "string" ? img : img.imageUrl
 //         ),
@@ -114,10 +198,10 @@
 //       router.push("/admin/products");
 //     } catch (err) {
 //       console.error(err);
-//       alert("Update failed");
+//       alert(typeof err === "string" ? err : err?.message || "Update failed");
+//     } finally {
+//       setLoading(false);
 //     }
-
-//     setLoading(false);
 //   };
 
 //   const resetReviewForm = () => {
@@ -197,6 +281,26 @@
 //     }
 //   };
 
+//   const labelStyle = {
+//     display: "block",
+//     marginBottom: "8px",
+//     fontSize: "14px",
+//     fontWeight: "600",
+//     color: "#111827",
+//   };
+
+//   const inputStyle = {
+//     width: "100%",
+//     padding: "12px 14px",
+//     border: "1px solid #d1d5db",
+//     borderRadius: "10px",
+//     fontSize: "15px",
+//     color: "#111827",
+//     background: "#ffffff",
+//     outline: "none",
+//     boxSizing: "border-box",
+//   };
+
 //   if (!product) {
 //     return (
 //       <div
@@ -256,63 +360,25 @@
 
 //         <div style={{ display: "grid", gap: "18px" }}>
 //           <div>
-//             <label
-//               style={{
-//                 display: "block",
-//                 marginBottom: "8px",
-//                 fontSize: "14px",
-//                 fontWeight: "600",
-//                 color: "#111827",
-//               }}
-//             >
-//               Title
-//             </label>
+//             <label style={labelStyle}>Title</label>
 //             <input
 //               placeholder="Title"
 //               value={title}
 //               onChange={(e) => setTitle(e.target.value)}
-//               style={{
-//                 width: "100%",
-//                 padding: "12px 14px",
-//                 border: "1px solid #d1d5db",
-//                 borderRadius: "10px",
-//                 fontSize: "15px",
-//                 color: "#111827",
-//                 background: "#ffffff",
-//                 outline: "none",
-//                 boxSizing: "border-box",
-//               }}
+//               style={inputStyle}
 //             />
 //           </div>
 
 //           <div>
-//             <label
-//               style={{
-//                 display: "block",
-//                 marginBottom: "8px",
-//                 fontSize: "14px",
-//                 fontWeight: "600",
-//                 color: "#111827",
-//               }}
-//             >
-//               Description
-//             </label>
+//             <label style={labelStyle}>Description</label>
 //             <textarea
 //               placeholder="Description"
 //               value={description}
 //               onChange={(e) => setDescription(e.target.value)}
 //               rows={5}
 //               style={{
-//                 width: "100%",
-//                 padding: "12px 14px",
-//                 border: "1px solid #d1d5db",
-//                 borderRadius: "10px",
-//                 fontSize: "15px",
-//                 color: "#111827",
-//                 background: "#ffffff",
-//                 outline: "none",
+//                 ...inputStyle,
 //                 resize: "vertical",
-//                 boxSizing: "border-box",
 //               }}
 //             />
 //           </div>
@@ -325,92 +391,139 @@
 //             }}
 //           >
 //             <div>
-//               <label
-//                 style={{
-//                   display: "block",
-//                   marginBottom: "8px",
-//                   fontSize: "14px",
-//                   fontWeight: "600",
-//                   color: "#111827",
-//                 }}
-//               >
-//                 Price
-//               </label>
+//               <label style={labelStyle}>Selling Price (₹)</label>
 //               <input
-//                 placeholder="Price"
+//                 type="number"
+//                 min="0"
+//                 placeholder="Selling price"
 //                 value={price}
 //                 onChange={(e) => setPrice(e.target.value)}
-//                 style={{
-//                   width: "100%",
-//                   padding: "12px 14px",
-//                   border: "1px solid #d1d5db",
-//                   borderRadius: "10px",
-//                   fontSize: "15px",
-//                   color: "#111827",
-//                   background: "#ffffff",
-//                   outline: "none",
-//                   boxSizing: "border-box",
-//                 }}
+//                 style={inputStyle}
 //               />
 //             </div>
 
 //             <div>
-//               <label
-//                 style={{
-//                   display: "block",
-//                   marginBottom: "8px",
-//                   fontSize: "14px",
-//                   fontWeight: "600",
-//                   color: "#111827",
-//                 }}
-//               >
-//                 Stock
-//               </label>
+//               <label style={labelStyle}>MRP / Original Price (₹)</label>
 //               <input
+//                 type="number"
+//                 min="0"
+//                 placeholder="MRP"
+//                 value={mrp}
+//                 onChange={(e) => setMrp(e.target.value)}
+//                 style={inputStyle}
+//               />
+//             </div>
+
+//             <div>
+//               <label style={labelStyle}>Stock</label>
+//               <input
+//                 type="number"
+//                 min="0"
 //                 placeholder="Stock"
 //                 value={stock}
 //                 onChange={(e) => setStock(e.target.value)}
-//                 style={{
-//                   width: "100%",
-//                   padding: "12px 14px",
-//                   border: "1px solid #d1d5db",
-//                   borderRadius: "10px",
-//                   fontSize: "15px",
-//                   color: "#111827",
-//                   background: "#ffffff",
-//                   outline: "none",
-//                   boxSizing: "border-box",
-//                 }}
+//                 style={inputStyle}
 //               />
 //             </div>
 //           </div>
 
-//           <div>
-//             <label
+//           <div
+//             style={{
+//               border: "1px solid #e5e7eb",
+//               borderRadius: "12px",
+//               background: "#f9fafb",
+//               padding: "14px 16px",
+//             }}
+//           >
+//             <div
 //               style={{
-//                 display: "block",
+//                 fontSize: "13px",
+//                 fontWeight: "700",
+//                 color: "#6b7280",
 //                 marginBottom: "8px",
-//                 fontSize: "14px",
-//                 fontWeight: "600",
-//                 color: "#111827",
+//                 textTransform: "uppercase",
+//                 letterSpacing: "0.04em",
 //               }}
 //             >
-//               Category
-//             </label>
+//               Price Preview
+//             </div>
+
+//             {price ? (
+//               <div>
+//                 {discountPercent > 0 ? (
+//                   <>
+//                     <div
+//                       style={{
+//                         display: "flex",
+//                         alignItems: "center",
+//                         gap: "10px",
+//                         flexWrap: "wrap",
+//                       }}
+//                     >
+//                       <span
+//                         style={{
+//                           color: "#cc0c39",
+//                           fontSize: "20px",
+//                           fontWeight: "700",
+//                         }}
+//                       >
+//                         -{discountPercent}%
+//                       </span>
+
+//                       <span
+//                         style={{
+//                           color: "#111827",
+//                           fontSize: "28px",
+//                           fontWeight: "800",
+//                         }}
+//                       >
+//                         ₹{Number(price).toLocaleString("en-IN")}
+//                       </span>
+//                     </div>
+
+//                     <div
+//                       style={{
+//                         marginTop: "6px",
+//                         fontSize: "14px",
+//                         color: "#6b7280",
+//                       }}
+//                     >
+//                       M.R.P.:{" "}
+//                       <span style={{ textDecoration: "line-through" }}>
+//                         ₹{Number(mrp).toLocaleString("en-IN")}
+//                       </span>
+//                     </div>
+//                   </>
+//                 ) : (
+//                   <div
+//                     style={{
+//                       color: "#111827",
+//                       fontSize: "28px",
+//                       fontWeight: "800",
+//                     }}
+//                   >
+//                     ₹{Number(price).toLocaleString("en-IN")}
+//                   </div>
+//                 )}
+//               </div>
+//             ) : (
+//               <div
+//                 style={{
+//                   fontSize: "14px",
+//                   color: "#6b7280",
+//                 }}
+//               >
+//                 Enter selling price and MRP to preview discount.
+//               </div>
+//             )}
+//           </div>
+
+//           <div>
+//             <label style={labelStyle}>Category</label>
 //             <select
 //               value={categoryId}
 //               onChange={(e) => setCategoryId(e.target.value)}
-//               style={{
-//                 width: "100%",
-//                 padding: "12px 14px",
-//                 border: "1px solid #d1d5db",
-//                 borderRadius: "10px",
-//                 fontSize: "15px",
-//                 color: "#111827",
-//                 background: "#ffffff",
-//                 outline: "none",
-//                 boxSizing: "border-box",
-//               }}
+//               style={inputStyle}
 //             >
 //               <option value="">Select Category</option>
 //               {categories.map((cat) => (
@@ -422,21 +535,12 @@
 //           </div>
 
 //           <div>
-//             <label
-//               style={{
-//                 display: "block",
-//                 marginBottom: "8px",
-//                 fontSize: "14px",
-//                 fontWeight: "600",
-//                 color: "#111827",
-//               }}
-//             >
-//               Upload More Images
-//             </label>
+//             <label style={labelStyle}>Upload More Images</label>
 //             <input
 //               type="file"
 //               multiple
-//               onChange={(e) => setFiles([...e.target.files])}
+//               accept="image/*,video/mp4,video/webm"
+//               onChange={(e) => setFiles(Array.from(e.target.files || []))}
 //               style={{
 //                 width: "100%",
 //                 padding: "10px 12px",
@@ -571,61 +675,21 @@
 
 //         <div style={{ display: "grid", gap: "18px" }}>
 //           <div>
-//             <label
-//               style={{
-//                 display: "block",
-//                 marginBottom: "8px",
-//                 fontSize: "14px",
-//                 fontWeight: "600",
-//                 color: "#111827",
-//               }}
-//             >
-//               Reviewer Name
-//             </label>
+//             <label style={labelStyle}>Reviewer Name</label>
 //             <input
 //               placeholder="Reviewer name"
 //               value={reviewerName}
 //               onChange={(e) => setReviewerName(e.target.value)}
-//               style={{
-//                 width: "100%",
-//                 padding: "12px 14px",
-//                 border: "1px solid #d1d5db",
-//                 borderRadius: "10px",
-//                 fontSize: "15px",
-//                 color: "#111827",
-//                 background: "#ffffff",
-//                 outline: "none",
-//                 boxSizing: "border-box",
-//               }}
+//               style={inputStyle}
 //             />
 //           </div>
 
 //           <div>
-//             <label
-//               style={{
-//                 display: "block",
-//                 marginBottom: "8px",
-//                 fontSize: "14px",
-//                 fontWeight: "600",
-//                 color: "#111827",
-//               }}
-//             >
-//               Rating
-//             </label>
+//             <label style={labelStyle}>Rating</label>
 //             <select
 //               value={rating}
 //               onChange={(e) => setRating(e.target.value)}
-//               style={{
-//                 width: "100%",
-//                 padding: "12px 14px",
-//                 border: "1px solid #d1d5db",
-//                 borderRadius: "10px",
-//                 fontSize: "15px",
-//                 color: "#111827",
-//                 background: "#ffffff",
-//                 outline: "none",
-//                 boxSizing: "border-box",
-//               }}
+//               style={inputStyle}
 //             >
 //               <option value="5">5 Star</option>
 //               <option value="4">4 Star</option>
@@ -636,33 +700,15 @@
 //           </div>
 
 //           <div>
-//             <label
-//               style={{
-//                 display: "block",
-//                 marginBottom: "8px",
-//                 fontSize: "14px",
-//                 fontWeight: "600",
-//                 color: "#111827",
-//               }}
-//             >
-//               Review Text
-//             </label>
+//             <label style={labelStyle}>Review Text</label>
 //             <textarea
 //               placeholder="Review text"
 //               value={reviewText}
 //               onChange={(e) => setReviewText(e.target.value)}
 //               rows={4}
 //               style={{
-//                 width: "100%",
-//                 padding: "12px 14px",
-//                 border: "1px solid #d1d5db",
-//                 borderRadius: "10px",
-//                 fontSize: "15px",
-//                 color: "#111827",
-//                 background: "#ffffff",
-//                 outline: "none",
+//                 ...inputStyle,
 //                 resize: "vertical",
-//                 boxSizing: "border-box",
 //               }}
 //             />
 //           </div>
@@ -829,6 +875,132 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -844,7 +1016,49 @@ import {
   updateProductReview,
   deleteProductReview,
 } from "@/features/adminProducts/adminProductThunks";
+
 import { uploadProductImages } from "@/features/products/uploadSlice";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_API_BASE ||
+  "http://localhost:8080";
+
+function getMediaUrl(item) {
+  if (!item) return "";
+
+  if (typeof item === "string") return item;
+
+  return (
+    item.imageUrl ||
+    item.mediaUrl ||
+    item.videoUrl ||
+    item.url ||
+    item.fileUrl ||
+    ""
+  );
+}
+
+function isVideoUrl(url = "") {
+  const cleanUrl = url.split("?")[0].toLowerCase();
+  return (
+    cleanUrl.endsWith(".mp4") ||
+    cleanUrl.endsWith(".webm") ||
+    cleanUrl.endsWith(".mov") ||
+    cleanUrl.endsWith(".m4v")
+  );
+}
+
+function resolveUrl(url = "") {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+
+  const base = API_BASE_URL.replace(/\/$/, "");
+  const path = url.startsWith("/") ? url : `/${url}`;
+
+  return `${base}${path}`;
+}
 
 export default function EditProductPage() {
   const dispatch = useDispatch();
@@ -898,7 +1112,9 @@ export default function EditProductPage() {
         setTitle(p.title || "");
         setDescription(p.description || "");
         setPrice(
-          p.priceInr === null || p.priceInr === undefined ? "" : String(p.priceInr)
+          p.priceInr === null || p.priceInr === undefined
+            ? ""
+            : String(p.priceInr)
         );
         setMrp(
           p.mrpInr === null || p.mrpInr === undefined ? "" : String(p.mrpInr)
@@ -952,18 +1168,22 @@ export default function EditProductPage() {
 
   const handleUpload = async () => {
     if (files.length === 0) {
-      alert("Please select image files first");
+      alert("Please select image or video files first");
       return;
     }
 
     try {
       const res = await dispatch(uploadProductImages(files)).unwrap();
-      setImages((prev) => [...prev, ...res]);
+
+      const uploadedMedia = Array.isArray(res) ? res : [res];
+
+      setImages((prev) => [...prev, ...uploadedMedia]);
       setFiles([]);
-      alert("Images uploaded successfully");
+
+      alert("Media uploaded successfully");
     } catch (err) {
       console.error(err);
-      alert("Upload failed");
+      alert(typeof err === "string" ? err : err?.message || "Upload failed");
     }
   };
 
@@ -1015,9 +1235,11 @@ export default function EditProductPage() {
         mrpInr: mrp ? Number(mrp) : null,
         stock: Number(stock),
         categoryId: Number(categoryId),
-        images: images.map((img) =>
-          typeof img === "string" ? img : img.imageUrl
-        ),
+
+        // Keeps both images and videos as URLs.
+        images: images
+          .map((item) => getMediaUrl(item))
+          .filter((url) => Boolean(url)),
       };
 
       await dispatch(updateProduct({ id: productId, data })).unwrap();
@@ -1255,97 +1477,6 @@ export default function EditProductPage() {
             </div>
           </div>
 
-          <div
-            style={{
-              border: "1px solid #e5e7eb",
-              borderRadius: "12px",
-              background: "#f9fafb",
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "13px",
-                fontWeight: "700",
-                color: "#6b7280",
-                marginBottom: "8px",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}
-            >
-              Price Preview
-            </div>
-
-            {price ? (
-              <div>
-                {discountPercent > 0 ? (
-                  <>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <span
-                        style={{
-                          color: "#cc0c39",
-                          fontSize: "20px",
-                          fontWeight: "700",
-                        }}
-                      >
-                        -{discountPercent}%
-                      </span>
-
-                      <span
-                        style={{
-                          color: "#111827",
-                          fontSize: "28px",
-                          fontWeight: "800",
-                        }}
-                      >
-                        ₹{Number(price).toLocaleString("en-IN")}
-                      </span>
-                    </div>
-
-                    <div
-                      style={{
-                        marginTop: "6px",
-                        fontSize: "14px",
-                        color: "#6b7280",
-                      }}
-                    >
-                      M.R.P.:{" "}
-                      <span style={{ textDecoration: "line-through" }}>
-                        ₹{Number(mrp).toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <div
-                    style={{
-                      color: "#111827",
-                      fontSize: "28px",
-                      fontWeight: "800",
-                    }}
-                  >
-                    ₹{Number(price).toLocaleString("en-IN")}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div
-                style={{
-                  fontSize: "14px",
-                  color: "#6b7280",
-                }}
-              >
-                Enter selling price and MRP to preview discount.
-              </div>
-            )}
-          </div>
-
           <div>
             <label style={labelStyle}>Category</label>
             <select
@@ -1363,11 +1494,11 @@ export default function EditProductPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>Upload More Images</label>
+            <label style={labelStyle}>Upload More Images / Videos</label>
             <input
               type="file"
               multiple
-              accept="image/*"
+              accept="image/*,video/mp4,video/webm,video/quicktime"
               onChange={(e) => setFiles(Array.from(e.target.files || []))}
               style={{
                 width: "100%",
@@ -1396,7 +1527,7 @@ export default function EditProductPage() {
                 cursor: "pointer",
               }}
             >
-              Upload Images
+              Upload Media
             </button>
 
             <button
@@ -1427,16 +1558,18 @@ export default function EditProductPage() {
               marginBottom: "14px",
             }}
           >
-            Images
+            Product Media
           </h3>
 
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             {images.map((img, i) => {
-              const url = typeof img === "string" ? img : img.imageUrl;
+              const rawUrl = getMediaUrl(img);
+              const url = resolveUrl(rawUrl);
+              const video = isVideoUrl(rawUrl);
 
               return (
                 <div
-                  key={i}
+                  key={`${rawUrl}-${i}`}
                   style={{
                     position: "relative",
                     border: "1px solid #e5e7eb",
@@ -1446,22 +1579,38 @@ export default function EditProductPage() {
                     boxShadow: "0 4px 14px rgba(0,0,0,0.05)",
                   }}
                 >
-                  <img
-                    src={
-                      url?.startsWith("http")
-                        ? url
-                        : `${process.env.NEXT_PUBLIC_API_BASE}${url}`
-                    }
-                    width="120"
-                    alt="Product"
-                    style={{
-                      display: "block",
-                      width: "120px",
-                      height: "120px",
-                      objectFit: "cover",
-                      borderRadius: "8px",
-                    }}
-                  />
+                  {video ? (
+                    <video
+                      src={url}
+                      width="120"
+                      height="120"
+                      controls
+                      muted
+                      playsInline
+                      style={{
+                        display: "block",
+                        width: "120px",
+                        height: "120px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        background: "#000",
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src={url}
+                      width="120"
+                      height="120"
+                      alt="Product"
+                      style={{
+                        display: "block",
+                        width: "120px",
+                        height: "120px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                      }}
+                    />
+                  )}
 
                   <button
                     onClick={() => removeImage(i)}
