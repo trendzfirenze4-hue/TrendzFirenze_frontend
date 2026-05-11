@@ -13,10 +13,13 @@ export const uploadProductImages = createAsyncThunk(
         formData.append("file", file);
 
         const res = await api.post("/api/admin/products/upload", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        //   headers: {
+        //     "Content-Type": "multipart/form-data",
+        //   },
+        // });
+
+
+        const res = await api.post("/api/admin/products/upload", formData);
 
         uploadedResults.push(res.data.imageUrl);
       }
